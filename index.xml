@@ -2,29 +2,29 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Caesar&#39;s Paperbox</title>
-    <link>https://examplesite.com/</link>
+    <link>/</link>
     <description>Recent content on Caesar&#39;s Paperbox</description>
     <image>
-      <url>https://examplesite.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
-      <link>https://examplesite.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+      <url>%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 26 Sep 2022 09:35:10 +0800</lastBuildDate><atom:link href="https://examplesite.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 26 Sep 2022 09:35:10 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>First Post</title>
-      <link>https://examplesite.com/post/first-post/</link>
+      <link>/post/first-post/</link>
       <pubDate>Mon, 26 Sep 2022 09:35:10 +0800</pubDate>
       
-      <guid>https://examplesite.com/post/first-post/</guid>
+      <guid>/post/first-post/</guid>
       <description>Title 2nd title this is a test passage about using hugo to post my blog on github.io</description>
     </item>
     
     <item>
       <title>My 1st post</title>
-      <link>https://examplesite.com/post/testpost/</link>
+      <link>/post/testpost/</link>
       <pubDate>Tue, 15 Sep 2020 11:30:03 +0000</pubDate>
       
-      <guid>https://examplesite.com/post/testpost/</guid>
+      <guid>/post/testpost/</guid>
       <description>Desc Text.</description>
     </item>
     
