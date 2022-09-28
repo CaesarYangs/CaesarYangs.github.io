@@ -28,5 +28,22 @@
       <description>Desc Text.</description>
     </item>
     
+    <item>
+      <title></title>
+      <link>/post/%E5%8F%A5%E5%AD%90%E5%88%86%E6%9E%90%E6%B3%95/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/post/%E5%8F%A5%E5%AD%90%E5%88%86%E6%9E%90%E6%B3%95/</guid>
+      <description>如何读懂一个句子
+无论一个句子写得多么复杂，只要它是正确的句子，那么它一定遵循相同的一些语法规则。 只要你按照正确的方法，认真分析，就一定能理清它的结构，从而明确句子内部各部分之间的关系，这时只要你知道这些单词和词组的意思，就一定能读懂句子。
+句子分类 按目的分类 陈述句 疑问句 祈使句 感叹句 按结构分类 简单句 并列复合句 主从复合句 简单句 即：只有一套主谓结构的句子
+简单句五大基本句型（陈述句）
+主语+谓语+宾语，简称「主谓宾」结构，例如：I love her. 主语+谓语，简称「主谓」结构，例如：I gave up. 主语+系动词+表语，简称「主系表」结构，例如：Tom is shrewd. 主语+谓语+间接宾语+直接宾语，简称「主谓+双宾语」结构，例如：I gave you a book. 主语+谓语+宾语+宾语补足语，简称「主谓宾+宾补」结构，例如：Tom viewed Jerry as a hero. 如何区分间接宾语和直接宾语？ 记住上面这个例子，I gave you a book，我给了你一本书。当我拿着书递到你手上时，我直接接触的是书，所以叫直接宾语，间接接触你，所以叫间接宾语。
+并列复合句 指若干个简单句用并列连词或表示并列的标点符号（通常是分号、冒号）连接所形成的句子。
+The girl looked at me intently, and she invited me to her wedding.
+这句话中 and 这个并列连词连接了两个不同的简单句，分别是：
+The girl looked at me intently. She invited me to her wedding.</description>
+    </item>
+    
   </channel>
 </rss>
