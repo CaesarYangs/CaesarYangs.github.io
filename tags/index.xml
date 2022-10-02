@@ -5,17 +5,53 @@
     <link>/tags/</link>
     <description>Recent content in Tags on Caesar&#39;s Paperbox</description>
     <image>
-      <url>%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
-      <link>%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+      <url>/avatar.jpeg</url>
+      <link>/avatar.jpeg</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 15 Sep 2020 11:30:03 +0000</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 02 Oct 2022 11:40:58 +0800</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>first</title>
-      <link>/tags/first/</link>
+      <title>ReadingSummary</title>
+      <link>/tags/readingsummary/</link>
+      <pubDate>Sun, 02 Oct 2022 11:40:58 +0800</pubDate>
+      
+      <guid>/tags/readingsummary/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Learning</title>
+      <link>/tags/learning/</link>
+      <pubDate>Fri, 06 May 2022 11:40:58 +0800</pubDate>
+      
+      <guid>/tags/learning/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Notes</title>
+      <link>/tags/notes/</link>
+      <pubDate>Fri, 06 May 2022 11:40:58 +0800</pubDate>
+      
+      <guid>/tags/notes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>OS</title>
+      <link>/tags/os/</link>
+      <pubDate>Fri, 06 May 2022 11:40:58 +0800</pubDate>
+      
+      <guid>/tags/os/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>second</title>
+      <link>/tags/second/</link>
       <pubDate>Tue, 15 Sep 2020 11:30:03 +0000</pubDate>
       
-      <guid>/tags/first/</guid>
+      <guid>/tags/second/</guid>
       <description></description>
     </item>
     

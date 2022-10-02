@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>ReadingSummary on Caesar&#39;s Paperbox</title>
+    <link>/tags/readingsummary/</link>
+    <description>Recent content in ReadingSummary on Caesar&#39;s Paperbox</description>
+    <image>
+      <url>/avatar.jpeg</url>
+      <link>/avatar.jpeg</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 02 Oct 2022 11:40:58 +0800</lastBuildDate><atom:link href="/tags/readingsummary/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>WeeklyReadingSum_2022W40</title>
+      <link>/post/reading/readingsum_2022w40/</link>
+      <pubDate>Sun, 02 Oct 2022 11:40:58 +0800</pubDate>
+      
+      <guid>/post/reading/readingsum_2022w40/</guid>
+      <description>本周读到的有意思的文章摘录。欢迎阅读。
+Maybe We Won’t End Up Like the Dinosaurs Author: Marina Koren
+URL: https://www.theatlantic.com/science/archive/2022/09/nasa-asteroid-deflection-test-dart/671565/
+Publication date: September 27, 2022
+The mission—known as Double Asteroid Redirection Test, or DART, for short—is the world’s first planetary-defense test. In a grander sense, this is the first time human beings have attempted to alter the orbit of another celestial body in our solar system at all. Other natural disasters may end human civilization, but now, at least, we’re one step closer to preventing the kind of calamity that ended the dinosaurs.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,28 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Caesar&#39;s Paperbox</title>
-    <link>/</link>
-    <description>Recent content on Caesar&#39;s Paperbox</description>
+    <title>OS notes on Caesar&#39;s Paperbox</title>
+    <link>/post/tech/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/</link>
+    <description>Recent content in OS notes on Caesar&#39;s Paperbox</description>
     <image>
       <url>/avatar.jpeg</url>
       <link>/avatar.jpeg</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 02 Oct 2022 11:40:58 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>WeeklyReadingSum_2022W40</title>
-      <link>/post/reading/readingsum_2022w40/</link>
-      <pubDate>Sun, 02 Oct 2022 11:40:58 +0800</pubDate>
-      
-      <guid>/post/reading/readingsum_2022w40/</guid>
-      <description>本周读到的有意思的文章摘录。欢迎阅读。
-Maybe We Won’t End Up Like the Dinosaurs Author: Marina Koren
-URL: https://www.theatlantic.com/science/archive/2022/09/nasa-asteroid-deflection-test-dart/671565/
-Publication date: September 27, 2022
-The mission—known as Double Asteroid Redirection Test, or DART, for short—is the world’s first planetary-defense test. In a grander sense, this is the first time human beings have attempted to alter the orbit of another celestial body in our solar system at all. Other natural disasters may end human civilization, but now, at least, we’re one step closer to preventing the kind of calamity that ended the dinosaurs.</description>
-    </item>
-    
+    <lastBuildDate>Fri, 06 May 2022 11:40:58 +0800</lastBuildDate><atom:link href="/post/tech/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>O5-IO系统</title>
       <link>/post/tech/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/o5-io%E7%B3%BB%E7%BB%9F/</link>
@@ -162,17 +149,6 @@ OS 的特征 操作系统是一种系统软件，但与其他的系统软件和�
 在虚拟处理器技术中，是通过多道程序设计技术，让多道程序并发执行的方法，来分时使用一个处理器的。此时，虽然只有一个处理器，但它能同时为多个用户服务，使每个终端用户都感觉有一个中央处理器（CPU)在专门为它服务。利用[[#多道批处理系统|多道程序设计技术]]，把一个物理上的 CPU 虚拟为多个逻辑上的 CPU,称为虚拟处理器。[[2 进程管理#处理机调度|处理机调度]] 存储器（内存）虚拟
 类似地，可以通过虚拟存储器技术，将一台机器的物理存储器变为虚拟存储器，以便从逻辑上来扩充存储器的容量。当然,这时用户所感觉到的内存容量是虚的。我们把用户所感觉到的存储器（实际是不存在的）称为[[3 内存管理#虚存的定义和特征|虚拟存储器]]。 IO 设备虚拟</description>
     </item>
-    
-    <item>
-      <title>My 1st post</title>
-      <link>/post/life/testpost/</link>
-      <pubDate>Tue, 15 Sep 2020 11:30:03 +0000</pubDate>
-      
-      <guid>/post/life/testpost/</guid>
-      <description>Desc Text.</description>
-    </item>
-    
-    
     
   </channel>
 </rss>
