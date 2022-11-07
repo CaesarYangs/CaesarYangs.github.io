@@ -2,6 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>/post/tech/cpp-deeper/c&#43;&#43;-deeper-1-%E5%8F%98%E9%87%8F%E5%92%8C%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B/</loc>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
+  </url><url>
     <loc>/post/reading/readingsum_2022w40/</loc>
     <lastmod>2022-10-02T11:40:58+08:00</lastmod>
   </url><url>
@@ -28,18 +31,30 @@
     <loc>/post/reading/readingsum_2022w42/</loc>
   </url><url>
     <loc>/post/</loc>
-    <lastmod>2022-10-02T11:40:58+08:00</lastmod>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
+  </url><url>
+    <loc>/post/tech/cpp-deeper/</loc>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
   </url><url>
     <loc>/</loc>
-    <lastmod>2022-10-02T11:40:58+08:00</lastmod>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
+  </url><url>
+    <loc>/tags/cpp/</loc>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
+  </url><url>
+    <loc>/tags/deeper/</loc>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
+  </url><url>
+    <loc>/tags/</loc>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
+  </url><url>
+    <loc>/post/tech/</loc>
+    <lastmod>2022-11-07T17:28:07+08:00</lastmod>
   </url><url>
     <loc>/post/reading/</loc>
     <lastmod>2022-10-02T11:40:58+08:00</lastmod>
   </url><url>
     <loc>/tags/readingsummary/</loc>
-    <lastmod>2022-10-02T11:40:58+08:00</lastmod>
-  </url><url>
-    <loc>/tags/</loc>
     <lastmod>2022-10-02T11:40:58+08:00</lastmod>
   </url><url>
     <loc>/tags/learning/</loc>
@@ -52,9 +67,6 @@
     <lastmod>2022-05-06T11:40:58+08:00</lastmod>
   </url><url>
     <loc>/post/tech/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2022-05-06T11:40:58+08:00</lastmod>
-  </url><url>
-    <loc>/post/tech/</loc>
     <lastmod>2022-05-06T11:40:58+08:00</lastmod>
   </url><url>
     <loc>/post/life/</loc>
