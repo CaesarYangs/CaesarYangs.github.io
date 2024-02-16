@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="分治算法最重要的就是如何确定好划分方式，以及划分的构造
+Theory&amp;Thinkings # 分而治之 # 分解为性质相同的子问题，应该只是规模不同
+如果性质不同怎么办？ 进行预处理，转化为性质相同的子问题 归并排序
+分治的分：不同的划分方法
+黑盒划分：归并排序，逆序对 白盒划分：快速排序 平衡子问题
+减而治之
+当分出的子问题是完全相同时，避免重复递归调用 直到某个子问题不用递归求解 直接舍弃或者使用 减是精髓 快速排序中的划分 partition非常重要
+快速归并排序 #enlighten
+思考方法：先把题目降维，然后进行处理
+递归三要素：
+递归终止条件：递归需要一个明确的临界点，程序一旦到达了这个临界点，就不用继续往下递归，防止无限递归 终止处理办法：在递归的临界点对应一种简单的情景，这种情景下，应当直接给出问题的解决方案 递归处理方法：递归问题必须可以分解为若干个规模较小、与原问题 形式相同 的子问题，这些子问题可以用 相同的思路 来解决，并且合并得到原问题答案。 递归与循环
+递归也是一种特殊的迭代，但是在迭代前不知道还要迭代多少次 递归函数一定有参数，且参数会在迭代的过程中步步逼近某个值 递归函数中一定有处理终点，而这个点就是递归出口 递归 有去有回（回到之前的栈帧上） 也就是递归这两个字的含义 循环 有去无回 分治算法基本思想
+分 — 将大规模的原问题分割成 k 个更小规模的 子问题，如果子问题的规模仍然不 够小，则再划分为 k 个“子 子”问题，如此递归地进行下去，直到子问题规模足够 小 (基础问题)，很容易求出其解为止。 治 — 求解规模足够小的基础问题。 合 — 将求出的小规模的问题的解合并为一个更大规模的问题的解，自底向上 逐步求出原来问题的解。 分治策略算法细分为三个阶段: Divide 、 Conquer 、 Combine 。 Divide 阶 段是把原问题分割成小问题， Conquer 阶段是递归处理流程， Combine 阶段 是运用小问题的答案合成出原问题的解答。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="分治算法最重要的就是如何确定好划分方式，以及划分的构造
+Theory&amp;Thinkings # 分而治之 # 分解为性质相同的子问题，应该只是规模不同
+如果性质不同怎么办？ 进行预处理，转化为性质相同的子问题 归并排序
+分治的分：不同的划分方法
+黑盒划分：归并排序，逆序对 白盒划分：快速排序 平衡子问题
+减而治之
+当分出的子问题是完全相同时，避免重复递归调用 直到某个子问题不用递归求解 直接舍弃或者使用 减是精髓 快速排序中的划分 partition非常重要
+快速归并排序 #enlighten
+思考方法：先把题目降维，然后进行处理
+递归三要素：
+递归终止条件：递归需要一个明确的临界点，程序一旦到达了这个临界点，就不用继续往下递归，防止无限递归 终止处理办法：在递归的临界点对应一种简单的情景，这种情景下，应当直接给出问题的解决方案 递归处理方法：递归问题必须可以分解为若干个规模较小、与原问题 形式相同 的子问题，这些子问题可以用 相同的思路 来解决，并且合并得到原问题答案。 递归与循环
+递归也是一种特殊的迭代，但是在迭代前不知道还要迭代多少次 递归函数一定有参数，且参数会在迭代的过程中步步逼近某个值 递归函数中一定有处理终点，而这个点就是递归出口 递归 有去有回（回到之前的栈帧上） 也就是递归这两个字的含义 循环 有去无回 分治算法基本思想
+分 — 将大规模的原问题分割成 k 个更小规模的 子问题，如果子问题的规模仍然不 够小，则再划分为 k 个“子 子”问题，如此递归地进行下去，直到子问题规模足够 小 (基础问题)，很容易求出其解为止。 治 — 求解规模足够小的基础问题。 合 — 将求出的小规模的问题的解合并为一个更大规模的问题的解，自底向上 逐步求出原来问题的解。 分治策略算法细分为三个阶段: Divide 、 Conquer 、 Combine 。 Divide 阶 段是把原问题分割成小问题， Conquer 阶段是递归处理流程， Combine 阶段 是运用小问题的答案合成出原问题的解答。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Algo/2-Divide-and-Conquer/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>2 Divide and Conquer | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle" checked />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="active">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>2 Divide and Conquer</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#theorythinkings">Theory&amp;Thinkings</a>
+      <ul>
+        <li><a href="#分而治之">分而治之</a></li>
+        <li><a href="#减而治之">减而治之</a></li>
+        <li><a href="#master-定理">Master 定理</a></li>
+      </ul>
+    </li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#stirling-数">Stirling 数</a></li>
+            <li><a href="#逆序对问题">逆序对问题</a></li>
+            <li><a href="#棋盘覆盖">棋盘覆盖</a></li>
+            <li><a href="#最近点对">最近点对</a></li>
+            <li><a href="#线性时间选择">线性时间选择</a></li>
+            <li><a href="#problem-a-集合划分">Problem A. 集合划分</a></li>
+            <li><a href="#problem-b-二叉树的后序遍历">Problem B. 二叉树的后序遍历</a></li>
+            <li><a href="#problem-c-整数的幂次方表示">Problem C. 整数的幂次方表示</a></li>
+            <li><a href="#problem-d-最近点对">Problem D. 最近点对</a></li>
+            <li><a href="#problem-e-小明的散步路径">Problem E. 小明的散步路径</a></li>
+            <li><a href="#problem-f-气球游戏">Problem F. 气球游戏</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><p><strong>分治算法最重要的就是如何确定好划分方式，以及划分的构造</strong></p>
+<h1 id="theorythinkings">
+  Theory&amp;Thinkings
+  <a class="anchor" href="#theorythinkings">#</a>
+</h1>
+<h2 id="分而治之">
+  分而治之
+  <a class="anchor" href="#%e5%88%86%e8%80%8c%e6%b2%bb%e4%b9%8b">#</a>
+</h2>
+<p>分解为性质相同的子问题，应该只是规模不同</p>
+<ul>
+<li>如果性质不同怎么办？
+<ul>
+<li>进行预处理，转化为性质相同的子问题</li>
+</ul>
+</li>
+</ul>
+<p>归并排序</p>
+<p>分治的分：不同的划分方法</p>
+<ul>
+<li>黑盒划分：归并排序，逆序对</li>
+<li>白盒划分：快速排序</li>
+</ul>
+<p>平衡子问题</p>
+<p>减而治之</p>
+<ul>
+<li>当分出的子问题是完全相同时，避免重复递归调用</li>
+<li>直到某个子问题不用递归求解</li>
+<li>直接舍弃或者使用</li>
+<li>减是精髓</li>
+</ul>
+<p>快速排序中的<strong>划分 partition</strong>非常重要</p>
+<p>快速归并排序 #enlighten</p>
+<p><strong>思考方法：先把题目降维，然后进行处理</strong></p>
+<hr>
+<p><strong>递归三要素：</strong></p>
+<ol>
+<li>递归终止条件：递归需要一个明确的临界点，程序一旦到达了这个临界点，就不用继续往下递归，防止无限递归</li>
+<li>终止处理办法：在递归的临界点对应一种简单的情景，这种情景下，应当直接给出问题的解决方案</li>
+<li>递归处理方法：递归问题必须可以分解为若干个规模较小、与原问题 形式相同 的子问题，这些子问题可以用 相同的思路 来解决，并且合并得到原问题答案。</li>
+</ol>
+<p><strong>递归与循环</strong></p>
+<ul>
+<li>递归也是一种特殊的迭代，但是在迭代前不知道还要迭代多少次</li>
+<li>递归函数一定有参数，且参数会在迭代的过程中步步逼近某个值</li>
+<li>递归函数中一定有处理终点，而这个点就是递归出口</li>
+<li>递归
+<ul>
+<li>有去有回（回到之前的栈帧上）</li>
+<li>也就是递归这两个字的含义</li>
+</ul>
+</li>
+<li>循环
+<ul>
+<li>有去无回</li>
+</ul>
+</li>
+</ul>
+<p><strong>分治算法基本思想</strong></p>
+<ul>
+<li>分 — 将大规模的原问题分割成 k 个更小规模的 子问题，如果子问题的规模仍然不 够小，则再划分为 k 个“子 子”问题，如此递归地进行下去，直到子问题规模足够 小 (基础问题)，很容易求出其解为止。</li>
+<li>治 — 求解规模足够小的基础问题。</li>
+<li>合 — 将求出的小规模的问题的解合并为一个更大规模的问题的解，自底向上 逐步求出原来问题的解。</li>
+</ul>
+<p><strong>分治策略算法细分为三个阶段: Divide 、 Conquer 、 Combine 。 Divide 阶 段是把原问题分割成小问题， Conquer 阶段是递归处理流程， Combine 阶段 是运用小问题的答案合成出原问题的解答。</strong></p>
+<p><strong>分治策略框架程序</strong></p>
+<pre tabindex="0"><code>(1) if ( | P | &lt;= n0) adhoc(P); //递归出口，用特定程序解决基础问题
+(2) divide P into smaller subinstances P1,P2,...,Pk;//分解出子问题
+(3) for(i=1,i&lt;=k,i++)
+yi = divide-and-conquer(Pi); //递归求解各子问题
+(4) return merge(y1,...,yk); //将各子问题的解合并为原问题的解 }
+</code></pre><ul>
+<li>
+<p>问题规模与递归出口：</p>
+<ul>
+<li>|P|表示问题 P 的规模，𝑛是一个预先定义的阈值，表示当问题 P 的规模不超过𝑛时，问题已 容易求解，不必要继续分解和递归调用。</li>
+<li>adhoc(P) 是分治算法中的子程序，对应治过程 (或者说 conquer)，一般是常数时间复杂 度的子函数或者子过程。</li>
+</ul>
+</li>
+<li>
+<p>划分策略：</p>
+<ul>
+<li>设计划分策略，把原问题 P 分解成 k 个规模较小的子问题，这个步骤是分治算法的基础和关键， 人们往往遵循两个原则:</li>
+<li><strong>平衡子问题原则</strong>，分割出的 k 个子问题其规模最好大致相当;</li>
+<li><strong>独立子问题原则</strong>，分割出的 k 个子问题之间重叠越少越好，最好 k 个子问题是相互独立，不存在重叠子问题。</li>
+</ul>
+</li>
+<li>
+<p>合并：</p>
+<ul>
+<li>merge 合并子程序，把 k 个子问题的解合并得到原问题的解。合并子程序因求解问题 而异，即使是同一个问题，如果第二步的划分策略不同，其合并子程序也往往不一样。</li>
+</ul>
+</li>
+</ul>
+<h2 id="减而治之">
+  减而治之
+  <a class="anchor" href="#%e5%87%8f%e8%80%8c%e6%b2%bb%e4%b9%8b">#</a>
+</h2>
+<h2 id="master-定理">
+  Master 定理
+  <a class="anchor" href="#master-%e5%ae%9a%e7%90%86">#</a>
+</h2>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_7_47_48_Screenshot%202023-12-26%20at%2007.47.46.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_7_48_11_Screenshot%202023-12-26%20at%2007.48.08.png" alt="" /></p>
+<h1 id="egs">
+  e.g.s
+  <a class="anchor" href="#egs">#</a>
+</h1>
+<h3 id="stirling-数">
+  Stirling 数
+  <a class="anchor" href="#stirling-%e6%95%b0">#</a>
+</h3>
+<pre tabindex="0"><code>n 个元素的集合{1,2,...,n }可以划分为若干个非空子集的集合。例如，当n=3 时， 集合{1，2，3}可以划分为5个不同的非空子集的集合如下:
+{ {1}，{2}，{3} } { {1，2}，{3} }
+{ {1，3}，{2} }
+{ {2，3}，{1} }
+{ {1，2，3} }
+给定正整数n 和 m，计算出n个元素的集合{1,2,...,n }可以划分为多少个不同的由 m 个非空子集构成的集合。比如上例中含有1个子集的集合有1个，2个子集的集合有3个， 3个子集的集合有1个。
+</code></pre><p>假定有𝑆(𝑛, 𝑚) 种不同方法把 n 个元素的集合划分成 m 个非空子集构成的集合， 𝑆(𝑛, 𝑚) 种不同划分方法可以分为以下两类:</p>
+<ul>
+<li>先把 n-1 个元素的集合划分成 m 个非空子集，按定义其划分数目为 𝑆(𝑛 − 1, 𝑚)， 再将剩下的一个元素插入到 m 个子集中的任意一个，最后把这两步合起来则 可构成 n 个元素集合的 m 划分，总共有𝑚 ∗ 𝑆(𝑛 − 1, 𝑚) 中划分</li>
+<li>先把 n-1 个元素的集合划分成 m-1 个子集，再将剩下的一个元素独立构造成 子集，显然，这两步合起来也可以构成有 n 个元素集合的 m 划分，总共有𝑆(𝑛 − 1, 𝑚 − 1) 种划分。</li>
+</ul>
+<p>$$𝑆(𝑛, 𝑚) = 𝑚 ∗ 𝑆(𝑛 − 1, 𝑚) + 𝑆(𝑛 − 1, 𝑚 − 1)$$</p>
+<h3 id="逆序对问题">
+  逆序对问题
+  <a class="anchor" href="#%e9%80%86%e5%ba%8f%e5%af%b9%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<p>黑盒划分典型问题</p>
+<pre tabindex="0"><code>问题描述：设𝐴[1,⋯,𝑛]是一个包含𝑛个不同非负整数的数组。如果在𝑖&lt;𝑗的情况下，有𝐴𝑖&gt;𝐴[𝑗]，则（𝐴𝑖，𝐴[𝑗]）就称为A中的一个逆序对。例如，数组（3，1，4，5，2）的“逆序对”有&lt;3,1&gt;、&lt;3,2&gt;、&lt;4,2&gt;、&lt;5,2&gt;共4个。
+</code></pre><p><strong>思考流程：</strong></p>
+<ul>
+<li>朴素方法：枚举
+<ul>
+<li>将全部的数对枚举出来，检查是否逆序</li>
+<li>时间复杂度达到指数级别</li>
+</ul>
+</li>
+<li><strong>继续思考：思考方法：降维</strong>
+<ul>
+<li>1 个元素：0 个逆序对</li>
+<li>2 个元素：比较输出 1/0</li>
+<li>大于 2 个元素：是否可以将其拆分为 1 个或 2 个元素的情况——分治思路
+<ul>
+<li>分——将整体元素分成 2 个部分</li>
+<li>治——深入两个部分探究逆序对问题（递归直到归位 base 情况）</li>
+<li><strong>合——将处理好的问题合并计数（难点）</strong>
+<ul>
+<li>分割点左侧全部逆序对</li>
+<li>分割点右侧全部逆序对</li>
+<li><strong>跨两个集合的逆序对</strong>（进一步的真正难点）
+<ul>
+<li>朴素方法：枚举——复杂度仍然为指数，没有减少搜索空间</li>
+<li><strong>排序——目的：减少比较次数（即搜索空间）</strong>
+<ul>
+<li>如何比较排序后的数组？左侧数组中从小到大比较右侧数组中的数，<code>O(n)</code> 时间生成逆序总数量</li>
+<li>随后使用双指针思路遍历选取即可</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="棋盘覆盖">
+  棋盘覆盖
+  <a class="anchor" href="#%e6%a3%8b%e7%9b%98%e8%a6%86%e7%9b%96">#</a>
+</h3>
+<pre tabindex="0"><code>在一个2k×2k个方格组成的棋盘中，恰有一个方格与其他方格不同，称该方格为特殊方格，且称该棋盘为特殊棋盘。在棋盘覆盖问题中，要用图示的4种不同形态的L型骨牌覆盖给定的特殊棋盘上除特殊方格以外的所有方格，且任何2个L型骨牌不得重叠覆盖。
+</code></pre><p><strong>思考流程：</strong></p>
+<ul>
+<li>朴素方法：枚举
+<ul>
+<li>枚举甚至都无法实现，因为变量太多，且要求不能重叠，导致无法枚举</li>
+</ul>
+</li>
+<li>进阶思考：分治
+<ul>
+<li>思考方法 - 降维
+<ul>
+<li>分解到最基础形态 - 即 2x2 方格
+<ul>
+<li>情况 1：方格内存在一个特殊点
+<ul>
+<li>直接用 4 种里的一个做匹配即可</li>
+</ul>
+</li>
+<li>情况 2：方格里没有特殊点
+<ul>
+<li>g 了——有一个空始终无法填满
+<ul>
+<li>目标：强制要求每个块内的那个不可覆盖的点组合起来，应该刚好就是 3 个方块组成的元素
+<ul>
+<li>把有特殊点的子块当作 indicator，其周围靠近的三个点设为虚拟的特殊点，围绕此展开覆盖，最后覆盖这中间三个特殊点 (或者首先)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span>  <span style="color:#a6e22e">ChessBoard</span>(<span style="color:#66d9ef">int</span> tr, <span style="color:#66d9ef">int</span> tc, <span style="color:#66d9ef">int</span> dr, <span style="color:#66d9ef">int</span> dc, <span style="color:#66d9ef">int</span> size)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (size <span style="color:#f92672">=</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>) 
+</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">fill</span>(tr, tc, dr, dc);  <span style="color:#75715e">//覆盖2×2的棋盘
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>     
+</span></span><span style="display:flex;"><span>       s <span style="color:#f92672">=</span> size<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span>;  <span style="color:#75715e">// 划分棋盘
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (dr <span style="color:#f92672">&lt;</span> tr <span style="color:#f92672">+</span> s <span style="color:#f92672">&amp;&amp;</span> dc <span style="color:#f92672">&lt;</span> tc <span style="color:#f92672">+</span> s) {  
+</span></span><span style="display:flex;"><span>         <span style="color:#a6e22e">ChessBoard</span>(tr, tc, dr, dc, s);  
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">//递归处理左上子棋盘
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         <span style="color:#a6e22e">ChessBoard</span>(tr<span style="color:#f92672">+</span>s, tc, tr<span style="color:#f92672">+</span>s, tc<span style="color:#f92672">+</span>s<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, s);  
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">//递归处理左下子棋盘
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         <span style="color:#a6e22e">ChessBoard</span>(tr, tc<span style="color:#f92672">+</span>s, tr<span style="color:#f92672">+</span>s<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, tc<span style="color:#f92672">+</span>s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, s);  
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">//递归处理右上子棋盘
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         <span style="color:#a6e22e">ChessBoard</span>(tr<span style="color:#f92672">+</span>s, tc<span style="color:#f92672">+</span>s, tr<span style="color:#f92672">+</span>s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, tc<span style="color:#f92672">+</span>s<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>, s);  
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">//递归处理右下子棋盘
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>         }
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">if</span> (dr <span style="color:#f92672">&lt;</span> tr <span style="color:#f92672">+</span> s <span style="color:#f92672">&amp;&amp;</span> dc <span style="color:#f92672">&gt;=</span> tc <span style="color:#f92672">+</span> s) { <span style="color:#960050;background-color:#1e0010">……</span> } 
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e">// 特殊方格在右上角子棋盘中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>       <span style="color:#66d9ef">if</span> (dr <span style="color:#f92672">&gt;=</span> tr <span style="color:#f92672">+</span> s <span style="color:#f92672">&amp;&amp;</span> dc <span style="color:#f92672">&lt;</span> tc <span style="color:#f92672">+</span> s) { <span style="color:#960050;background-color:#1e0010">……</span> } 
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e">// 特殊方格在左下角子棋盘中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>       <span style="color:#66d9ef">if</span> (dr <span style="color:#f92672">&gt;=</span> tr <span style="color:#f92672">+</span> s <span style="color:#f92672">&amp;&amp;</span> dc <span style="color:#f92672">&gt;=</span> tc <span style="color:#f92672">+</span> s) { <span style="color:#960050;background-color:#1e0010">……</span> } 
+</span></span><span style="display:flex;"><span>       <span style="color:#75715e">// 特殊方格在右下角子棋盘中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  }
+</span></span></code></pre></div><h3 id="最近点对">
+  最近点对
+  <a class="anchor" href="#%e6%9c%80%e8%bf%91%e7%82%b9%e5%af%b9">#</a>
+</h3>
+<pre tabindex="0"><code>任务描述：给定平面上n个点，找其中的一对点，使得在n个点组成的所有点对中，该点对间的距离最小。
+</code></pre><p><strong>思考流程：</strong></p>
+<ul>
+<li>朴素方法：枚举
+<ul>
+<li>枚举对象：全部点对；枚举过程：逐个挑选；验证：出来后比大小</li>
+<li>时间复杂度必然达到指数级别</li>
+</ul>
+</li>
+<li>继续思考：
+<ul>
+<li>思考方法 - 降维
+<ul>
+<li>一维数组情况处理方法：将点从小到大排序，逐个测量两点间距离</li>
+<li>但是对于二维情况无法操作，因为存在两个轴，无法有一个正确的排序方法</li>
+</ul>
+</li>
+<li>进阶思考方法：
+<ul>
+<li>如何使用分治策略
+<ul>
+<li>一维情况：在左侧找到最近点对，右侧找到最近点对，处理中间跨区操作点对后进行对比</li>
+<li>二维情况：左侧区域 + 右侧区域 + 跨两区域——又回到了经典的分治问题解决策略
+<ul>
+<li><strong>跨区情况如何计算最近点对？</strong>
+<ul>
+<li>朴素方法：枚举
+<ul>
+<li>时间复杂度一定还是指数级别</li>
+</ul>
+</li>
+<li>进阶思考：
+<ul>
+<li>目标：把已经计算过的内容，当前左右两侧的最近距离 d 利用起来</li>
+<li>处在中间位置的最近点对如果存在，则一定小于等于 d，否则没有必要
+<ul>
+<li>以中心分割线为界，左右两侧划分长度为 d 的可能存在区域
+<ul>
+<li>进一步压缩计算区域：假设点 p 存在，则其所搜索的区域为一个半径为 d 的半圆</li>
+<li>半圆无法方便地用程序表示，放宽条件：宽 d 长 2d 的矩形区域
+<ul>
+<li>这个矩形中最多只可能存在 6 个点——因为当前最短距离 d 的限制存在，因为一个 1/6 小矩形里如果存在两个点，其距离一定小于 d</li>
+<li>则，只需考虑左侧区域中的点扩展为这个矩形后，所覆盖的右侧 6 个点即可——大幅压缩求解空间</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="线性时间选择">
+  线性时间选择
+  <a class="anchor" href="#%e7%ba%bf%e6%80%a7%e6%97%b6%e9%97%b4%e9%80%89%e6%8b%a9">#</a>
+</h3>
+<pre tabindex="0"><code>给定线性序集中n个元素和一个整数 j，1 ≤ j ≤ n，要求找出这n个元素中第 j 小的元素。 例:求数组A[1:9] = [65, 70, 75, 80, 85, 60, 55, 50, 45]第7小元素
+partition[1:9]=[60,45,50,55,65,85,80,75,70] j = 7 k = 5 [6:9] = [85,80,75,70] j = 2
+partition[6:9]=[70,80,75,85] j = 2 k = 4 [6:8] = [70,80,75] j = 2
+partition[6:8]=[70,80,75] j = 2 k = 1 [7:8] = [80,75] j = 1
+</code></pre><ul>
+<li>普通二分查找的问题：最好情况 O(n),最坏情况 O(n^2)</li>
+</ul>
+<p><strong>线性时间选择</strong></p>
+<ul>
+<li>如果能在线性时间内找到一个划分基准，使得按这个基准所划分出的 2 个子 数组的长度都至少为原数组长度的ε倍 (0 &lt; ε &lt; 1)，那么就可以在最坏情况 下用 O(n) 时间完成选择任务。</li>
+<li>关键问题: 怎样找到一个合适的划分基准元素?</li>
+</ul>
+<h3 id="problem-a-集合划分">
+  Problem A. 集合划分
+  <a class="anchor" href="#problem-a-%e9%9b%86%e5%90%88%e5%88%92%e5%88%86">#</a>
+</h3>
+<p><strong>分治算法典型问题</strong></p>
+<pre tabindex="0"><code>#### 题目描述
+
+n个元素的集合{1,2,..., n }可以划分为若干个非空子集。例如，当n=4 时，集合{1，2，3，4}可以划分为15 个不同的非空子集如下：
+
+{{1}，{2}，{3}，{4}}，
+
+{{1，2}，{3}，{4}}，
+
+{{1，3}，{2}，{4}}，
+
+{{1，4}，{2}，{3}}，
+
+{{2，3}，{1}，{4}}，
+
+{{2，4}，{1}，{3}}，
+
+{{3，4}，{1}，{2}}，
+
+{{1，2}，{3，4}}，
+
+{{1，3}，{2，4}}，
+
+{{1，4}，{2，3}}，
+
+{{1，2，3}，{4}}，
+
+{{1，2，4}，{3}}，
+
+{{1，3，4}，{2}}，
+
+{{2，3，4}，{1}}，
+
+{{1，2，3，4}}
+
+给定正整数n，计算出n 个元素的集合{1,2,..., n }可以划分为多少个不同的非空子集。
+
+#### 输入数据
+
+多组输入(&lt;=10组数据，读入以EOF结尾) 每组一行输入一个数字，n(0&lt;n&lt;=18)
+
+#### 输出数据
+
+每组输出一行结果。
+</code></pre><ul>
+<li>一种方式是添加元素</li>
+<li>一种方式是添加集合</li>
+</ul>
+<p><code>F(n,m)</code>——在有 n 个元素的集合 m 中进行插入</p>
+<ul>
+<li>同样目的都是为了插入一个元素——<code>n-1</code></li>
+<li>不同的两种方式
+<ul>
+<li>向已有集合中添加新元素：<code>m * F(n-1,m)</code></li>
+<li>向已有结果中添加新集合：<code>1 * F(n-1,m-1)</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="problem-b-二叉树的后序遍历">
+  Problem B. 二叉树的后序遍历
+  <a class="anchor" href="#problem-b-%e4%ba%8c%e5%8f%89%e6%a0%91%e7%9a%84%e5%90%8e%e5%ba%8f%e9%81%8d%e5%8e%86">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+给你一个二叉树，按照后序遍历的顺序输出这棵树。
+
+#### 输入数据
+
+第一行一个整数 n (1≤n≤1e4) ，表示这棵树的节点数。 接下来有 n-1 行，每行有两个整数 u,v ，表示节点 u 到节点 v 有一条边，输入保证树以 1 为根，且 u 为 v 的父节点。对于一个节点的多个子节点，将更早输入的那一个子节点的视为他的左子节点。
+
+#### 输出数据
+
+输出该树的后序遍历，节点编号之间用一个空格分隔。
+</code></pre><ul>
+<li>构造树的方法——效果差，代码复杂</li>
+<li>直接通过数组对树作快速处理 2</li>
+</ul>
+<h3 id="problem-c-整数的幂次方表示">
+  Problem C. 整数的幂次方表示
+  <a class="anchor" href="#problem-c-%e6%95%b4%e6%95%b0%e7%9a%84%e5%b9%82%e6%ac%a1%e6%96%b9%e8%a1%a8%e7%a4%ba">#</a>
+</h3>
+<h3 id="problem-d-最近点对">
+  Problem D. 最近点对
+  <a class="anchor" href="#problem-d-%e6%9c%80%e8%bf%91%e7%82%b9%e5%af%b9">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+有n个坐标点，问这些点之间最近的一对点的距离是多少？
+
+#### 输入数据
+
+多组输入(&lt;=10组数据，读入以EOF结尾)。 每组第一行输入一个数字，n(1&lt;=n&lt;=100000) 表示坐标点的个数。 随后n行，为两个整数，表示对应的坐标点。
+
+#### 输出数据
+
+每组输出一行结果，保留两位有效数字
+</code></pre><h3 id="problem-e-小明的散步路径">
+  Problem E. 小明的散步路径
+  <a class="anchor" href="#problem-e-%e5%b0%8f%e6%98%8e%e7%9a%84%e6%95%a3%e6%ad%a5%e8%b7%af%e5%be%84">#</a>
+</h3>
+<p><strong>跟之前的方块问题一样，是非常标准非常漂亮的分治算法</strong></p>
+<h3 id="problem-f-气球游戏">
+  Problem F. 气球游戏
+  <a class="anchor" href="#problem-f-%e6%b0%94%e7%90%83%e6%b8%b8%e6%88%8f">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+　　刚刚今天去游乐场玩，发现了一个新的游戏项目，游戏是这样的，场上一共有 n 个气球，它们的编号是0到n-1，然后每个气球上还有一个数字，我们使用数组nums来保存这些数字。
+
+　　现在游戏要求刚刚戳破所有的气球。每当刚刚戳破一个气球i时，刚刚可以获得nums[left] * nums[i] * nums[right]个积分。这里的left和right指的是和i相邻的两个气球的序号。（注意每当刚刚戳破了气球i后，气球left和气球right就变成了相邻的气球。）
+
+　　求所能获得积分的最大值。
+
+#### 输入数据
+
+　　输入中有若干组测试样例，第一行为一个正整数T(T≤1000)，表示测试样例组数。每组测试样例包含2部分： 第一部分有一行，包含1个正整数n（0≤n≤500），第二部分为一行，有n个数，第i个数表示num[i],(0≤num[i]≤100)。
+
+#### 输出数据
+
+对每组测试数据，单独输出一行答案，表示最大的积分值
+</code></pre><p><strong>利用递归分治算法的典型：结合必要的备忘录机制用于减少搜索/计算空间</strong></p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#theorythinkings">Theory&amp;Thinkings</a>
+      <ul>
+        <li><a href="#分而治之">分而治之</a></li>
+        <li><a href="#减而治之">减而治之</a></li>
+        <li><a href="#master-定理">Master 定理</a></li>
+      </ul>
+    </li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#stirling-数">Stirling 数</a></li>
+            <li><a href="#逆序对问题">逆序对问题</a></li>
+            <li><a href="#棋盘覆盖">棋盘覆盖</a></li>
+            <li><a href="#最近点对">最近点对</a></li>
+            <li><a href="#线性时间选择">线性时间选择</a></li>
+            <li><a href="#problem-a-集合划分">Problem A. 集合划分</a></li>
+            <li><a href="#problem-b-二叉树的后序遍历">Problem B. 二叉树的后序遍历</a></li>
+            <li><a href="#problem-c-整数的幂次方表示">Problem C. 整数的幂次方表示</a></li>
+            <li><a href="#problem-d-最近点对">Problem D. 最近点对</a></li>
+            <li><a href="#problem-e-小明的散步路径">Problem E. 小明的散步路径</a></li>
+            <li><a href="#problem-f-气球游戏">Problem F. 气球游戏</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

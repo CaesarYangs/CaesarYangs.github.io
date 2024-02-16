@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="文件及文件系统的引入 # 信息存储问题及要求
+进程运行时内存空间有相应一定量的信息 进程终止时，有关信息将随之消失 一方面有关信息受到内存空间大小的限制 另一方面部分信息需要长久甚至永久保存 常常会有多个进程需要存取同样的信息 信息应当独立于进程而存在 信息存储要求 能够存储大量信息 使用信息的进程终止时，有关信息仍旧存在 支持多个进程并发存取有关信息 信息存储解决方案
+把信息以某种单元即文件的形式存储在磁盘或其他外部介质上 文件是一个具有名字的存储在磁盘上的一组相关信息的集合体，是磁盘的最小逻辑分配单位 文件系统是操作系统中负责管理和存取文件信息的软件机构 管理文件所需的数据结构 实现文件管理的系统程序 文件操作相关系统调用 ls 命令及文件类型
+ls -l hello.c -rw-rw-r-- 1 zgs zgs 561 Aug 24 07:31 hello.c d 目录 l 符号链接文件 s 套接字文件 b 块设备文件 c 字符设备文件 p 命名管道文件 - 普通文件 硬链接和软链接文件共享
+建立 DataFile.txt 的硬链接文件 ln DataFile.txt DataFileYLJw 建立 DataFile.txt 的软链接文件 ln -s DataFile.txt DataFileRLJ 删除原数据文件 DataFile.txt 硬连接依旧可行 软连接无法继续输出文件内容 lrwxrwxrwx 1 zhaigaoshou2018 zhaigaoshou2018 12 Nov 6 05:49 DataFileRLJ -&gt; DataFile.">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="文件及文件系统的引入 # 信息存储问题及要求
+进程运行时内存空间有相应一定量的信息 进程终止时，有关信息将随之消失 一方面有关信息受到内存空间大小的限制 另一方面部分信息需要长久甚至永久保存 常常会有多个进程需要存取同样的信息 信息应当独立于进程而存在 信息存储要求 能够存储大量信息 使用信息的进程终止时，有关信息仍旧存在 支持多个进程并发存取有关信息 信息存储解决方案
+把信息以某种单元即文件的形式存储在磁盘或其他外部介质上 文件是一个具有名字的存储在磁盘上的一组相关信息的集合体，是磁盘的最小逻辑分配单位 文件系统是操作系统中负责管理和存取文件信息的软件机构 管理文件所需的数据结构 实现文件管理的系统程序 文件操作相关系统调用 ls 命令及文件类型
+ls -l hello.c -rw-rw-r-- 1 zgs zgs 561 Aug 24 07:31 hello.c d 目录 l 符号链接文件 s 套接字文件 b 块设备文件 c 字符设备文件 p 命名管道文件 - 普通文件 硬链接和软链接文件共享
+建立 DataFile.txt 的硬链接文件 ln DataFile.txt DataFileYLJw 建立 DataFile.txt 的软链接文件 ln -s DataFile.txt DataFileRLJ 删除原数据文件 DataFile.txt 硬连接依旧可行 软连接无法继续输出文件内容 lrwxrwxrwx 1 zhaigaoshou2018 zhaigaoshou2018 12 Nov 6 05:49 DataFileRLJ -&gt; DataFile." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" /><meta property="article:section" content="docs" />
+
+
+
+<title>5 Linux文件管理 | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle" checked />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle" checked />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="active">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>5 Linux文件管理</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#文件及文件系统的引入">文件及文件系统的引入</a></li>
+    <li><a href="#文件基本操作与文件系统">文件基本操作与文件系统</a></li>
+    <li><a href="#文件物理结构类型">文件物理结构类型</a></li>
+    <li><a href="#虚拟文件系统">虚拟文件系统</a></li>
+    <li><a href="#目录管理及文件共享与保护">目录管理及文件共享与保护</a></li>
+    <li><a href="#文件内存映像及系统实现">文件内存映像及系统实现</a>
+      <ul>
+        <li><a href="#unixlinux-文件卷组织结构">UNIX/Linux 文件卷组织结构</a></li>
+        <li><a href="#unixlinux-文件系统数据结构">UNIX/Linux 文件系统数据结构</a></li>
+        <li><a href="#linux-文件系统信息查看命令">Linux 文件系统信息查看命令</a></li>
+        <li><a href="#linux-目录项及索引结点结构">Linux 目录项及索引结点结构</a></li>
+        <li><a href="#linux-进程控制块与文件打开表">Linux 进程控制块与文件打开表</a></li>
+        <li><a href="#linux-虚拟文件系统实现概要">Linux 虚拟文件系统实现概要</a></li>
+        <li><a href="#linux-文件操作相关系统调用">Linux 文件操作相关系统调用</a></li>
+        <li><a href="#linux-管道通信相关系统调用">Linux 管道通信相关系统调用</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="文件及文件系统的引入">
+  文件及文件系统的引入
+  <a class="anchor" href="#%e6%96%87%e4%bb%b6%e5%8f%8a%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%bc%95%e5%85%a5">#</a>
+</h1>
+<p><strong>信息存储问题及要求</strong></p>
+<ul>
+<li>进程运行时内存空间有相应一定量的信息
+<ul>
+<li>进程终止时，有关信息将随之消失</li>
+<li>一方面有关信息受到内存空间大小的限制</li>
+<li>另一方面部分信息需要长久甚至永久保存</li>
+</ul>
+</li>
+<li>常常会有多个进程需要存取同样的信息
+<ul>
+<li>信息应当独立于进程而存在</li>
+</ul>
+</li>
+<li>信息存储要求
+<ul>
+<li>能够存储大量信息</li>
+<li>使用信息的进程终止时，有关信息仍旧存在</li>
+<li>支持多个进程并发存取有关信息</li>
+</ul>
+</li>
+</ul>
+<p><strong>信息存储解决方案</strong></p>
+<ul>
+<li>把信息以某种单元即文件的形式存储在磁盘或其他外部介质上</li>
+<li>文件是一个具有名字的存储在磁盘上的一组相关信息的集合体，是磁盘的最小逻辑分配单位</li>
+<li>文件系统是操作系统中负责管理和存取文件信息的软件机构
+<ul>
+<li>管理文件所需的数据结构</li>
+<li>实现文件管理的系统程序</li>
+<li>文件操作相关系统调用</li>
+</ul>
+</li>
+</ul>
+<p><strong>ls 命令及文件类型</strong></p>
+<pre tabindex="0"><code>ls -l hello.c
+   -rw-rw-r--  1 zgs zgs      561 Aug 24 07:31 hello.c
+</code></pre><ul>
+<li>d 目录</li>
+<li>l 符号链接文件</li>
+<li>s 套接字文件</li>
+<li>b 块设备文件</li>
+<li>c 字符设备文件</li>
+<li>p 命名管道文件</li>
+<li><code>-</code> 普通文件</li>
+</ul>
+<p><strong>硬链接和软链接文件共享</strong></p>
+<ul>
+<li>建立 DataFile.txt 的硬链接文件
+<ul>
+<li><code>ln DataFile.txt DataFileYLJw</code></li>
+</ul>
+</li>
+<li>建立 DataFile.txt 的软链接文件
+<ul>
+<li><code>ln -s DataFile.txt DataFileRLJ</code></li>
+</ul>
+</li>
+<li>删除原数据文件 DataFile.txt
+<ul>
+<li>硬连接依旧可行</li>
+<li>软连接无法继续输出文件内容</li>
+</ul>
+</li>
+</ul>
+<pre tabindex="0"><code>lrwxrwxrwx 1 zhaigaoshou2018 zhaigaoshou2018 12 Nov  6 05:49 DataFileRLJ -&gt; DataFile.txt
+-rw-rw-r--  2 zhaigaoshou2018 zhaigaoshou2018   15 Nov  6 05:47 DataFile.txt
+-rw-rw-r--  2 zhaigaoshou2018 zhaigaoshou2018   15 Nov  6 05:47 DataFileYLJ
+</code></pre><h1 id="文件基本操作与文件系统">
+  文件基本操作与文件系统
+  <a class="anchor" href="#%e6%96%87%e4%bb%b6%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c%e4%b8%8e%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f">#</a>
+</h1>
+<ul>
+<li>
+<p>创建文件 (creat)</p>
+<ul>
+<li>分配空间</li>
+<li>在目录文件中创建新目录项并设置</li>
+</ul>
+</li>
+<li>
+<p>打开文件 (open)</p>
+<ul>
+<li>写文件 (write)</li>
+<li>读文件 (read)</li>
+</ul>
+</li>
+<li>
+<p>文件检索</p>
+<ul>
+<li>文件存放位置</li>
+<li>写入/读取指定信息</li>
+</ul>
+</li>
+<li>
+<p>读写指针重定位 (relocation/fseek)</p>
+<ul>
+<li>实际上是个偏移量</li>
+<li>不涉及 I/O 操作，只是将 r/w 指针定位到某个位置</li>
+</ul>
+</li>
+<li>
+<p>删除文件 (delete)</p>
+<ul>
+<li>删除目录项</li>
+<li>释放文件存储空间</li>
+</ul>
+</li>
+<li>
+<p>文件内容清空操作 (truncate)</p>
+<ul>
+<li>清除文件内容</li>
+<li>释放文件存储空间</li>
+<li>文件长度为 0</li>
+</ul>
+</li>
+</ul>
+<p>用户与外设间接口</p>
+<ul>
+<li><strong>用户可按文件名存取，可用虚拟 I/O 指令，而无需考虑文件如何存储或存储在什么地方</strong></li>
+<li>文件系统接口 = 文件操作相关系统调用 + 文件操作相关实用例程</li>
+<li>文件系统接口向用户提供的抽象元素
+<ul>
+<li>文件（file）</li>
+<li>目录（directory）</li>
+<li>文件描述符（fd，即 file descriptor）</li>
+<li>文件系统（支持多种文件系统时，需指明使用了哪种文件系统）</li>
+</ul>
+</li>
+</ul>
+<p><strong>文件系统的系统解读</strong></p>
+<ul>
+<li>统一管理文件的存储空间，实施存储空间的组织、分配与回收</li>
+<li><strong>实现文件的按名存取</strong>，实现名字空间向存储空间的映射</li>
+<li>向用户提供简单方便的使用接口，提供文件系统操作命令以及文件检索与存取操作命令</li>
+<li>实现文件信息的共享，并提供文件的保护和保密措施</li>
+<li>系统维护及向用户提供有关信息</li>
+<li>提供与 I/O 机构的统一接口</li>
+</ul>
+<p><strong>文件系统层次模型</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_47_33_202311201747627.png" alt="" /></p>
+<p><strong>磁盘、分区和文件系统</strong></p>
+<ul>
+<li>磁盘扇区为 512 字节，但输入输出则以更大的盘块为单位
+<ul>
+<li>早期 Unix 文件普遍偏小，故设置盘块大小为 1024 字节</li>
+<li>4.3BSD 文件系统：一个文件若无索引块，即由 <code>i-addr[ ] </code> 直接索引，那么该文件由两种大小的盘块组成；大块如 8KB、小块如 1KB；文件最后一块为小块大小的整数倍，其余用大块；<code>fileL ＝ n*block 大 ＋ m* block 小</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Unix/Linux 文件系统体系结构</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_49_43_202311201749748.png" alt="" /></p>
+<p><strong>UNIX 文件系统概述</strong></p>
+<ul>
+<li>文件系统特点
+<ul>
+<li>采用引入索引结点的分级树型目录组织结构</li>
+<li>文件物理结构为混合索引式文件结构</li>
+<li>采用成组链接法管理空闲盘块</li>
+<li>设立有根目录，并把文件看成字符流集合</li>
+<li>支持多种文件系统且用户接口抽象元素相同</li>
+</ul>
+</li>
+<li>文件系统资源管理
+<ul>
+<li>目录项、磁盘索引结点项及若干盘块</li>
+<li>内存索引结点项</li>
+<li>（系统打开）文件表项、用户文件描述符表项</li>
+</ul>
+</li>
+<li>打开文件的系统调用
+<ul>
+<li>fd = open(path, mode);</li>
+<li>fd 通常是一个小整数，为进程打开文件表项的指针/索引</li>
+</ul>
+</li>
+</ul>
+<p><strong>文件描述符表与文件表</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_52_14_202311201752473.png" alt="" /></p>
+<h1 id="文件物理结构类型">
+  文件物理结构类型
+  <a class="anchor" href="#%e6%96%87%e4%bb%b6%e7%89%a9%e7%90%86%e7%bb%93%e6%9e%84%e7%b1%bb%e5%9e%8b">#</a>
+</h1>
+<p><strong>文件的逻辑结构和物理结构</strong></p>
+<ul>
+<li>文件的逻辑结构
+<ul>
+<li>包括字符流式文件和记录式文件</li>
+<li>描述文件的逻辑结构时应包含对文件的存取方法的定义</li>
+</ul>
+</li>
+<li>文件的物理结构
+<ul>
+<li>连续文件</li>
+<li>链接文件</li>
+<li>索引文件</li>
+<li>散列文件</li>
+</ul>
+</li>
+</ul>
+<p><strong>文件物理结构——连续文件</strong></p>
+<ul>
+<li>文件物理结构——连续文件
+<ul>
+<li>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_44_19_202311201844291.png" alt="" /></li>
+</ul>
+</li>
+<li>文件物理结构——链接文件
+<ul>
+<li>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_44_43_202311201844264.png" alt="" /></li>
+</ul>
+</li>
+<li>文件物理结构——索引文件
+<ul>
+<li>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_45_55_202311201845060.png" alt="" /></li>
+</ul>
+</li>
+</ul>
+<p><strong>文件的结构组成</strong></p>
+<ul>
+<li>一个文件由文件属性描述和文件体组成
+<ul>
+<li>文件属性描述⬄文件控制块 FCB⬄目录项</li>
+</ul>
+</li>
+<li>Unix 内存索引结点 vnode =&gt;Linux 通用 inode</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_47_17_202311201847447.png" alt="" /></p>
+<p><strong>混合索引文件结构与寻址方式</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_47_54_202311201847570.png" alt="" /></p>
+<p><strong>混合分配方式 (UNIX 系统)</strong></p>
+<ul>
+<li>直接寻址
+<ul>
+<li>直接地址项存放对应文件数据的盘块的盘块号</li>
+<li>盘块大小 4KB、盘块号占 4B，则支持长度在 4KB×10 =  40KB 以内的文件</li>
+</ul>
+</li>
+<li>一次间接寻址
+<ul>
+<li>i.addr(10) 指向对应文件的一级索引块</li>
+<li>一级索引块可含 4KB/4B = 1K 个盘块号，故支持长度在 (4KB×1K=4MB)+40KB 以内的文件</li>
+</ul>
+</li>
+<li>多次间接寻址
+<ul>
+<li>i.addr(11)、 i.addr(12) 分别指向对应文件的两级索引块和三级索引块，所以支持文件长度可达 (4KB×1K×1K ×1K=4TB)+(4KB×1K×1K=4GB)+4MB+40KB</li>
+</ul>
+</li>
+</ul>
+<p><strong>UNIX 文件操作地址转换过程</strong></p>
+<ul>
+<li>
+<p>将字节偏移量转换为文件逻辑盘块号</p>
+<ul>
+<li>LogicBlk# = Offset / SizeOfBlk</li>
+</ul>
+</li>
+<li>
+<p>将逻辑盘块号转换为物理盘块号</p>
+<ul>
+<li>确定物理盘块号所在地址项或索引盘块</li>
+<li>确定物理盘块号所在索引盘块及位置</li>
+</ul>
+</li>
+<li>
+<p>举例说明</p>
+<ul>
+<li>Offset 9000B =&gt; LogicBlk# 8 =&gt; i.addr(8)</li>
+<li>Offset 14000B =&gt; LogicBlk# 13 =&gt; 对应 i.addr(10) 的索引盘块中的第 3 个盘块号</li>
+</ul>
+</li>
+</ul>
+<p><strong>索引结点管理</strong></p>
+<ul>
+<li>超级块
+<ul>
+<li>记录磁盘盘块和磁盘索引结点使用情况</li>
+<li>含空闲盘块号栈、空闲磁盘索引结点号栈及相应数目与锁字段、修改标志与时间等</li>
+</ul>
+</li>
+<li>磁盘索引结点分配与回收
+<ul>
+<li>分配过程 ialloc</li>
+<li>回收过程 ifree</li>
+</ul>
+</li>
+<li>内存索引结点分配与回收
+<ul>
+<li>分配过程 iget</li>
+<li>回收过程 iput</li>
+</ul>
+</li>
+</ul>
+<p><strong>UNIX 文件卷组织结构</strong></p>
+<ul>
+<li>系统引导块 0#
+<ul>
+<li>用于系统引导或空闲</li>
+</ul>
+</li>
+<li>超级块 1#
+<ul>
+<li>文件系统结构信息 (盘块及磁盘索引结点)</li>
+</ul>
+</li>
+<li>磁盘索引结点块 2# ~ K#
+<ul>
+<li>存放磁盘索引结点</li>
+</ul>
+</li>
+<li>文件数据块 (K+1)# ~ N#
+<ul>
+<li>存放文件数据</li>
+</ul>
+</li>
+</ul>
+<pre tabindex="0"><code>假设盘块大小为1KB，索引结点占64字节，则讲索引结
+点应位于的物理盘块号为：
+i*64B/1KB + 2 = [i/16](向下取整) + 2
+</code></pre><h1 id="虚拟文件系统">
+  虚拟文件系统
+  <a class="anchor" href="#%e8%99%9a%e6%8b%9f%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f">#</a>
+</h1>
+<p><strong>Linux VFS</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_19_3_41_202311201903451.png" alt="" /></p>
+<p><strong>Linux VFS 实现机制</strong></p>
+<p>面向对象的框架</p>
+<ul>
+<li>基于 C 语言及其结构体类型实现</li>
+<li>每个对象包括数据及指向数据操作功能函数的指针两部分组成</li>
+</ul>
+<p>Linux VFS 主要对象类型</p>
+<ul>
+<li><strong>超级块对象</strong>：表示特定挂载的文件系统
+<ul>
+<li>描述了特定文件系统的信息
+<ul>
+<li>挂载文件系统的设备、文件系统基本块大小、脏标志、文件系统类型、访问权限、指向文件系统目录根的指针、已打开文件列表、用于控制文件系统的信号量、超级块操作功能函数指针列表</li>
+</ul>
+</li>
+<li>通常对应存放在磁盘上特定扇区的文件系统超级块或文件系统控制块</li>
+<li><code>read_inode、write_inode、put_inode、delete_inode、notify_change、put_super、write_super、statfs、remount_fs、clear_inode</code></li>
+</ul>
+</li>
+<li><strong>索引结点对象</strong>：表示特定文件
+<ul>
+<li>描述了每个文件的除文件名和文件所含实际内容之外的所有关联信息</li>
+<li>基本信息组成
+<ul>
+<li>所有者、用户组、访问权限、文件访问时间、所含数据量多少、链接数、索引结点操作功能函数指针列表</li>
+<li>create：为普通文件创建索引结点以关联某目录的目录项对象</li>
+<li>lookup：搜索目录以查找对应文件的索引结点</li>
+<li>mkdir：创建新的目录型索引结点以关联某目录的目录项对象</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>目录项对象</strong>：表示特定的目录项
+<ul>
+<li>描述了文件路径中的特定部件，可为目录名、也可为文件名
+<ul>
+<li>可用于目录项缓冲中以方便对文件和目录的访问</li>
+</ul>
+</li>
+<li>基本信息组成
+<ul>
+<li>指向索引结点和超级块的指针、指向父目录项的指针、指向各子目录项的指针</li>
+<li><code>d_hash、d_compare、d_delete、d_iput、d_dname、d_release、d_init</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>文件对象</strong>：表示与某进程关联的一个打开的文件
+<ul>
+<li>描述了进程打开的一个文件
+<ul>
+<li>该对象在执行 open() 系统调用时被创建，在执行 close() 系统调用时被销毁</li>
+</ul>
+</li>
+<li>基本信息组成
+<ul>
+<li>与文件关联的目录项对象、包含对应文件的文件系统、文件对象引用计数、用户的用户标识符、用户的组标识符、文件操作指针、文件对象操作功能函数指针列表</li>
+<li><code>read、write、open、release、lock</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="目录管理及文件共享与保护">
+  目录管理及文件共享与保护
+  <a class="anchor" href="#%e7%9b%ae%e5%bd%95%e7%ae%a1%e7%90%86%e5%8f%8a%e6%96%87%e4%bb%b6%e5%85%b1%e4%ba%ab%e4%b8%8e%e4%bf%9d%e6%8a%a4">#</a>
+</h1>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_19_7_46_202311201907786.png" alt="" /></p>
+<p>目录文件由对应目录下所有文件的目录项组成</p>
+<p>文件控制块 = 目录项（文件名 +i 结点编号）+ i-node</p>
+<p><strong>特殊目录及路径名</strong></p>
+<ul>
+<li>根目录
+<ul>
+<li>目录层次结构最顶层；无父目录；由根用户拥有</li>
+</ul>
+</li>
+<li>主目录（缩写方式“~”）
+<ul>
+<li>用户根目录、登陆时进入；由系统管理员创建</li>
+</ul>
+</li>
+<li>工作目录（缩写方式“.”）
+<ul>
+<li>当前目录，是用户会话过程所处的目录</li>
+</ul>
+</li>
+<li>绝对路径名与相对路径名
+<ul>
+<li>link 机制 =&gt; 一个文件可以对应多个绝对路径名</li>
+<li>文件合法命名规则</li>
+<li>文件操作时通配符：<code>“?”、“[…]”、“*”</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>目录管理</strong></p>
+<ul>
+<li>构造目录过程
+<ul>
+<li>creat =&gt; makenode ( ialloc =&gt; wdir )</li>
+</ul>
+</li>
+<li>删除目录过程
+<ul>
+<li>link &amp; unlink</li>
+</ul>
+</li>
+<li>检索目录过程 namei
+<ul>
+<li>根据指定路径名顺序搜索各级目录</li>
+<li>任一目录文件所有盘块均须查找</li>
+<li>找到对应目录文件名后，应继续调入其盘块</li>
+<li>检索成功与失败判断</li>
+</ul>
+</li>
+</ul>
+<p>文件共享 - 绕弯路法</p>
+<p>基于基本文件目录实现文件共享 ext2</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_19_10_0_202311201910495.png" alt="" /></p>
+<p><strong>文件保护</strong></p>
+<ul>
+<li>
+<p>指根据不同的用户或进程对文件进行存取权限控制和保密控制</p>
+<ul>
+<li>支持合法用户执行所授权操作</li>
+<li>禁止用户执行非授权操作</li>
+<li>防止冒充其它用户非法存取文件</li>
+<li>防止合法用户误操作/错误使用文件</li>
+</ul>
+</li>
+<li>
+<p>关键在于访问控制描述及检查验证机制</p>
+<ul>
+<li>存放位置（集中专区、基本文件目录表项）</li>
+<li>访问控制矩阵或其简化</li>
+</ul>
+</li>
+</ul>
+<p><strong>访问矩阵的简化策略</strong></p>
+<ul>
+<li>必要性与可行性
+<ul>
+<li>访问矩阵存储开销及其稀疏性特征</li>
+</ul>
+</li>
+<li>简化对策
+<ul>
+<li>访问控制表</li>
+<li>访问权限表</li>
+<li>兼有式实现机制</li>
+</ul>
+</li>
+<li>横向级别
+<ul>
+<li>文件主，同组用户，其他用户</li>
+</ul>
+</li>
+</ul>
+<h1 id="文件内存映像及系统实现">
+  文件内存映像及系统实现
+  <a class="anchor" href="#%e6%96%87%e4%bb%b6%e5%86%85%e5%ad%98%e6%98%a0%e5%83%8f%e5%8f%8a%e7%b3%bb%e7%bb%9f%e5%ae%9e%e7%8e%b0">#</a>
+</h1>
+<h2 id="unixlinux-文件卷组织结构">
+  UNIX/Linux 文件卷组织结构
+  <a class="anchor" href="#unixlinux-%e6%96%87%e4%bb%b6%e5%8d%b7%e7%bb%84%e7%bb%87%e7%bb%93%e6%9e%84">#</a>
+</h2>
+<ul>
+<li>系统引导块 0#
+<ul>
+<li>用于系统引导或空闲</li>
+</ul>
+</li>
+<li>超级块 1#【struct super_block】
+<ul>
+<li>文件系统结构信息（分区总容量、空闲盘块数及索引结点数等）</li>
+</ul>
+</li>
+<li>磁盘索引结点块区 2# ~ K#
+<ul>
+<li>存放磁盘索引结点【struct ext2_inode】</li>
+</ul>
+</li>
+<li>文件数据块区 (K+1)# ~ N#
+<ul>
+<li>存放文件数据</li>
+</ul>
+</li>
+</ul>
+<h2 id="unixlinux-文件系统数据结构">
+  UNIX/Linux 文件系统数据结构
+  <a class="anchor" href="#unixlinux-%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84">#</a>
+</h2>
+<p><strong>UNIX 超级块结构 filsys</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> filsys
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>isize;		 <span style="color:#75715e">//inode区占用盘块数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>fsize;		 <span style="color:#75715e">//磁盘块数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>nfree;		 <span style="color:#75715e">//直接管理的一般存储盘块空闲块数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>free[<span style="color:#ae81ff">100</span>];		 <span style="color:#75715e">//空闲盘块索引表暨空闲盘块号栈
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>ninode;		 <span style="color:#75715e">//直接管理的空闲索引结点inode数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>inode[<span style="color:#ae81ff">100</span>];	 <span style="color:#75715e">//空闲索引结点inode的索引表暨空闲索引结点号栈
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">char</span> s<span style="color:#f92672">-</span>flock;		 <span style="color:#75715e">//空闲盘块号栈的上锁标志
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">char</span> s<span style="color:#f92672">-</span>ilock;		 <span style="color:#75715e">//空闲索引结点号栈的上锁标志
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">char</span> sfmod; 		<span style="color:#75715e">//本信息块已被修改标志
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">char</span> s<span style="color:#f92672">-</span>ronly;		 <span style="color:#75715e">//本文件系统只能读出的标志
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> s<span style="color:#f92672">-</span>time[<span style="color:#ae81ff">2</span>];		 <span style="color:#75715e">//最近一次更新时间
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> pad[<span style="color:#ae81ff">50</span>];
+</span></span><span style="display:flex;"><span>}; 
+</span></span></code></pre></div><h2 id="linux-文件系统信息查看命令">
+  Linux 文件系统信息查看命令
+  <a class="anchor" href="#linux-%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e4%bf%a1%e6%81%af%e6%9f%a5%e7%9c%8b%e5%91%bd%e4%bb%a4">#</a>
+</h2>
+<p><code>mount</code></p>
+<p>
+  <a href="https://docs.google.com/presentation/d/1ZOpxJrTYBMp1X5IJ__-1ehlHWFbhpj5d_Nox1HDstWs/edit#slide=id.p19"><strong>文件系统信息查看命令2-2B</strong>——考试着重考计算</a></p>
+<pre tabindex="0"><code>8192*256/4096
+= 2^13 * 2^8 / 2^12
+= 2^9
+= 512
+</code></pre><pre tabindex="0"><code>盘块组数：
+12M/32768
+= 12*2^20 / 2^15
+= 12*2^5
+= 384
+</code></pre><h2 id="linux-目录项及索引结点结构">
+  Linux 目录项及索引结点结构
+  <a class="anchor" href="#linux-%e7%9b%ae%e5%bd%95%e9%a1%b9%e5%8f%8a%e7%b4%a2%e5%bc%95%e7%bb%93%e7%82%b9%e7%bb%93%e6%9e%84">#</a>
+</h2>
+<ul>
+<li>目录项【struct dentry】
+<ul>
+<li>文件名、索引结点指针</li>
+</ul>
+</li>
+<li>外存索引结点【struct ext2_inode】
+<ul>
+<li>文件主标识符、存取权限、访问时间、链接计数、物理盘块数、物理盘块号数组（混合索引结构）</li>
+</ul>
+</li>
+<li>内存索引结点
+<ul>
+<li>存取权限、访问时间、设备号、等等【struct inode】</li>
+<li>外存索引结点的内容【struct ext2_inode_info】</li>
+</ul>
+</li>
+</ul>
+<h2 id="linux-进程控制块与文件打开表">
+  Linux 进程控制块与文件打开表
+  <a class="anchor" href="#linux-%e8%bf%9b%e7%a8%8b%e6%8e%a7%e5%88%b6%e5%9d%97%e4%b8%8e%e6%96%87%e4%bb%b6%e6%89%93%e5%bc%80%e8%a1%a8">#</a>
+</h2>
+<p>进程控制块【struct task_struct】</p>
+<ul>
+<li>文件打开表指针、……</li>
+</ul>
+<p>文件打开表【struct files_struct】</p>
+<ul>
+<li>文件描述符表、文件描述符表指针、文件控制块指针数组、…&hellip;</li>
+</ul>
+<p>文件描述符表【 struct fd_struct】</p>
+<ul>
+<li>文件控制块二级指针</li>
+</ul>
+<p>文件控制块【 struct file】</p>
+<ul>
+<li>文件名、索引结点指针、存取权限、文件读写指针、……</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//zgs/linux-4.8.8/include/linux/sched.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//进程控制块
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> task_struct {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">long</span> state;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">atomic_t</span> usage;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> flags;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> ptrace;
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> fs_struct <span style="color:#f92672">*</span>fs;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> files_struct <span style="color:#f92672">*</span>files;
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//zgs/linux-4.8.8/include/linux/fdtable.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//每进程文件打开表
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> files_struct {
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> fdtable __rcu <span style="color:#f92672">*</span>fdt;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> fdtable fdtab;
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> next_fd;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> close_on_exec_init[<span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> open_fds_init[<span style="color:#ae81ff">1</span>];	
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> full_fds_bits_init[<span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> file __rcu <span style="color:#f92672">*</span> fd_array[NR_OPEN_DEFAULT];
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//zgs/linux-4.8.8/include/linux/fdtable.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//文件描述符表
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> fdtable {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> max_fds;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> file __rcu <span style="color:#f92672">**</span>fd; 
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>close_on_exec;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>open_fds;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>full_fds_bits;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> rcu_head rcu;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//zgs/linux-4.8.8/include/linux/fs.h //文件控制块结构
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> file {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">union</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">struct</span> llist_node	fu_llist;
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">struct</span> rcu_head 	fu_rcuhead;
+</span></span><span style="display:flex;"><span>	} f_u;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> path		f_path;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> inode		<span style="color:#f92672">*</span>f_inode;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">struct</span> file_operations	<span style="color:#f92672">*</span>f_op;
+</span></span><span style="display:flex;"><span> 	<span style="color:#66d9ef">spinlock_t</span>		f_lock;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">atomic_long_t</span>		f_count;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> 		f_flags;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">fmode_t</span>			f_mode;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> mutex		f_pos_lock;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">loff_t</span>			f_pos;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> fown_struct	f_owner;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">struct</span> cred	<span style="color:#f92672">*</span>f_cred;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> file_ra_state	f_ra;
+</span></span><span style="display:flex;"><span>	u64			f_version;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_SECURITY
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">void</span>			<span style="color:#f92672">*</span>f_security;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">struct</span> address_space	<span style="color:#f92672">*</span>f_mapping;
+</span></span><span style="display:flex;"><span>} <span style="color:#a6e22e">__attribute__</span>((<span style="color:#a6e22e">aligned</span>(<span style="color:#ae81ff">4</span>)));
+</span></span></code></pre></div><h2 id="linux-虚拟文件系统实现概要">
+  Linux 虚拟文件系统实现概要
+  <a class="anchor" href="#linux-%e8%99%9a%e6%8b%9f%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%ae%9e%e7%8e%b0%e6%a6%82%e8%a6%81">#</a>
+</h2>
+<p>基于 C 的面向对象实现方法</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_20_48_34_202311202048966.png" alt="" /></p>
+<h2 id="linux-文件操作相关系统调用">
+  Linux 文件操作相关系统调用
+  <a class="anchor" href="#linux-%e6%96%87%e4%bb%b6%e6%93%8d%e4%bd%9c%e7%9b%b8%e5%85%b3%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8">#</a>
+</h2>
+<p><strong>文件创建系统调用例程</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>creatProg.c
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/stat.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;fcntl.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> fd <span style="color:#f92672">=</span> <span style="color:#a6e22e">creat</span>(<span style="color:#e6db74">&#34;FileCreated.txt&#34;</span>, <span style="color:#ae81ff">0777</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//文件FileCreated.txt存取权限：-rwxrwxr-x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// &lt;= 0777 &amp; ~0002
+</span></span></span></code></pre></div><p>creat 系统调用基本用法</p>
+<ul>
+<li>int creat(const char *pathName, mode_t mode);</li>
+<li>返回值为文件描述符 fd（一般 &gt;=3；失败 -1）</li>
+<li>mode 为所创建文件的存取权限期望设置</li>
+</ul>
+<p>文件实际的存取权限 = (~mask &amp; mode)</p>
+<ul>
+<li>mask 是由 umask 命令规定的文件掩码</li>
+<li>mode 一共 12 个二进制位，前三位分别表示 SUID（设置用户标识符位）、SGID（设置用户组标识符位）、sticky（粘附位）</li>
+<li>适用于特殊可执行文件（譬如密码修改程序/usr/bin/passwd）针对非授权用户临时提权执行的场合。若对文件设置了 SUID 或 SGID，则运行此文件的进程将拥有与文件所有者/属组相同的操作权限</li>
+</ul>
+<p>进程的真实/有效用户标识符</p>
+<ul>
+<li>进程控制块</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> task_struct {
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">struct</span> cred __rcu <span style="color:#f92672">*</span>real_cred;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">struct</span> cred __rcu <span style="color:#f92672">*</span>cred;
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">……</span> 
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> nsproxy <span style="color:#f92672">*</span>nsproxy;
+</span></span><span style="display:flex;"><span> <span style="color:#960050;background-color:#1e0010">……</span>
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><ul>
+<li>容器式轻量级虚拟化技术
+<ul>
+<li><strong>基于命名空间来隔离资源</strong></li>
+</ul>
+</li>
+<li>进程用户身份证书
+<ul>
+<li>
+  <a href="https://xz.aliyun.com/t/12535">浅谈linux suid提权 - 先知社区</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> cred {
+</span></span><span style="display:flex;"><span> ......
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kuid_t</span>	uid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kgid_t</span>	gid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kuid_t</span>	suid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kgid_t</span>	sgid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kuid_t</span>	euid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kgid_t</span>	egid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kuid_t</span>	fsuid;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">kgid_t</span>	fsgid;
+</span></span><span style="display:flex;"><span> ......
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> user_struct <span style="color:#f92672">*</span>user;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> user_namespace <span style="color:#f92672">*</span>user_ns;  
+</span></span><span style="display:flex;"><span> ......
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p><strong>umask 命令及使用效果</strong></p>
+<ul>
+<li>无参方式用于显示当前掩码
+<ul>
+<li>一个三位八进制数</li>
+<li>加选项 -S 则显示创建后所取得的操作权限</li>
+</ul>
+</li>
+<li>有参方式用于设置掩码
+<ul>
+<li>umask [三位八进制数]</li>
+</ul>
+</li>
+<li>缺省未指定存取权限下的掩码效果
+<ul>
+<li>所创建目录（mkdir）：~mask</li>
+<li>所创建文件（touch）：~mask 并移除所有执行权</li>
+</ul>
+</li>
+</ul>
+<p><strong>文件打开/关闭 - 系统调用</strong></p>
+<ul>
+<li>关于文件打开的系统调用
+<ul>
+<li>存取模式：O_RDONLY、O_WRONLY、O_RDWR</li>
+<li>文件创建标志：O_CLOEXEC、O_DIRECTORY、O_CREAT、O_EXCL、O_NOCTTY、O_NOFOLLOW、O_TMPFILE、O_TRUNC</li>
+<li>文件状态标志：O_APPEND</li>
+<li>没有指定任何模式，文件创建采用缺省存取模式，即 110 100 100 000</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/stat.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;fcntl.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pathname, <span style="color:#66d9ef">int</span> flags);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">open</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pathname, <span style="color:#66d9ef">int</span> flags, <span style="color:#66d9ef">mode_t</span> mode);
+</span></span></code></pre></div><ul>
+<li>关于文件关闭的系统调用
+<ul>
+<li>如果文件不存在，创建该文件并使用 mode 参数来限定文件的实际访问权限： <code>~umask &amp; mode</code></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">close</span>(<span style="color:#66d9ef">int</span> fd);
+</span></span></code></pre></div><p><strong>文件硬链接 - 系统调用</strong></p>
+<ul>
+<li>关于文件硬链接的系统调用</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">link</span>(<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pathnameS, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pathnameD);
+</span></span></code></pre></div><ul>
+<li>关于文件链接移除的系统调用</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">unlink</span>(<span style="color:#66d9ef">int</span> fd);
+</span></span></code></pre></div><p><strong>关于文件读/写的系统调用</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">ssize_t</span> <span style="color:#a6e22e">read</span>(<span style="color:#66d9ef">int</span> fd, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>buf, <span style="color:#66d9ef">size_t</span> count);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">ssize_t</span> <span style="color:#a6e22e">write</span>(<span style="color:#66d9ef">int</span> fd, <span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>buf, <span style="color:#66d9ef">size_t</span> count);
+</span></span></code></pre></div><p><strong>文件读写指针移动 - 系统调用</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/types.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">off_t</span> <span style="color:#a6e22e">lseek</span>(<span style="color:#66d9ef">int</span> fd, <span style="color:#66d9ef">off_t</span> offset, <span style="color:#66d9ef">int</span> whence);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>SEEK_SET  <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>SEEK_CUR  <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>SEEK_END  <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div><h2 id="linux-管道通信相关系统调用">
+  Linux 管道通信相关系统调用
+  <a class="anchor" href="#linux-%e7%ae%a1%e9%81%93%e9%80%9a%e4%bf%a1%e7%9b%b8%e5%85%b3%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8">#</a>
+</h2>
+<p><strong>UNIX/Linux 管道通信</strong></p>
+<ul>
+<li>
+<p>UNIX 提供的进程通信方式</p>
+<ul>
+<li>核心态进程之间：使用 sleep/wakeup 实现同步</li>
+<li>同一用户的进程之间：使用信号量 (P/V)、消息缓冲区、邮箱、共享存储区实现进程间通信</li>
+<li>父子进程之间：通过系统调用 wait/exit 实现同步</li>
+<li>任意两个进程之间：管道提供大量信息传输同步</li>
+</ul>
+</li>
+<li>
+<p><strong>管道通信</strong></p>
+<ul>
+<li>有名管道：不同进程间，使用系统命令 mknod</li>
+<li>无名管道：父/子进程之间，使用系统调用 pipe(fd)</li>
+<li>
+  <a href="https://blog.csdn.net/qq_36016407/article/details/53818280">管道通信：有名管道（FIFO） 和 无名管道（pipe）-CSDN博客</a></li>
+</ul>
+</li>
+</ul>
+<p><strong>系统调用 pipe 及系统命令 mknod</strong></p>
+<ul>
+<li>用于创建无名管道的系统调用</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">pipe</span>(<span style="color:#66d9ef">int</span> pipefd[<span style="color:#ae81ff">2</span>]);
+</span></span><span style="display:flex;"><span>pipefd[<span style="color:#ae81ff">0</span>]<span style="color:#960050;background-color:#1e0010">用于读管道，</span>pipefd[<span style="color:#ae81ff">1</span>]<span style="color:#960050;background-color:#1e0010">用于写管道</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">成功返回</span><span style="color:#ae81ff">0</span><span style="color:#960050;background-color:#1e0010">，出错返回</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>
+</span></span></code></pre></div><ul>
+<li>用于创建管道文件的系统命令
+<ul>
+<li>mknod 用于创建字符设备、块设备等特殊文件；p 则指定其创建 FIFO 管道文件。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>mknod <span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">管道文件名</span><span style="color:#f92672">&gt;</span> p
+</span></span><span style="display:flex;"><span>mknod zgsPipe p
+</span></span></code></pre></div><ul>
+<li>管道文件读写同步与互斥
+<ul>
+<li>为了协调双方的通信，管道通信机制必须提供同步、互斥和判断对方是否存在等三方面的能力</li>
+<li>从原理上讲，进程之间通信如果使用同一文件描述符，通信过程应由用户协调；但如果使用两个文件描述符，则通信过程可由系统协调</li>
+</ul>
+</li>
+</ul>
+<p>
+  <a href="https://juejin.cn/post/7076957431539957767">0777文件权限的解释 - 掘金</a></p>
+<p>
+  <a href="https://blog.csdn.net/takashi77/article/details/108245717">关于linux下0666和0777权限所代表的意思_权限0777-CSDN博客</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//有名管道例程
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;fcntl.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;limits.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() 
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> zPipeName[<span style="color:#ae81ff">10</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;zgs-pipe&#34;</span>;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> zFileName[<span style="color:#ae81ff">15</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;DataFile.txt&#34;</span>;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> buf[PIPE_BUF <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> fdPipe, fdData, zRead, zWrite, zSend <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">access</span>(zPipeName, F_OK) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span> {<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">mkfifo</span> (zPipeName, S_IFIFO<span style="color:#f92672">|</span><span style="color:#ae81ff">0666</span>) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>   <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Failed to create pipe[%s] by mkfifo()!</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, zPipeName);
+</span></span><span style="display:flex;"><span>   <span style="color:#a6e22e">exit</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span> }}
+</span></span><span style="display:flex;"><span>fdPipe <span style="color:#f92672">=</span> <span style="color:#a6e22e">open</span>(zPipeName, O_WRONLY);
+</span></span><span style="display:flex;"><span> fdData <span style="color:#f92672">=</span> <span style="color:#a6e22e">open</span>(zFileName, O_RDONLY);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Process[%d] open pipe[%s] in WriteOnly mode</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>(), zPipeName);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> (fdPipe<span style="color:#f92672">!=-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">&amp;&amp;</span> fdData<span style="color:#f92672">!=-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span> {<span style="color:#66d9ef">while</span> ((zRead <span style="color:#f92672">=</span> <span style="color:#a6e22e">read</span>(fdData, buf, PIPE_BUF))<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>  {buf[zRead] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">if</span> ((zWrite <span style="color:#f92672">=</span> <span style="color:#a6e22e">write</span>(fdPipe, buf, zRead))<span style="color:#f92672">==-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>   {<span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Failed to write pipe[%s]!</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, zPipeName);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">exit</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>   }
+</span></span><span style="display:flex;"><span>   zSend <span style="color:#f92672">+=</span> zWrite;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">close</span>(fdPipe);   <span style="color:#a6e22e">close</span>(fdData);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Process[%d] finished writting %d bytes.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>(), zSend);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() 
+</span></span><span style="display:flex;"><span>{<span style="color:#66d9ef">char</span> zPipeName[<span style="color:#ae81ff">10</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;zgs-pipe&#34;</span>;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> buf[PIPE_BUF <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>];
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> fdPipe, zRead, zReceive <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">memset</span>(buf, <span style="color:#e6db74">&#39;\0&#39;</span>, <span style="color:#66d9ef">sizeof</span>(buf));
+</span></span><span style="display:flex;"><span> fdPipe <span style="color:#f92672">=</span> <span style="color:#a6e22e">open</span>(zPipeName, O_RDONLY);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Process[%d] open pipe[%s] in ReadOnly mode</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>(), zPipeName);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;The following are contents that Process[%d] have read:</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>());
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> (fdPipe<span style="color:#f92672">!=-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">while</span> ((zRead <span style="color:#f92672">=</span> <span style="color:#a6e22e">read</span>(fdPipe, buf, PIPE_BUF))<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>  {   buf[zRead] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\0&#39;</span>;    <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;%s&#34;</span>, buf);    zReceive <span style="color:#f92672">+=</span> zRead;   }
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">close</span>(fdPipe);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;Process[%d] finished reading %d bytes.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>(), zReceive);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#文件及文件系统的引入">文件及文件系统的引入</a></li>
+    <li><a href="#文件基本操作与文件系统">文件基本操作与文件系统</a></li>
+    <li><a href="#文件物理结构类型">文件物理结构类型</a></li>
+    <li><a href="#虚拟文件系统">虚拟文件系统</a></li>
+    <li><a href="#目录管理及文件共享与保护">目录管理及文件共享与保护</a></li>
+    <li><a href="#文件内存映像及系统实现">文件内存映像及系统实现</a>
+      <ul>
+        <li><a href="#unixlinux-文件卷组织结构">UNIX/Linux 文件卷组织结构</a></li>
+        <li><a href="#unixlinux-文件系统数据结构">UNIX/Linux 文件系统数据结构</a></li>
+        <li><a href="#linux-文件系统信息查看命令">Linux 文件系统信息查看命令</a></li>
+        <li><a href="#linux-目录项及索引结点结构">Linux 目录项及索引结点结构</a></li>
+        <li><a href="#linux-进程控制块与文件打开表">Linux 进程控制块与文件打开表</a></li>
+        <li><a href="#linux-虚拟文件系统实现概要">Linux 虚拟文件系统实现概要</a></li>
+        <li><a href="#linux-文件操作相关系统调用">Linux 文件操作相关系统调用</a></li>
+        <li><a href="#linux-管道通信相关系统调用">Linux 管道通信相关系统调用</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

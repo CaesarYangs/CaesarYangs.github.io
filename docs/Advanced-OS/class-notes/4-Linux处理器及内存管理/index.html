@@ -1,0 +1,2122 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Linux 进程/线程管理控制 # 进程与线程 # 为什么要引入进程？
+单道环境 =&gt; 多道环境 单道环境及计算机系统各类资源的利用率 多道环境及计算机系统资源利用率的提高 计算机不同部件成本与运行速度的差异性、计算机处理任务本身所需操作部件的差异性以及由此导致的计算机不同部件即资源利用的不平衡性 通过多道程序的并发执行（支持） 实现计算机系统资源利用效率的最大化 引入进程概念（由特定的程序及相关联的进程控制块所组成）来描述并发执行程序的动态运行过程，解决由此引发的资源共享问题 进程及其与程序之间的区别与联系?
+程序的动态执行过程 系统资源分配的独立单位 进程标识符、进程控制块 与程序之间的区别（动态/静态性、生命周期、是否支持并发、组成） 进程控制块中的内容？
+标识符 调度信息、控制信息 资源信息 为什么要引入线程？
+进程并发执行基础（资源拥有 &#43; 调度分派） 进程创建、切换和撤销等操作时空开销较大 进程并发执行程度及进程间通信效率受限 事务处理软件、数据库处理软件、窗口系统及操作系统自身对系统并发程度进一步提高的客观需求，而且有关需求呈现出多项任务处理同组数据（存储资源）的特征 解决方案：（非处理器）资源拥有与（处理器）调度分派两类特性的分离 线程与进程间的区别与联系？
+轻型实体及共享进程资源 独立调度和分派的基本单位 创建、撤销、切换等系统开销 地址空间共享及通信效率 系统并发执行程度大大提高 UNIX/Linux 进程 # UNIX 进程
+进程映像的概念 处理器映像 &#43; 内存映像 &#43; 进程控制块 &#43; 程序（用户程序 内核程序） 数据段（静态/全局数据）&#43; 代码段 &#43; 工作区（栈 &#43; 堆） proc 结构 user 结构 共享代码段 proc 结构体数组
+struct proc { char p_stat;	/*进程状态*/ char p_flag;	/*进程特征，含SLOAD标志位*/ char p_pri;	/*进程优先数*/ char p_uid;	/*用户标识符*/ char p_time;	/*驻留时间*/ char p_cpu;	/*占用CPU时间*/ char p_nice;	/*计算优先数时用，[-20,19]*/ int p_pid;	/*进程标识符*/ int p_ppid;	/*父进程标识符*/ int p_addr;	/*进程映像数据分部地址，由此可以找到user结构*/ int p_size;	/*进程映像数据分部大小*/ int p_wchan;	/*等待原因*/ int p_textp;	/*代码段所在的共享段表项text的地址*/ char p_sig;	/*软中断号*/ int p_ttyp;	/*控制终端tty结构的地址*/ }proc[NPROC]; UNIX 进程 user 结构体">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="Linux 进程/线程管理控制 # 进程与线程 # 为什么要引入进程？
+单道环境 =&gt; 多道环境 单道环境及计算机系统各类资源的利用率 多道环境及计算机系统资源利用率的提高 计算机不同部件成本与运行速度的差异性、计算机处理任务本身所需操作部件的差异性以及由此导致的计算机不同部件即资源利用的不平衡性 通过多道程序的并发执行（支持） 实现计算机系统资源利用效率的最大化 引入进程概念（由特定的程序及相关联的进程控制块所组成）来描述并发执行程序的动态运行过程，解决由此引发的资源共享问题 进程及其与程序之间的区别与联系?
+程序的动态执行过程 系统资源分配的独立单位 进程标识符、进程控制块 与程序之间的区别（动态/静态性、生命周期、是否支持并发、组成） 进程控制块中的内容？
+标识符 调度信息、控制信息 资源信息 为什么要引入线程？
+进程并发执行基础（资源拥有 &#43; 调度分派） 进程创建、切换和撤销等操作时空开销较大 进程并发执行程度及进程间通信效率受限 事务处理软件、数据库处理软件、窗口系统及操作系统自身对系统并发程度进一步提高的客观需求，而且有关需求呈现出多项任务处理同组数据（存储资源）的特征 解决方案：（非处理器）资源拥有与（处理器）调度分派两类特性的分离 线程与进程间的区别与联系？
+轻型实体及共享进程资源 独立调度和分派的基本单位 创建、撤销、切换等系统开销 地址空间共享及通信效率 系统并发执行程度大大提高 UNIX/Linux 进程 # UNIX 进程
+进程映像的概念 处理器映像 &#43; 内存映像 &#43; 进程控制块 &#43; 程序（用户程序 内核程序） 数据段（静态/全局数据）&#43; 代码段 &#43; 工作区（栈 &#43; 堆） proc 结构 user 结构 共享代码段 proc 结构体数组
+struct proc { char p_stat;	/*进程状态*/ char p_flag;	/*进程特征，含SLOAD标志位*/ char p_pri;	/*进程优先数*/ char p_uid;	/*用户标识符*/ char p_time;	/*驻留时间*/ char p_cpu;	/*占用CPU时间*/ char p_nice;	/*计算优先数时用，[-20,19]*/ int p_pid;	/*进程标识符*/ int p_ppid;	/*父进程标识符*/ int p_addr;	/*进程映像数据分部地址，由此可以找到user结构*/ int p_size;	/*进程映像数据分部大小*/ int p_wchan;	/*等待原因*/ int p_textp;	/*代码段所在的共享段表项text的地址*/ char p_sig;	/*软中断号*/ int p_ttyp;	/*控制终端tty结构的地址*/ }proc[NPROC]; UNIX 进程 user 结构体" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" /><meta property="article:section" content="docs" />
+
+
+
+<title>4 Linux处理器及内存管理 | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle" checked />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle" checked />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="active">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>4 Linux处理器及内存管理</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#linux-进程线程管理控制">Linux 进程/线程管理控制</a>
+      <ul>
+        <li><a href="#进程与线程">进程与线程</a></li>
+        <li><a href="#unixlinux-进程">UNIX/Linux 进程</a></li>
+        <li><a href="#unixlinux-进程状态演化">UNIX/Linux 进程状态演化</a></li>
+        <li><a href="#unixlinux-进程创建与执行">UNIX/Linux 进程创建与执行</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-内核并发机制">Linux 内核并发机制</a>
+      <ul>
+        <li><a href="#并发控制的必要性和重要性">并发控制的必要性和重要性</a></li>
+        <li><a href="#linux-并发控制触发机制">Linux 并发控制触发机制</a></li>
+        <li><a href="#unixlinux-并发同步机制">UNIX/Linux 并发同步机制</a>
+          <ul>
+            <li><a href="#linux--原子操作">Linux- 原子操作</a></li>
+            <li><a href="#linux--自旋锁">Linux- 自旋锁</a></li>
+          </ul>
+        </li>
+        <li><a href="#linux--信号量">Linux- 信号量</a>
+          <ul>
+            <li><a href="#linux--内存屏障">Linux- 内存屏障</a></li>
+            <li><a href="#linux-rcu-读时复制更新">Linux-RCU 读时复制更新</a></li>
+            <li><a href="#linux--等待队列">Linux- 等待队列</a></li>
+            <li><a href="#简单应用实现">简单应用实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#linux-父子进程间同步编程">Linux 父子进程间同步编程</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-内存管理">Linux 内存管理</a>
+      <ul>
+        <li><a href="#linux-启动与内存空间布局">Linux 启动与内存空间布局</a></li>
+        <li><a href="#unix-进程存储管理">UNIX 进程存储管理</a></li>
+        <li><a href="#linux-进程---线程空间探析">Linux 进程 - 线程空间探析</a></li>
+        <li><a href="#linux-内存管理-1">Linux 内存管理</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-处理器及进程调度">Linux 处理器及进程调度</a>
+      <ul>
+        <li><a href="#linux-处理器调度概要">Linux 处理器调度概要</a></li>
+        <li><a href="#linux-处理器调度算法">Linux 处理器调度算法</a></li>
+        <li><a href="#unix-进程调度">UNIX 进程调度</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="linux-进程线程管理控制">
+  Linux 进程/线程管理控制
+  <a class="anchor" href="#linux-%e8%bf%9b%e7%a8%8b%e7%ba%bf%e7%a8%8b%e7%ae%a1%e7%90%86%e6%8e%a7%e5%88%b6">#</a>
+</h1>
+<h2 id="进程与线程">
+  进程与线程
+  <a class="anchor" href="#%e8%bf%9b%e7%a8%8b%e4%b8%8e%e7%ba%bf%e7%a8%8b">#</a>
+</h2>
+<p><strong>为什么要引入进程？</strong></p>
+<ul>
+<li>单道环境 =&gt; 多道环境</li>
+<li>单道环境及计算机系统各类<strong>资源的利用率</strong></li>
+<li>多道环境及计算机系统资源利用率的提高</li>
+<li>计算机不同部件成本与运行速度的差异性、计算机处理任务本身所需操作部件的差异性以及由此导致的计算机不同部件即<strong>资源利用的不平衡性</strong></li>
+<li>通过<strong>多道程序的并发执行（支持）</strong> 实现计算机系统资源利用效率的最大化</li>
+<li>引入进程概念（由特定的程序及相关联的<strong>进程控制块</strong>所组成）来描述并发执行程序的动态运行过程，解决由此引发的资源共享问题</li>
+</ul>
+<p>进程及其与程序之间的区别与联系?</p>
+<ul>
+<li>程序的动态执行过程</li>
+<li>系统资源分配的独立单位</li>
+<li>进程标识符、进程控制块</li>
+<li>与程序之间的区别（动态/静态性、生命周期、是否支持并发、组成）</li>
+</ul>
+<p>进程控制块中的内容？</p>
+<ul>
+<li>标识符</li>
+<li>调度信息、控制信息</li>
+<li>资源信息</li>
+</ul>
+<p><strong>为什么要引入线程？</strong></p>
+<ul>
+<li>进程并发执行基础（资源拥有 + 调度分派）</li>
+<li>进程创建、切换和撤销等操作时空开销较大</li>
+<li>进程并发执行程度及进程间通信效率受限</li>
+<li>事务处理软件、数据库处理软件、窗口系统及操作系统自身对系统并发程度进一步提高的客观需求，而且有关需求呈现出多项任务处理同组数据（存储资源）的特征</li>
+<li>解决方案：（非处理器）资源拥有与（处理器）调度分派两类特性的分离</li>
+</ul>
+<p>线程与进程间的区别与联系？</p>
+<ul>
+<li>轻型实体及共享进程资源</li>
+<li>独立调度和分派的基本单位</li>
+<li>创建、撤销、切换等系统开销</li>
+<li>地址空间共享及通信效率</li>
+<li>系统并发执行程度大大提高</li>
+</ul>
+<h2 id="unixlinux-进程">
+  UNIX/Linux 进程
+  <a class="anchor" href="#unixlinux-%e8%bf%9b%e7%a8%8b">#</a>
+</h2>
+<p><strong>UNIX 进程</strong></p>
+<ul>
+<li>进程映像的概念
+<ul>
+<li>处理器映像 + 内存映像 + 进程控制块 + 程序（用户程序 内核程序）</li>
+<li>数据段（静态/全局数据）+ 代码段 + 工作区（栈 + 堆）</li>
+</ul>
+</li>
+<li>proc 结构</li>
+<li>user 结构</li>
+<li>共享代码段</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_27_5_Screenshot%202023-11-20%20at%2009.27.03.png" alt="" /></p>
+<p>proc 结构体数组</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> proc
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_stat;		<span style="color:#75715e">/*进程状态*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_flag;		<span style="color:#75715e">/*进程特征，含SLOAD标志位*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_pri;		<span style="color:#75715e">/*进程优先数*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_uid;		<span style="color:#75715e">/*用户标识符*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_time;		<span style="color:#75715e">/*驻留时间*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_cpu;		<span style="color:#75715e">/*占用CPU时间*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span>  p_nice;		<span style="color:#75715e">/*计算优先数时用，[-20,19]*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_pid;		<span style="color:#75715e">/*进程标识符*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_ppid;		<span style="color:#75715e">/*父进程标识符*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_addr;		<span style="color:#75715e">/*进程映像数据分部地址，由此可以找到user结构*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_size;		<span style="color:#75715e">/*进程映像数据分部大小*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_wchan;		<span style="color:#75715e">/*等待原因*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_textp;		<span style="color:#75715e">/*代码段所在的共享段表项text的地址*/</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">char</span>  p_sig;		<span style="color:#75715e">/*软中断号*/</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span>   p_ttyp;		<span style="color:#75715e">/*控制终端tty结构的地址*/</span>
+</span></span><span style="display:flex;"><span>}proc[NPROC];
+</span></span></code></pre></div><p>UNIX 进程 user 结构体</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> user {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>    u_rsav[<span style="color:#ae81ff">2</span>];	 	<span style="color:#75715e">/*保留现场保护区指针r5和r6值*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>    u_fsav[<span style="color:#ae81ff">2</span>];	 	<span style="color:#75715e">/*保存fp注册器*/</span>	
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_segflg;	             <span style="color:#75715e">/*用户/核心空间标志*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_error;		<span style="color:#75715e">/*返回出错代码*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_uid;		<span style="color:#75715e">/*有效用户标识符*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_gid;		<span style="color:#75715e">/*有效组标识符*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_ruid;                    <span style="color:#75715e">/*真实用户标识符*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_rgid;                    <span style="color:#75715e">/*真实组标识符*/</span> 
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>    u_procp;		<span style="color:#75715e">/*proc结构地址，与proc结构链接*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>u_base;	             <span style="color:#75715e">/*读写文件时的内存地址参数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_count;	             <span style="color:#75715e">/*读写文件时的传送字节数参数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> u_offset[<span style="color:#ae81ff">2</span>];             <span style="color:#75715e">/*文件读写位移参数*/</span>	
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>    <span style="color:#f92672">*</span>u_cdir;		<span style="color:#75715e">/*当前目录i节点地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>u_dirp;		<span style="color:#75715e">/*i节点当前指针*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>u_dbuf[DIRSIZ]; 	<span style="color:#75715e">/*当前路径名组件（文件名和路径名） */</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   <span style="color:#f92672">*</span>u<span style="color:#f92672">-</span>pdir;                <span style="color:#75715e">/*父目录*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>uisa[<span style="color:#ae81ff">16</span>];           <span style="color:#75715e">/*进程相对虚、实地址映射表*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>uisd[<span style="color:#ae81ff">16</span>]; 
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_ofile[NOFILE];   <span style="color:#75715e">/*用户打开文件表，NOFILE默认为15*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_arg[<span style="color:#ae81ff">5</span>];	         <span style="color:#75715e">/*保存系统调用的参数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_tsize;	         <span style="color:#75715e">/*代码段大小*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_dsize;	         <span style="color:#75715e">/*用户数据段大小*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_ssize;	         <span style="color:#75715e">/*用户栈大小*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>sep;                  <span style="color:#75715e">/*I和D分离标志 */</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>qsav[<span style="color:#ae81ff">2</span>];           <span style="color:#75715e">/*进程放弃CPU时的现场保护信息*/</span>   
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>ssav[<span style="color:#ae81ff">2</span>];
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>signal[NSIG]; <span style="color:#75715e">/*用于设置收到信号后的动作*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_utime;	        <span style="color:#75715e">/*用户态执行时间*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_stime;	        <span style="color:#75715e">/*核心态执行时间*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_cutime;	        <span style="color:#75715e">/*子进程用户态执行时间*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u_cstime;	        <span style="color:#75715e">/*子进程核心态执行时间*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   <span style="color:#f92672">*</span>u_ar0;	        <span style="color:#75715e">/*当前中断保护区内r0的地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>   u<span style="color:#f92672">-</span>prof[<span style="color:#ae81ff">4</span>];         <span style="color:#75715e">/*统计程序各部分的执行频率 */</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span>  u<span style="color:#f92672">-</span>intflag<span style="color:#960050;background-color:#1e0010">；</span>         <span style="color:#75715e">/*来自系统内核栈的进程特征标志 */</span> 
+</span></span><span style="display:flex;"><span>} user;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span>    u_ino;			
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">char</span> u_name[DIRSIZ];		
+</span></span><span style="display:flex;"><span> } u_dent;	             <span style="color:#75715e">/*当前目录项*/</span>
+</span></span></code></pre></div><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>u-prof[0]</td>
+<td>统计表起始地址</td>
+</tr>
+<tr>
+<td>u-prof[1]</td>
+<td>统计表长度即代码分组数</td>
+</tr>
+<tr>
+<td>u-prof[2]</td>
+<td>被统计程序代码起始地址</td>
+</tr>
+<tr>
+<td>u-prof[3]</td>
+<td>比例尺大小即每个代码分组所含指令数的倒数</td>
+</tr>
+</tbody>
+</table>
+<p>UNIX 共享段表</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> text
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  x_daddr;		<span style="color:#75715e">/*磁盘地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  x_caddr;		<span style="color:#75715e">/*内存地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  x_size;		<span style="color:#75715e">/*内存块数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  <span style="color:#f92672">*</span>x_iptr;		<span style="color:#75715e">/*文件内存i节点地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span>  x_count;		<span style="color:#75715e">/*共享进程数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span>  x_ccount;		<span style="color:#75715e">/*内存副本的共享进程数*/</span>
+</span></span><span style="display:flex;"><span>} text[NTEXT];
+</span></span></code></pre></div><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_32_20_Screenshot%202023-11-20%20at%2009.32.18.png" alt="" /></p>
+<p><strong>UNIX 进程控制用数据结构</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_33_4_Screenshot%202023-11-20%20at%2009.33.01.png" alt="" /></p>
+<p><strong>Linux 进程控制块所含信息</strong></p>
+<ul>
+<li>进程执行状态
+<ul>
+<li>运行/就绪态、挂起状态、阻塞状态、僵死状态</li>
+</ul>
+</li>
+<li>调度信息
+<ul>
+<li>优先级（普通进程、实时进程）、时间片</li>
+</ul>
+</li>
+<li>标识符
+<ul>
+<li>进程标识符、用户标识符、组标识符</li>
+</ul>
+</li>
+<li>进程间通信相关信息
+<ul>
+<li>链接信息</li>
+</ul>
+</li>
+<li>父进程、兄弟进程、子进程</li>
+<li>时间和定时器
+<ul>
+<li>进程创建时间、消耗处理器时间、定时器</li>
+</ul>
+</li>
+<li>文件系统相关信息
+<ul>
+<li>文件打开指针、当前目录指针、根目录指针</li>
+</ul>
+</li>
+<li>地址空间
+<ul>
+<li>虚拟地址空间</li>
+</ul>
+</li>
+<li>处理器相关信息
+<ul>
+<li>组成进程上下文的寄存器及栈信息</li>
+</ul>
+</li>
+</ul>
+<h2 id="unixlinux-进程状态演化">
+  UNIX/Linux 进程状态演化
+  <a class="anchor" href="#unixlinux-%e8%bf%9b%e7%a8%8b%e7%8a%b6%e6%80%81%e6%bc%94%e5%8c%96">#</a>
+</h2>
+<p><strong>UNIX 进程表项之 p_stat 与 p_flag</strong></p>
+<ul>
+<li>p_stat
+<ul>
+<li>NULL	0	此 proc 结构为空</li>
+<li>SSLEEP	1	高优先权睡眠状态、</li>
+<li>SWAIT	2	低优先权睡眠状态</li>
+<li>SRUN	3	运行或就绪态，仅当运行态时其 user 结构在内存</li>
+<li>SIDL	4	进程创建时的过渡状态</li>
+<li>SZOMB	5	进程终止前状态（僵死状态），等待善后处理</li>
+<li>SSTOP	6	进程正被跟踪即暂停/挂起状态</li>
+</ul>
+</li>
+<li>p_flag (SLOAD = 01 表示在内存中时)
+<ul>
+<li>SSYS	02	常驻内存的系统进程（0#进程）标志</li>
+<li>SLOCK	04	进程被锁，不能调出内存</li>
+<li>SSWAP	010	交换标志</li>
+<li>STRC	020	进程正被跟踪标志</li>
+<li>SWTED	040	关于进程跟踪的另一标志</li>
+</ul>
+</li>
+</ul>
+<p>UNIX 进程状态转换：
+
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_41_7_Screenshot%202023-11-20%20at%2009.41.05.png" alt="" /></p>
+<p>Linux 进程状态转换：</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_41_44_Screenshot%202023-11-20%20at%2009.41.42.png" alt="" /></p>
+<h2 id="unixlinux-进程创建与执行">
+  UNIX/Linux 进程创建与执行
+  <a class="anchor" href="#unixlinux-%e8%bf%9b%e7%a8%8b%e5%88%9b%e5%bb%ba%e4%b8%8e%e6%89%a7%e8%a1%8c">#</a>
+</h2>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_43_39_Screenshot%202023-11-20%20at%2009.43.36.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_45_43_Screenshot%202023-11-20%20at%2009.45.40.png" alt="" /></p>
+<p><strong>进程创建及相关函数</strong></p>
+<ul>
+<li>int  fork( ); 创建子进程
+<ul>
+<li>返回值=0，表明创建成功，返回到子进程继续执行</li>
+<li>返回值&gt;0，表明创建成功，返回到父进程继续执行，其值为子进程的 PID 号</li>
+<li>返回值=-1，表明创建失败</li>
+<li>==<em><strong>在父进程中 fork 的返回值是子进程的 PID。在子进程中 fork 的返回值是 0</strong></em>==</li>
+</ul>
+</li>
+<li>int getpid( ); 获取本进程标识符</li>
+<li>int getppid( ); 获取父进程标识符</li>
+<li>int wait( ); 等待子进程结束
+<ul>
+<li>成功则返回子进程标识符</li>
+</ul>
+</li>
+</ul>
+<p>
+  <a href="https://blog.csdn.net/qq_45731021/article/details/116502429">线程通讯、wait和sleep 区别?sleep(0) vs wait(0)有什么区别_wait(null)与wait(0)区别-CSDN博客</a></p>
+<p><strong>int  fork( ); 子进程创建步骤</strong></p>
+<ul>
+<li>（1）申请空闲 PCB，除子进程特有信息（如 p-pid）外，均复制父进程的相应信息（譬如文件打开表及资源）</li>
+<li>（2）申请空闲内存区，复制父进程的进程映像数据分部，包括数据段、内核栈、用户栈和 user 结构体</li>
+<li>（3）共享父进程的共享段表项 text</li>
+<li>（4）从 fork 系统调用返回主调函数</li>
+</ul>
+<p><strong>fork() 调用及进程创建问题</strong></p>
+<ul>
+<li>程序顺序逻辑结构而非分支判断或循环结构中多次调用 fork()，譬如 n 次，则整个程序运行过程所执行的进程数为 $2^n$</li>
+<li>当程序需要创建若干子进程，而不想创建孙子进程时，应当将 fork() 调用放入父进程的程序空间也即 fork() 调用返回值判断大于 0 成立时的条件分支中</li>
+<li>fork() 调用的位置即所在程序段非常重要，直接关系到其所创建进程在整个进程家族中的逻辑地位</li>
+</ul>
+<p><strong>进程加载程序代码 exec()</strong></p>
+<ul>
+<li>fork() 创建的子进程虽然与其父进程拥有不同的进程映像，但其程序却未发生改变</li>
+<li>exec() 系统调用可在当前进程上运行新程序，<strong>其主要功能是将指定的可执行文件加载到指定的进程映像中，并覆盖掉原有程序</strong>
+<ul>
+<li>exec 族系统调用共有六种函数</li>
+</ul>
+</li>
+<li>子进程可以选择执行特定程序，但是不能使用 exec 调用父进程</li>
+<li>除非 exec 调用失败，否则对应进程将不会返回旧程序</li>
+</ul>
+<p><strong>Linux 线程与进程控制</strong></p>
+<ul>
+<li>Linux 独特的线程实现方案
+<ul>
+<li>不严格区分进程与线程</li>
+<li>构成同一用户级进程的多个用户级线程将被映射到共享相同组标识符的内核级线程上，于是这些线程就可共享如文件、内存之类的资源，从而避免调度器在同组线程之间切换时进行上下文切换，也即无需进行上下文切换</li>
+</ul>
+</li>
+<li>进程创建采用克隆方式 fork() =&gt; clone()
+<ul>
+<li>新进程可共享父进程资源</li>
+<li>当两个进程共享相同的虚存资源时，它们就像同一进程的线程一样执行</li>
+<li>
+  <a href="https://www.cnblogs.com/charlieroro/p/14280738.html">Linux Clone函数 - charlieroro - 博客园</a></li>
+<li>
+  <a href="https://omnivore.app/caesaryang/linux-clone-charlieroro-18bea7ef79a">Linux Clone函数 - charlieroro</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="linux-内核并发机制">
+  Linux 内核并发机制
+  <a class="anchor" href="#linux-%e5%86%85%e6%a0%b8%e5%b9%b6%e5%8f%91%e6%9c%ba%e5%88%b6">#</a>
+</h1>
+<h2 id="并发控制的必要性和重要性">
+  并发控制的必要性和重要性
+  <a class="anchor" href="#%e5%b9%b6%e5%8f%91%e6%8e%a7%e5%88%b6%e7%9a%84%e5%bf%85%e8%a6%81%e6%80%a7%e5%92%8c%e9%87%8d%e8%a6%81%e6%80%a7">#</a>
+</h2>
+<p>可能出现“与时间有关错误”的原因:</p>
+<ul>
+<li>与诸进程的执行速度有关；</li>
+<li>由于多个进程都共享了同一变量或者互相需要协调同步；</li>
+<li>对于变量的共享或者互相协作的进程没有进行有效的控制</li>
+</ul>
+<p>操作系统内核功能自身需要</p>
+<ul>
+<li>
+<p>各类资源管理的基本依据暨相关数据结构譬如可用内存空间大小等均为共享数据，在各进程进行资源申请（分配）和释放（回收）时会发生并发访问的情况</p>
+</li>
+<li>
+<p>操作系统必须提供有效可靠的并发控制机制，保证上述并发处理的正确协调
+Linux 提供互斥、同步、通信机制</p>
+</li>
+</ul>
+<h2 id="linux-并发控制触发机制">
+  Linux 并发控制触发机制
+  <a class="anchor" href="#linux-%e5%b9%b6%e5%8f%91%e6%8e%a7%e5%88%b6%e8%a7%a6%e5%8f%91%e6%9c%ba%e5%88%b6">#</a>
+</h2>
+<p>早期不支持对称多处理器体系结构的 Linux</p>
+<ul>
+<li>中断服务程序是导致并发访问的因素</li>
+<li>只有发生中断或内核代码路径上显式要求重新调度和执行另一进程时，才会发生并发访问</li>
+</ul>
+<p>支持对称多处理器体系结构的 Linux</p>
+<ul>
+<li>并发运行在不同处理器上的多个内核线程完全有可能在同一时刻并发访问共享数据，并发访问随时可能发生</li>
+<li>现代 Linux 内核已支持内核抢占，调度器可以抢占正在运行的进程而重新调度执行其他进程</li>
+</ul>
+<p><strong>内核中的并发源</strong></p>
+<ul>
+<li>中断
+<ul>
+<li>中断发生后，中断处理程序和被中断程序之间</li>
+<li>中断处理时通常会禁用所有中断或禁用当前级别以下的所有中断，但若时间太长可能造成事件错失，于是产生了上 - 下协同机制 top-half&amp;bottom-half</li>
+</ul>
+</li>
+<li>软中断请求（softirq）和小任务（tasklet）
+<ul>
+<li>随时可能被调度，从而打断当前进程</li>
+<li>invoke_softirq() 或 ksoftirqd() 触发执行软中断</li>
+</ul>
+</li>
+<li>内核抢占
+<ul>
+<li>调度器支持可抢占特性，将会导致进程与进程之间的并发</li>
+</ul>
+</li>
+<li>多处理器并发执行
+<ul>
+<li>多处理器上可以同时运行多个进程</li>
+</ul>
+</li>
+</ul>
+<p><strong>单处理器系统内核中并发</strong></p>
+<ul>
+<li>中断处理程序
+<ul>
+<li>可以打断软中断、小任务和进程的执行</li>
+</ul>
+</li>
+<li>软中断请求和小任务
+<ul>
+<li>软中断请求间不会并发，但会打断进程的执行</li>
+</ul>
+</li>
+<li>支持抢占的内核
+<ul>
+<li>不同进程之间会产生并发</li>
+</ul>
+</li>
+<li>不支持抢占的内核
+<ul>
+<li>不同进程之间会否产生并发？</li>
+<li>会：主动放弃处理器情形也会触发重新调度</li>
+</ul>
+</li>
+</ul>
+<p><strong>SMP 系统内核中的并发</strong></p>
+<ul>
+<li>不同类型的中断处理程序之间可能并发
+<ul>
+<li>不同类型的中断处理程序可被不同处理器执行</li>
+<li>同一类型的中断处理程序不会并发</li>
+</ul>
+</li>
+<li>同一类型的软中断可能在不同处理器上并发</li>
+<li>同一类型的小任务是串行执行的
+<ul>
+<li>不会在多个处理器上并发</li>
+</ul>
+</li>
+<li>不同处理器上的进程会并发执行</li>
+</ul>
+<p><strong>并发访问潜在漏洞</strong></p>
+<ul>
+<li>进程上下文操作某临界资源时发生中断，而恰巧某中断处理程序也访问了该资源</li>
+<li>进程上下文访问临界资源时发生抢占调度</li>
+<li>在自旋锁临界区中主动睡眠让出处理器</li>
+<li>两个处理器同时修改同一临界资源</li>
+<li>关键考虑什么呢？
+<ul>
+<li>包括静态局部变量、全局变量、共享数据结构、缓存、链表、红黑树等所隐含的资源数据</li>
+<li>资源数据的访问路径</li>
+</ul>
+</li>
+</ul>
+<h2 id="unixlinux-并发同步机制">
+  UNIX/Linux 并发同步机制
+  <a class="anchor" href="#unixlinux-%e5%b9%b6%e5%8f%91%e5%90%8c%e6%ad%a5%e6%9c%ba%e5%88%b6">#</a>
+</h2>
+<p>并发访问之同步必要性</p>
+<ul>
+<li>问题场景
+<ul>
+<li>一个进程在操作某临界资源时发生中断而某中断处理程序恰巧也访问该临界资源</li>
+<li>进程在访问某临界资源时发生被抢占调度，而另一进程也恰巧访问该临界资源</li>
+</ul>
+</li>
+<li>解决方案关键要领
+<ul>
+<li>找出应被保护资源或数据（静态局部/全局变量、共享数据结构/缓存/链表/红黑树等）</li>
+<li>检查确认可能并发访问上面被保护资源或数据的代码段（也即临界区）</li>
+</ul>
+</li>
+</ul>
+<p><strong>UNIX 并发同步机制</strong></p>
+<ul>
+<li>管道
+<ul>
+<li>环形缓冲，生产者 - 消费者模型，读写操作</li>
+</ul>
+</li>
+<li>消息
+<ul>
+<li>消息队列及消息的发生与接收</li>
+</ul>
+</li>
+<li>共享存储器
+<ul>
+<li>使用者进程自备互斥机制</li>
+</ul>
+</li>
+<li>信号量
+<ul>
+<li>进程间同步操作</li>
+</ul>
+</li>
+<li>信号（用于通知另一进程发生了异步事件）</li>
+</ul>
+<p><strong>Linux 并发同步机制</strong></p>
+<ul>
+<li>原子操作
+<ul>
+<li>保证变量操作指令代码片段的“原子”般执行</li>
+</ul>
+</li>
+<li>自旋锁
+<ul>
+<li>忙 - 等待模式，分为基本自旋锁和读者 - 写者自旋锁</li>
+</ul>
+</li>
+<li>信号量
+<ul>
+<li>二元信号量、计数型信号量、读写型信号量</li>
+</ul>
+</li>
+<li>内存屏障
+<ul>
+<li>预防内存访问的越界
+R- CU（read-copy-update）及等待队列</li>
+</ul>
+</li>
+</ul>
+<h3 id="linux--原子操作">
+  Linux- 原子操作
+  <a class="anchor" href="#linux--%e5%8e%9f%e5%ad%90%e6%93%8d%e4%bd%9c">#</a>
+</h3>
+<p>原子操作执行既不会被中断，也不会被干扰</p>
+<ul>
+<li>单处理器系统中，线程对原子操作的执行一旦启动将一直到完成，期间不会被中断</li>
+<li>多处理器系统中，被操作的变量会被上锁以防止其他线程的访问，直到对应操作完成</li>
+</ul>
+<p>Linux 内核提供两类原子操作</p>
+<ul>
+<li>整数操作，针对整数变量</li>
+<li>位图操作，针对位图的某一位</li>
+</ul>
+<p>实现 Linux 的任何体系结构，均须支持这些原子操作（汇编指令或内存总线上锁方式）</p>
+<p>Linux 原子数据类型</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//Linux-4.8.8/include/linux/types.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> counter;
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">atomic_t</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_64BIT
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">long</span> counter;
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">atomic64_t</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span></code></pre></div><p>整数原子操作</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#define __raw_cmpxchg(ptr, old, new, size, lock)  \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">({				         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  __typeof__(*(ptr)) __ret;		         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  __typeof__(*(ptr)) __old = (old);	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  __typeof__(*(ptr)) __new = (new);	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  switch (size) {			         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   case __X86_CASE_B:		         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   { volatile u8 *__ptr = (volatile u8 *)(ptr);	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     asm volatile(lock &#34;cmpxchgb %2,%1&#34;	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	     : &#34;=a&#34; (__ret), &#34;+m&#34; (*__ptr)	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	     : &#34;q&#34; (__new), &#34;0&#34; (__old)	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	     : &#34;memory&#34;);		         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">     break;				         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   }				         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   case __X86_CASE_W:  { ...... }	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   case __X86_CASE_L:   { ...... }	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   case __X86_CASE_Q:   { ...... }	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   default:	__cmpxchg_wrong_size();	         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  }				         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">   __ret;				         \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">})
+</span></span></span></code></pre></div><p>位图原子操作</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//Linux-4.8.8/include/asm-generic/bitops/atomic.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">set_bit</span>(<span style="color:#66d9ef">int</span> nr, <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>addr)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> mask <span style="color:#f92672">=</span> <span style="color:#a6e22e">BIT_MASK</span>(nr);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>p <span style="color:#f92672">=</span> ((<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>)addr) <span style="color:#f92672">+</span> <span style="color:#a6e22e">BIT_WORD</span>(nr);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> flags;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_atomic_spin_lock_irqsave</span>(p, flags);
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">*</span>p  <span style="color:#f92672">|=</span> mask;
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_atomic_spin_unlock_irqrestore</span>(p, flags);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">clear_bit</span>(<span style="color:#66d9ef">int</span> nr, <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>addr)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">change_bit</span>(<span style="color:#66d9ef">int</span> nr, <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>addr)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">test_and_set_bit</span>(<span style="color:#66d9ef">int</span> nr, <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>addr)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">test_and_clear_bit</span>(<span style="color:#66d9ef">int</span> nr, <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>addr)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">inline</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">test_and_change_bit</span>(<span style="color:#66d9ef">int</span> nr, <span style="color:#66d9ef">volatile</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> <span style="color:#f92672">*</span>addr)
+</span></span></code></pre></div><h3 id="linux--自旋锁">
+  Linux- 自旋锁
+  <a class="anchor" href="#linux--%e8%87%aa%e6%97%8b%e9%94%81">#</a>
+</h3>
+<p>基本自旋锁</p>
+<ul>
+<li>朴素型 plain
+<ul>
+<li><code>static __always_inline void spin_lock(spinlock_t *lock)</code></li>
+<li>禁止内核抢占，preempt_disable();preempt_enable();</li>
+<li>在单处理机环境中可以使用特定的原子级汇编指令 swap 或 test_and_set 实现进程互斥；多 CPU 环境中可通过“锁总线”（bus locking）的形式保证 test_and_set 指令执行的原子性，因为 test_and_set 指令对内存的两次操作都需要经过总线</li>
+</ul>
+</li>
+</ul>
+<p>Linux 自旋锁类型</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//Linux-4.8.8/include/linux/spinlock_types.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> spinlock {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">union</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">struct</span> raw_spinlock rlock;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_DEBUG_LOCK_ALLOC
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># define LOCK_PADSIZE (offsetof(struct raw_spinlock, dep_map))
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>			u8 __padding[LOCK_PADSIZE];
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">struct</span> lockdep_map dep_map;
+</span></span><span style="display:flex;"><span>		};
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	};
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">spinlock_t</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> raw_spinlock {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">arch_spinlock_t</span> raw_lock;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_GENERIC_LOCKBREAK
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> break_lock;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_DEBUG_SPINLOCK
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> magic, owner_cpu;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">void</span> <span style="color:#f92672">*</span>owner;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_DEBUG_LOCK_ALLOC
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">struct</span> lockdep_map dep_map;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>} <span style="color:#66d9ef">raw_spinlock_t</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_QUEUED_SPINLOCKS
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;asm-generic/qspinlock_types.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#else
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">struct</span> arch_spinlock {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">union</span> {
+</span></span><span style="display:flex;"><span>		__ticketpair_t head_tail;
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">struct</span> __raw_tickets {
+</span></span><span style="display:flex;"><span>			__ticket_t head, tail;
+</span></span><span style="display:flex;"><span>	          } tickets;
+</span></span><span style="display:flex;"><span>	};
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">arch_spinlock_t</span>;
+</span></span></code></pre></div><ul>
+<li>中断请求型 <code>static __always_inline void spin_lock_irq(spinlock_t *lock)</code></li>
+<li>中断请求保护型 <code>#define spin_lock_irqsave(lock, flags) …… / static __always_inline void spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags)</code>
+<ul>
+<li>禁止内核抢占， 关闭中断，保存中断状态寄存器标志位</li>
+<li><code>preempt_disable();</code></li>
+<li><code>local_irq_save(flags);</code></li>
+</ul>
+</li>
+<li>后半部分型 <code>static __always_inline void spin_lock_bh(spinlock_t *lock)</code>
+<ul>
+<li>用来关闭/开放软中断</li>
+<li><code>local_bh_disable()</code></li>
+<li><code>local_bh_enable()</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>读者 - 写者自旋锁</strong></p>
+<ul>
+<li>支持内核空间更大程度的并发</li>
+<li>每个读者 - 写者自旋锁由一个 24 位读者计数器和一个开关锁标志组成</li>
+</ul>
+<p><strong>队列自旋锁</strong></p>
+<p>自旋锁理解：就是一个 while 循环，在不需要 OS 进行进程和线程调度的情况下进行自旋等待 
+  <a href="https://www.cnblogs.com/cxuanBlog/p/11679883.html">看完你就明白的锁系列之自旋锁 - 程序员cxuan - 博客园</a></p>
+<p>Linux 读写自旋锁操作</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#f92672">/</span>linux<span style="color:#f92672">-</span><span style="color:#ae81ff">4.8.8</span><span style="color:#f92672">/</span>include<span style="color:#f92672">/</span>linux<span style="color:#f92672">/</span>rwlock.h
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define rwlock_init(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define read_lock(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define read_unlock(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define write_lock(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define write_unlock(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define read_lock_irq(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define read_unlock_irq(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define write_lock_irq(lock)   ......
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define write_unlock_irq(lock)   ......
+</span></span></span></code></pre></div><h2 id="linux--信号量">
+  Linux- 信号量
+  <a class="anchor" href="#linux--%e4%bf%a1%e5%8f%b7%e9%87%8f">#</a>
+</h2>
+<p>计数型信号量</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//linux-4.8.8/include/linux/semaphore.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> semaphore {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">raw_spinlock_t</span>	lock;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span>		count;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> list_head	wait_list;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">sema_init</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem, <span style="color:#66d9ef">int</span> val);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">down</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">up</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> __must_check <span style="color:#a6e22e">down_interruptible</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> __must_check <span style="color:#a6e22e">down_killable</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> __must_check <span style="color:#a6e22e">down_trylock</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> __must_check <span style="color:#a6e22e">down_timeout</span>(<span style="color:#66d9ef">struct</span> semaphore <span style="color:#f92672">*</span>sem, <span style="color:#66d9ef">long</span> jiffies);
+</span></span></code></pre></div><p>互斥锁</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> mutex {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">atomic_t</span>		count;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">spinlock_t</span>		wait_lock;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> list_head	wait_list;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#if defined(CONFIG_DEBUG_MUTEXES) || defined(CONFIG_MUTEX_SPIN_ON_OWNER)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">struct</span> task_struct	<span style="color:#f92672">*</span>owner;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_MUTEX_SPIN_ON_OWNER
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">struct</span> optimistic_spin_queue osq;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_DEBUG_MUTEXES
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">void</span>			<span style="color:#f92672">*</span>magic;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_DEBUG_LOCK_ALLOC
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">struct</span> lockdep_map	dep_map;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>};
+</span></span></code></pre></div><p>其中的 spinlock 代表了在互斥锁的实现中，通常会使用自旋锁来保护一些关键操作，以确保在多线程环境中的原子性，并不是直接代表互斥锁是由自旋锁实现的，二者是不同的并发同步机制。</p>
+<p>读写型信号量</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">//linux-4.8.8/include/linux/rwsem.h
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> rw_semaphore {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">atomic_long_t</span> count;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> list_head wait_list;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">raw_spinlock_t</span> wait_lock;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">struct</span> optimistic_spin_queue osq;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> task_struct <span style="color:#f92672">*</span>owner;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#ifdef CONFIG_DEBUG_LOCK_ALLOC
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">struct</span> lockdep_map	dep_map;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>};
+</span></span></code></pre></div><h3 id="linux--内存屏障">
+  Linux- 内存屏障
+  <a class="anchor" href="#linux--%e5%86%85%e5%ad%98%e5%b1%8f%e9%9a%9c">#</a>
+</h3>
+<ul>
+<li>预防内存读写访问的越界
+<ul>
+<li><code>#define mb()	barrier() 或 dsb() 或 do { dsb(); arm_heavy_mb(); } while (0)</code></li>
+<li><code>#define __smp_mb()	dmb(ish)</code></li>
+</ul>
+</li>
+<li>预防内存读访问的越界
+<ul>
+<li><code>#define rmb() dsb()</code></li>
+<li><code>#define __smp_rmb()	__smp_mb()</code></li>
+</ul>
+</li>
+<li>预防内存写访问的越界
+<ul>
+<li><code>#define wmb() barrier() 或 dsb(st) 或 do { dsb(st); arm_heavy_mb(); } while (0)</code></li>
+<li><code>#define __smp_wmb()	dmb(ishst)</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="linux-rcu-读时复制更新">
+  Linux-RCU 读时复制更新
+  <a class="anchor" href="#linux-rcu-%e8%af%bb%e6%97%b6%e5%a4%8d%e5%88%b6%e6%9b%b4%e6%96%b0">#</a>
+</h3>
+<p>已有其他机制存在的问题</p>
+<ul>
+<li>均使用了原子操作指令，多处理器争用共享变量会增大缓存一致性的复杂性并导致性能下降</li>
+</ul>
+<p>[[MiniOB事务#^755b43|允许多个线程同时读，并运行一个线程同时修改链表]]</p>
+<ul>
+<li>读者线程几乎无同步开销</li>
+<li>写者线程负责同步协调并创建副本实施修改，且等所有读者线程完成后才会把旧数据销毁掉</li>
+</ul>
+<p>重要应用场景</p>
+<ul>
+<li>有效提高链表中遍历读取数据的效率</li>
+</ul>
+<h3 id="linux--等待队列">
+  Linux- 等待队列
+  <a class="anchor" href="#linux--%e7%ad%89%e5%be%85%e9%98%9f%e5%88%97">#</a>
+</h3>
+<p>本质上是双向链表</p>
+<p>当运行进程需要获取某资源遭遇不可用情况时，可把该进程插入等待队列以等待对应资源的释放，这时进程进入睡眠状态</p>
+<h3 id="简单应用实现">
+  简单应用实现
+  <a class="anchor" href="#%e7%ae%80%e5%8d%95%e5%ba%94%e7%94%a8%e5%ae%9e%e7%8e%b0">#</a>
+</h3>
+<p><strong>互斥锁应用编程</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> <span style="color:#a6e22e">thread_executive</span>(<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> zThreadName)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> nRandom, nTemp1, nTemp2;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> i;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pThreadName <span style="color:#f92672">=</span> (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)zThreadName;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">1000</span>; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>  nRandom <span style="color:#f92672">=</span> <span style="color:#a6e22e">rand</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">pthread_mutex_lock</span>(<span style="color:#f92672">&amp;</span>mutex);
+</span></span><span style="display:flex;"><span>  nTemp1 <span style="color:#f92672">=</span> nAccount1 <span style="color:#f92672">-</span> nRandom;  nTemp2 <span style="color:#f92672">=</span> nAccount2 <span style="color:#f92672">+</span> nRandom;
+</span></span><span style="display:flex;"><span>  nAccount1 <span style="color:#f92672">=</span> nTemp1;  nAccount2 <span style="color:#f92672">=</span> nTemp2;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">pthread_mutex_unlock</span>(<span style="color:#f92672">&amp;</span>mutex);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[%s] Loop #%d: nAccount1 = %d, nAccount2 = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, pThreadName, i, nTemp1, nTemp2);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> NULL;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;pthread.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">pthread_mutex_t</span> mutex;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> nAccount1<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>, nAccount2<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">pthread_t</span> thread1;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">pthread_t</span> thread2;
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">srand</span>(<span style="color:#a6e22e">time</span>(NULL));
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">pthread_mutex_init</span>(<span style="color:#f92672">&amp;</span>mutex, NULL);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">pthread_create</span>(<span style="color:#f92672">&amp;</span>thread1, NULL, thread_executive, <span style="color:#e6db74">&#34;thread1&#34;</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">pthread_create</span>(<span style="color:#f92672">&amp;</span>thread2, NULL, thread_executive, <span style="color:#e6db74">&#34;thread2&#34;</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">pthread_join</span>(thread1, NULL); <span style="color:#a6e22e">pthread_join</span>(thread2, NULL);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">pthread_mutex_destroy</span>(<span style="color:#f92672">&amp;</span>mutex);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>信号量应用编程</strong></p>
+<ul>
+<li>生产者 - 消费者问题
+<ul>
+<li>循环缓冲 <code>buffer[N]</code></li>
+<li>输入输出指针 in=0; out=0;</li>
+</ul>
+</li>
+<li>信号量设置及相关操作函数
+<ul>
+<li>信号量 <code> mutexP、mutexC、empty、full</code></li>
+<li><code>int sem_init(sem_t *sem, intpshared, unsigned intvalue);</code></li>
+<li><code>int sem_wait(sem_t *sem);</code></li>
+<li><code>int sem_post(sem_t*sem);</code></li>
+<li><code>int sem_destroy(sem_t*sem);</code></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;pthread.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;semaphore.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define N 5
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">int</span> ITEM;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ITEM buffer[N];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> in<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>, out<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">sem_t</span> empty, full, mutexP, mutexC;
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> <span style="color:#a6e22e">executive_producer</span>(<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> zThreadName)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> nextP, i;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pThreadName <span style="color:#f92672">=</span> (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)zThreadName;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">30</span>; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>  nextP <span style="color:#f92672">=</span> <span style="color:#a6e22e">rand</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_wait</span>(<span style="color:#f92672">&amp;</span>empty);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_wait</span>(<span style="color:#f92672">&amp;</span>mutexP);
+</span></span><span style="display:flex;"><span>  buffer[in] <span style="color:#f92672">=</span> nextP;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[%s] Loop #%d: PRODUCING %d =&gt; buffer[%d] </span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, pThreadName, i, nextP, in);
+</span></span><span style="display:flex;"><span>  in <span style="color:#f92672">=</span> (in<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">%</span> N;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_post</span>(<span style="color:#f92672">&amp;</span>mutexP);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_post</span>(<span style="color:#f92672">&amp;</span>full);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> NULL;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> <span style="color:#a6e22e">executive_consumer</span>(<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> zThreadName)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> nextC, i;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pThreadName <span style="color:#f92672">=</span> (<span style="color:#66d9ef">char</span><span style="color:#f92672">*</span>)zThreadName;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">20</span>; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_wait</span>(<span style="color:#f92672">&amp;</span>full);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_wait</span>(<span style="color:#f92672">&amp;</span>mutexC);
+</span></span><span style="display:flex;"><span>  nextC <span style="color:#f92672">=</span> buffer[out];
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[%s] Loop #%d: CONSUMING nextC &lt;= buffer[%d] = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, pThreadName, i, out, nextC);
+</span></span><span style="display:flex;"><span>  out <span style="color:#f92672">=</span> (out<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">%</span> N;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_post</span>(<span style="color:#f92672">&amp;</span>mutexC);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sem_post</span>(<span style="color:#f92672">&amp;</span>empty);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> NULL;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">#define nP 3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#75715e">#define nC 5
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">int</span> i;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span> threadProducerName[nP][<span style="color:#ae81ff">10</span>];   <span style="color:#66d9ef">char</span> threadConsumerName[nC][<span style="color:#ae81ff">10</span>];
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">pthread_t</span> thread_producer[<span style="color:#ae81ff">3</span>];   <span style="color:#66d9ef">pthread_t</span> thread_consumer[<span style="color:#ae81ff">5</span>];
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">srand</span>(<span style="color:#a6e22e">time</span>(NULL));
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_init</span>(<span style="color:#f92672">&amp;</span>mutexP, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_init</span>(<span style="color:#f92672">&amp;</span>mutexC, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_init</span>(<span style="color:#f92672">&amp;</span>empty, <span style="color:#ae81ff">0</span>, N);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_init</span>(<span style="color:#f92672">&amp;</span>full, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>nP; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sprintf</span>(threadProducerName[i], <span style="color:#e6db74">&#34;producer%d&#34;</span>, i);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">pthread_create</span>(<span style="color:#f92672">&amp;</span>thread_producer[i], NULL, executive_producer, threadProducerName[i]);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>nC; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sprintf</span>(threadConsumerName[i], <span style="color:#e6db74">&#34;consumer%d&#34;</span>, i);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">pthread_create</span>(<span style="color:#f92672">&amp;</span>thread_consumer[i], NULL, executive_consumer, threadConsumerName[i]);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>nP; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">pthread_join</span>(thread_producer[i], NULL);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">for</span> (i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>nC; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">pthread_join</span>(thread_consumer[i], NULL);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_destroy</span>(<span style="color:#f92672">&amp;</span>mutexP);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_destroy</span>(<span style="color:#f92672">&amp;</span>mutexC);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_destroy</span>(<span style="color:#f92672">&amp;</span>empty);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">sem_destroy</span>(<span style="color:#f92672">&amp;</span>full);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="linux-父子进程间同步编程">
+  Linux 父子进程间同步编程
+  <a class="anchor" href="#linux-%e7%88%b6%e5%ad%90%e8%bf%9b%e7%a8%8b%e9%97%b4%e5%90%8c%e6%ad%a5%e7%bc%96%e7%a8%8b">#</a>
+</h2>
+<p><strong>父子进程间同步编程设计</strong></p>
+<p>父进程等待子进程</p>
+<ul>
+<li>父进程使用 <code>wait()</code> 等待子进程的终止</li>
+<li>子进程终止时执行 <code>exit()</code> 向父进程发终止信号</li>
+</ul>
+<p>子进程等待父进程</p>
+<ul>
+<li>子进程使用 <code>signal()</code> 预置特定软中断信号的处理函数，并在该函数中编码设计影响自身运行逻辑流程的代码方案，然后在运行过程中接受/等待父进程利用 <code>kill()</code> 发出的软中断信号，进而触发软中断处理函数的执行和改变代码运行轨迹</li>
+</ul>
+<p><strong>wait() 与 exit() 用法</strong></p>
+<ul>
+<li>pid_t wait(int *status);
+<ul>
+<li>用于暂停主调进程的执行以等待其子进程终止</li>
+<li>参数 status 用于存放子进程终止时的终止信号值</li>
+<li>返回值为终止子进程的进程标识符，无则返回 -1</li>
+</ul>
+</li>
+<li>pid_t waitpid(pid_t pid, int *status, int options);
+<ul>
+<li>用于等待 pid 指定子进程的终止</li>
+</ul>
+</li>
+<li>void exit(int status);
+<ul>
+<li>用于终止主调进程，status &amp; 0377 结果发给父进程</li>
+</ul>
+</li>
+<li>所需头文件
+<ul>
+<li><code>#include &lt;sys/types.h&gt;</code></li>
+<li><code>#include &lt;sys/wait.h&gt;</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>软中断信号机制及用法</strong></p>
+<p>操作系统用来通知进程有事件发生，是最基本的进程间通信机制，其提供了一种简单的处理异步事件的方法</p>
+<p>注意这种信号类似于中断总是在进程处于运行状态时才会去响应，故称之为软中断信号</p>
+<p>进程在接收软中断信号之前必须先使用 signal() 进行预置，以便将其与某处理函数关联；当信号发出并被对应进程接收后，系统就中断该进程执行，转而执行与相应信号关联的函数，待函数执行完毕后再返回被中断进程继续执行</p>
+<p>除了用户自定义信号 SIGUSR1 和 SIGUSR2 外，其它软中断信号都已经由操作系统预置了相应的处理函数；用户进程中如果对这些软中断信号进行预置，则会使有关信号与新的函数相关联；当相关软中断信号被接收时，被转去执行的将不再是操作系统预置的处理函数，而是用户对该软中断信号重新预置后的处理函数</p>
+<p>同一个软中断信号可以通过多个 signal() 系统调用，分别与不同的处理函数进行关联；系统在响应该软中断信号时，执行的是当前/最近预置的处理函数，从而实现了同一软中断信号在不同的情况下可转向不同的处理函数去执行</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_11_56_46_202311201156239.png" alt="" /></p>
+<p><strong>signal() 与 kill() 用法</strong></p>
+<p><code>sighandler_t signal(int signum, sighandler_t handler);</code></p>
+<ul>
+<li><code>#include &lt;signal.h&gt;</code></li>
+<li><code>typedef void (*sighandler_t)(int);</code></li>
+<li>用于建立软中断信号与其处理函数之间的关联</li>
+</ul>
+<p><code>int kill(pid_t pid, int sig);</code></p>
+<ul>
+<li><code>#include &lt;sys/types.h&gt;</code></li>
+<li><code>#include &lt;signal.h&gt;</code></li>
+<li>用于向 pid 指定进程或进程组发送 sig 指定的信号</li>
+<li>pid&gt;0 将信号发送给 pid 指定的进程；</li>
+<li>pid=0 将信号发送给同组的所有进程；</li>
+<li>pid=-1 将信号发送给进程用户标识符等于发送进程有效用户标识符的所有进程</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;signal.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> nStopLoop<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; <span style="color:#75715e">//定义循环变量
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">soft_interrupt_handler</span>(<span style="color:#66d9ef">int</span> sig) <span style="color:#75715e">//定义软中断处理函数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>{
+</span></span><span style="display:flex;"><span> nStopLoop <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; <span style="color:#75715e">//修改循环变量的值为1	
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>) {
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">signal</span>(SIGINT,soft_interrupt_handler);	<span style="color:#75715e">//预置软中断信号对应处理函数-位置1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#75715e">//循环显示，等待键入Ctrl+C，获取该软中断信号后转软中断处理函数执行
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>nStopLoop)				
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;I&#39;m running!</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">signal</span>(SIGINT,soft_interrupt_handler);	<span style="color:#75715e">//预置软中断信号对应处理函数-位置2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span> <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;======I stop running!======&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">exit</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>第一种由于在循环前预置，所以可以被运行</li>
+<li>第二种在循环后预置，相当于预置自己的失败，所以直接被系统 <code>ctrl c</code> 接管</li>
+</ul>
+<p>父子进程对话同步实例</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;unistd.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;signal.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;wait.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> nStopLoop<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; <span style="color:#75715e">//定义循环变量
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">soft_interrupt_handler</span>(<span style="color:#66d9ef">int</span> sig) { nStopLoop <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; }
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">void</span>) {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> pid;
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">signal</span>(SIGUSR1, soft_interrupt_handler); <span style="color:#66d9ef">while</span> ((pid<span style="color:#f92672">=</span><span style="color:#a6e22e">fork</span>())<span style="color:#f92672">==-</span><span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> (pid<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[FJC=%d]: How are you?</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>());  <span style="color:#a6e22e">kill</span>(pid, SIGUSR1);  <span style="color:#a6e22e">wait</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[FJC=%d]: I&#39;m fine too.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>());
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>nStopLoop);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;[ZJC=%d]: Fine, thanks. And you?</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, <span style="color:#a6e22e">getpid</span>());  <span style="color:#a6e22e">exit</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span> }
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h1 id="linux-内存管理">
+  Linux 内存管理
+  <a class="anchor" href="#linux-%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86">#</a>
+</h1>
+<p>操作系统内存管理</p>
+<ul>
+<li>硬件【内存条（物理地址空间）+ 内存管理部件】</li>
+<li>内存管理包括内存分配与回收、地址映射、内存保护、内存扩充四个方面</li>
+</ul>
+<p>Linux 内存管理核心功能</p>
+<ul>
+<li>内存分配与回收、页表等内存管理结构及操作、缺页异常处理</li>
+</ul>
+<p>Linux 内存管理探析技术路线</p>
+<ul>
+<li>从 Shell 命令看内存布局、从应用程序看进/线程内存管理模型、从内核源码看内存管理实现机制</li>
+</ul>
+<p>Linux 内核镜像内存布局</p>
+<p>
+  <a href="https://www.cnblogs.com/yanghong-hnu/p/4705755.html">(深入理解计算机系统) bss段，data段、text段、堆(heap)和栈(stack) - 跑马灯的忧伤 - 博客园</a></p>
+<ul>
+<li><code>_bss_stop</code>
+<ul>
+<li>内核镜像 BSS 段的起始地址和结束地址，包含了初始化为 0 的所有静态全局变量</li>
+<li>bss 段（bss segment）通常是指用来存放程序中未初始化的全局变量的一块内存区域。</li>
+<li>bss 是英文 Block Started by Symbol 的简称。</li>
+<li>bss 段属于静态内存分配。</li>
+</ul>
+</li>
+<li><code>_edata</code>
+<ul>
+<li>内核镜像数据段的起始地址和结束地址，包含了内核大部分已初始化的数据</li>
+<li>数据段（data segment）通常是指用来存放程序中已初始化的全局变量的一块内存区域。</li>
+<li>数据段属于静态内存分配。</li>
+</ul>
+</li>
+<li><code>__init_begin</code>
+<ul>
+<li>内核镜像初始化数据段的起始地址和结束地址，包含了大部分内核模块初始化数据</li>
+</ul>
+</li>
+<li><code>_etext</code> or <code>_text</code>
+<ul>
+<li>内核镜像代码段的起始地址和结束地址，包含了编译后的内核代码</li>
+<li>代码段（code segment/text segment）通常是指用来存放程序执行代码的一块内存区域。</li>
+<li>这部分区域的大小在程序运行前就已经确定，并且内存区域通常属于只读 (某些架构也允许代码段为可写，即允许修改程序)。</li>
+<li>在代码段中，也有可能包含一些只读的常数变量，例如字符串常量等。</li>
+</ul>
+</li>
+</ul>
+<p>Linux 进程内存空间布局</p>
+<ul>
+<li>NULL
+<ul>
+<li>无效的节，也即没有关联的节</li>
+</ul>
+</li>
+<li>NOTE
+<ul>
+<li>包含提示信息的节</li>
+</ul>
+</li>
+<li>RELA
+<ul>
+<li>包含重定位表的节</li>
+</ul>
+</li>
+<li>PROGBITS
+<ul>
+<li>包含程序所需数据或代码且格式与含义由程序决定</li>
+</ul>
+</li>
+<li>NOBITS
+<ul>
+<li>不占用文件空间，仅提供地址偏移信息，用于存放那些未初始化的全局变量，譬如.bss 分段</li>
+</ul>
+</li>
+<li>INIT_ARRAY
+<ul>
+<li>函数指针数组，数组各元素对应函数执行初始化工作，在主函数 main 之前执行</li>
+</ul>
+</li>
+<li>FINI_ARRAY
+<ul>
+<li>函数指针数组，数组各元素对应函数执行善后扫尾工作，在主函数 main 之后执行</li>
+</ul>
+</li>
+<li>SYMTAB
+<ul>
+<li>符号表，链接时会用到</li>
+</ul>
+</li>
+<li>STRTAB
+<ul>
+<li>字符串表</li>
+<li><code> .shstrtab</code>
+<ul>
+<li>Section Header String Table</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Linux 进程 -ELF 程序头</p>
+<ul>
+<li>LOAD
+<ul>
+<li>可加载的段</li>
+</ul>
+</li>
+<li>NOTE
+<ul>
+<li>与加载的相关系统环境信息</li>
+</ul>
+</li>
+<li>TLS
+<ul>
+<li>Thread Local Storage</li>
+</ul>
+</li>
+</ul>
+<p><strong>C 标准库常用内存管理函数</strong></p>
+<ul>
+<li><code>void *malloc(size_t size);</code></li>
+<li><code>void free(void *ptr);</code></li>
+<li><code>void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);</code></li>
+<li><code>int munmap(void *addr, size_t length);</code></li>
+<li><code>int getpagesize(void);</code></li>
+<li><code>int mprotect(void *addr, size_t len, int prot);</code></li>
+<li><code>int mlock(const void *addr, size_t len);</code></li>
+<li><code>int munlock(const void *addr, size_t len);</code></li>
+<li><code>int madvise(void *addr, size_t length, int advice);</code></li>
+</ul>
+<h2 id="linux-启动与内存空间布局">
+  Linux 启动与内存空间布局
+  <a class="anchor" href="#linux-%e5%90%af%e5%8a%a8%e4%b8%8e%e5%86%85%e5%ad%98%e7%a9%ba%e9%97%b4%e5%b8%83%e5%b1%80">#</a>
+</h2>
+<h2 id="unix-进程存储管理">
+  UNIX 进程存储管理
+  <a class="anchor" href="#unix-%e8%bf%9b%e7%a8%8b%e5%ad%98%e5%82%a8%e7%ae%a1%e7%90%86">#</a>
+</h2>
+<p>进程空间可划分为核心态和用户态两部分</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_14_36_42_202311201436670.png" alt="" /></p>
+<p><strong>UNIX 进程虚实地址映射机制</strong></p>
+<ul>
+<li>两组内存管理寄存器：KISA 和 KISD 用于核心态，UISA 和 UISD 用于用户态；每组包含 8 对 16 位长的寄存器</li>
+<li>程序状态字寄存器 PSW 包含有指示机器执行状态的位</li>
+<li>KISA 和 UISA 用于存放逻辑页在内存的首地址</li>
+<li>KISD 和 UISD 用于存放相应页面的属性，关键位域包括：
+<ul>
+<li>位 1~2 描述存取控制属性 ACF，譬如只读、可读写等；</li>
+<li>位 3 描述页扩展方向 ED，0/1 指示由低/高址向高/低址扩展；</li>
+<li>位 6 描述页面是否修改过 M</li>
+<li>位 8~14 描述页面的实际使用大小 PLF，指向虚页可用的最后一块内存字符块号，具体采用补码表示，便于越界检查
+<ul>
+<li>若 ED＝0，表示页使用由低到高扩展，于是 PLF＝实际使用大小－1；</li>
+<li>若 ED=1，PLF＝页面大小－实际使用大小</li>
+<li>譬如，若 ED＝0 且已使用 32 块，则 PLF＝32－1=31；若 ED=1、页面大小为 128 个内存字符块且实际使用 100 块，则 PLF＝128－100=28。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>假设页面大小为128个内存字符块，某进程的数据段使用了3个内存字符块，而用户栈使用了2个内存字符块，试分别给出它们的PLF值？
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>数据段由低址向高址扩展，ED=0，故而PLF=3-1=2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>栈由高址向低址扩展，ED=1，故而PLF=128-2=126
+</span></span></code></pre></div><p><strong>UNIX 进程核心态虚实地址映射</strong></p>
+<ul>
+<li>核心态下，0~5 及 7#页面映射关系固定，系统生成后就固定不变了，即不随运行进程变化；但 6#页面及 KISA6、KISD6 是不固定的，会随当前运行进程而变化，也即总是指向当前运行进程的 ppda 区</li>
+<li>地址映射过程如下：
+<ul>
+<li>(1) 搜索 proc 表，根据调度策略选中当前进程的 <code>proc[n]</code></li>
+<li>(2) 根据 <code>proc[n].p-addr</code> 找到 ppda</li>
+<li>(3) 建立 ppda 和进程核心态空间第 6 页之间的映射关系，即将 ppda 首址赋给 <code>KISA[6]</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>UNIX 进程用户态虚实地址映射</strong></p>
+<ul>
+<li>假设某进程在用户态下访问的最大虚拟存储空间为 8 页，其中共享正文段占 2.5 页、数据段占 2.25 页、用户栈占 0.5 页。如果每页大小为 128 个内存字符块，则 0.5 页为 64 个字符块，0.25 页为 32 个字符块</li>
+<li>假设该进程正文段内存始址为 ta、数据段内存始址为 da，那么该进程 0~5#页面的内存始址分别为 ta、ta+128、ta+256、da、da+128、da+256；用户栈紧靠数据段的下方且由高向低扩展，于是其始址为 da+256+32+64=da+352</li>
+</ul>
+<p><strong>UNIX 进程被调度时地址映射</strong></p>
+<p>被调度进程 user 结构体内容加载到内存后，根据 u-uisa[] 的值相应地加上 x_caddr 或 p_addr 后赋给 UISA[]，而 UISD[] 和 u-uisd[] 的值相同</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_14_52_53_202311201452661.png" alt="" /></p>
+<h2 id="linux-进程---线程空间探析">
+  Linux 进程 - 线程空间探析
+  <a class="anchor" href="#linux-%e8%bf%9b%e7%a8%8b---%e7%ba%bf%e7%a8%8b%e7%a9%ba%e9%97%b4%e6%8e%a2%e6%9e%90">#</a>
+</h2>
+<p>Linux 虚拟/物理地址空间映射</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_14_59_45_202311201459767.png" alt="" /></p>
+<h2 id="linux-内存管理-1">
+  Linux 内存管理
+  <a class="anchor" href="#linux-%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86-1">#</a>
+</h2>
+<p>页面 struct page</p>
+<p>内存管理区 struct zone</p>
+<p>页面的分配与释放</p>
+<ul>
+<li><code>static inline struct page* alloc_pages(gfp_t gfp_mask, unsigned int order);</code></li>
+<li><code>void __free_pages(struct page *page, unsigned int order);</code></li>
+</ul>
+<p>内存碎片化解决方案——伙伴算法</p>
+<p>小块内存分配机制</p>
+<ul>
+<li>slob 分配
+<ul>
+<li>SLOB（Simple List Of Blocks）分配器，设计小而高效，采用了首次适应算法，存在内部碎片问题；设立小、中、大三个链表分别用来记录管理当前的空闲链表（small list：0~256 字节；medium list：256~1024 字节；large list：1024~Pagesize）；超过页面大小的空间申请直接通过伙伴系统进行分配，无需经过 SLOB 分配器</li>
+</ul>
+</li>
+<li>slab 分配</li>
+<li>slub 分配
+<ul>
+<li>Slub 内存分配器的特点是简化设计理念，并保留 slab 分配器的核心思想（也即每个缓冲区由多个小的 slab 组成且每个 slab 包含固定数量的对象）；Slub 分配器简化了 kmem_cache、slab 等相关管理型数据结构，摒弃了 slab 分配器中众多的队列概念，针对多处理器、NUMA 系统进行优化，以提高性能和可扩展性并降低内存空间开销</li>
+</ul>
+</li>
+</ul>
+<p>虚拟内存管理之进程地址空间</p>
+<p>内存描述符 struct mm_struct</p>
+<p>内存分配与释放</p>
+<ul>
+<li><code>malloc(); mmap();</code></li>
+</ul>
+<p>缺页异常处理</p>
+<ul>
+<li><code>do_page_fault(); </code></li>
+</ul>
+<p>页面淘汰机制</p>
+<ul>
+<li>LRU 算法与页面缓存策略相结合</li>
+</ul>
+<h1 id="linux-处理器及进程调度">
+  Linux 处理器及进程调度
+  <a class="anchor" href="#linux-%e5%a4%84%e7%90%86%e5%99%a8%e5%8f%8a%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6">#</a>
+</h1>
+<h2 id="linux-处理器调度概要">
+  Linux 处理器调度概要
+  <a class="anchor" href="#linux-%e5%a4%84%e7%90%86%e5%99%a8%e8%b0%83%e5%ba%a6%e6%a6%82%e8%a6%81">#</a>
+</h2>
+<p>处理器调度类型</p>
+<ul>
+<li>长程调度、中程调度、短程调度</li>
+</ul>
+<p>处理器调度算法</p>
+<ul>
+<li>先来先服务调度算法、最短时间优先调度算法、时间片轮转调度算法、高响应比优先调度算法、多级反馈队列调度算法、公平型调度算法</li>
+<li>最早截止时间调度算法、最低松弛度优先调度算法</li>
+</ul>
+<p>处理器调度评价指标</p>
+<ul>
+<li>用户角度、系统角度</li>
+</ul>
+<p>Linux 内核基础设施</p>
+<ul>
+<li>进程控制块、进程状态转换</li>
+<li>线程及其与进程之间的控制操作关系</li>
+</ul>
+<p>Linux 处理器调度算法</p>
+<ul>
+<li>O(n) 调度算法 Linux2.4 内核及以前版本</li>
+<li>O(1) 调度算法 Linux2.6 内核</li>
+<li>CFS 调度算法 Linux2.6.23 内核</li>
+</ul>
+<p>Linux 虚拟机进程调度</p>
+<h2 id="linux-处理器调度算法">
+  Linux 处理器调度算法
+  <a class="anchor" href="#linux-%e5%a4%84%e7%90%86%e5%99%a8%e8%b0%83%e5%ba%a6%e7%ae%97%e6%b3%95">#</a>
+</h2>
+<p><strong>基于优先级的时间片轮转调度算法</strong>——O(n) 调度算法</p>
+<ul>
+<li>设立一个全局性的就绪队列链表 runqueue（无序）</li>
+<li>每个进程被赋予一个固定的时间片；当前运行进程的时间片使用完后，调度器会选择下一就绪进程运行；当所有进程的时间片都用完之后，才会对所有进程重新分配时间片</li>
+<li>从中选取下一最佳就绪进程的时间开销与就绪队列所含进程数有关，时间复杂度为 O(n)；当就绪队列中的进程数很多时，选择调度下一就绪进程的过程会变得很慢，从而导致系统整体性能下降</li>
+</ul>
+<p>O(1) 调度算法</p>
+<ul>
+<li>每个处理器维护独立的就绪队列，减少了锁竞争</li>
+<li>拥有活跃型和过期型两类优先级就绪队列数组</li>
+<li>每个优先级就绪队列数组包含 MAX_PRIO 也即 140 个优先级队列，其中前 100 个对应实时进程、后 40 个对应普通进程。这样调度器在调度时，只需在活跃型优先级就绪队列数组中选择优先级最高且非空队列中的队首就绪进程调度运行即可</li>
+</ul>
+<p><strong>CFS 调度算法</strong></p>
+<ul>
+<li>抛弃以往固定时间片和固定调度周期的做法，采用进程权重比值来量化和计算实际运行时间</li>
+<li>引入虚拟时钟概念，每个进程的虚拟时间是时间运行时间相对于 nice 值为 0 的权重的比例值</li>
+<li>进程按照各自不同速率比在物理时钟节拍内前进：
+<ul>
+<li>nice 值小的进程优先级高、权重大，且其虚拟时钟比真实时钟慢，但可获得较多的运行时间；</li>
+<li>nice 值大的进程优先级低、权重小，且其虚拟时钟比真实时钟快，所获运行时间少</li>
+<li>CFS 调度器总是选择虚拟时钟跑得慢的进程，就像一个多级变速箱：nice 值为 0 的进程是基准齿轮，其它各个进程在不同的变速比下相互追赶，从而达到公平、公正</li>
+</ul>
+</li>
+</ul>
+<p><strong>Linux VServer 虚拟机机制</strong></p>
+<ul>
+<li>提供了一种控制虚拟机使用处理器时间的方式</li>
+<li>其在 Linux 标准调度机制上面覆盖了一种令牌桶过滤器 TBF（Token Bucket Filter），以确定每个虚拟机应分配多少处理器执行时间（涵盖单处理器、多处理器、多核处理器）</li>
+<li>令牌输入速率（每时间段 T 可传入的令牌数 R）</li>
+<li>桶大小 S（达到该值，令牌输入无效）</li>
+<li>虚拟机上进程运行，则消耗桶中令牌</li>
+<li>最低阈值 M（触发重启和重新调度被停进程）</li>
+</ul>
+<h2 id="unix-进程调度">
+  UNIX 进程调度
+  <a class="anchor" href="#unix-%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6">#</a>
+</h2>
+<p><strong>UNIX 进程调度功能框架</strong></p>
+<ul>
+<li>确定调度时机
+<ul>
+<li>抢占式系统出现高优先权可运行进程，立即让其运行</li>
+<li>非抢占式系统中即使出现高优先权可运行进程，也要等到调度时机（即当前运行进程自动放弃 CPU 或由核心态转入用户态）出现时，才让其运行</li>
+</ul>
+</li>
+<li>执行调度算法（确定调度策略、计算优先数），从而选定某一进程运行</li>
+<li>完成调度的具体操作过程
+<ul>
+<li>让原运行进程退出 CPU</li>
+<li>保护退出进程的运行现场</li>
+<li>让选中进程占用 CPU</li>
+<li>初始化或恢复选中进程的运行现场</li>
+</ul>
+</li>
+</ul>
+<p>进程占用 CPU 时间 p-cpu 统计</p>
+<ul>
+<li>每次时钟中断（20ms）使当前运行进程的 p-cpu 递增即 + 1</li>
+<li>每隔一秒（50 次时钟中断）依次检查各进程的 p-cpu
+<ul>
+<li>如果 p-cpu ≤ 10，则 p-cpu = 0；</li>
+<li>如果 p-cpu &gt; 10，则 p-cpu 的值减 10 后写回 p-cpu</li>
+</ul>
+</li>
+<li>p-cpu 与进程调度切换反馈过程
+<ul>
+<li>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_31_36_202311201731611.png" alt="" /></li>
+</ul>
+</li>
+</ul>
+<p><strong>UNIX 进程调度策略</strong></p>
+<ul>
+<li>
+<p><strong>UNIX 采用基于动态优先数的进程调度策略</strong></p>
+<ul>
+<li>0≤pri≤127，核心态进程优先数∈[0,49]、用户态进程优先数∈[50,127]</li>
+</ul>
+</li>
+<li>
+<p>核心态进程不可剥夺、用户态进程可剥夺</p>
+<ul>
+<li>例：进程 i 被阻塞时，将陷入睡眠状态，对应优先数 proc[i].p-pri∈[0,49]；其被唤醒时，该值小于用户态进程优先数，故可被优先执行</li>
+<li>合作进程唤醒或中断处理程序唤醒</li>
+</ul>
+</li>
+<li>
+<p>用户态进程优先数 p-pri 动态变化方式</p>
+<ul>
+<li>每秒重新计算一次：50 + ( p-cpu / a) + 2 * p-nice，其中 a = 2, 4, 8, 16</li>
+</ul>
+</li>
+<li>
+<p><strong>基于动态优先数的进程调度</strong></p>
+<ul>
+<li>whichqs 以位图方式描述了多级优先级就绪进程队列状况（0 空/1 不空），并选择调度第一非空队列队首进程</li>
+<li>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_33_46_202311201733248.png" alt="" /></li>
+</ul>
+</li>
+</ul>
+<p><strong>UNIX 进程调度操作过程</strong>——由两组寄存器进行联合实现</p>
+<p>当前运行进程 i =&gt; 非运行状态【保护现场】</p>
+<ul>
+<li>填写 p-wchan、u-rsav[2]</li>
+<li>修改 text 结构中共享正文段进程数</li>
+<li>记录用户空间页地址寄存器内容：UISA → u-uisa</li>
+<li>记录用户空间页描述符寄存器内容：UISD → u-uisd</li>
+</ul>
+<p>所选进程 j 置换为运行状态【恢复现场】</p>
+<ul>
+<li>若映像不在内存：①如内存足够多，则直接调入；②否则根据淘汰策略换出某些内存页面并装入映像</li>
+<li>KISA[6] → ppda     proc[j].p-addr 写入 KISA[6]</li>
+<li>根据 p-textp 找到 text 结构，若 text 不在内存，同样涉及调入和淘汰页面的处理</li>
+<li>由 p-addr 或 KISA[6] 找到 user，并执行地址映射</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#linux-进程线程管理控制">Linux 进程/线程管理控制</a>
+      <ul>
+        <li><a href="#进程与线程">进程与线程</a></li>
+        <li><a href="#unixlinux-进程">UNIX/Linux 进程</a></li>
+        <li><a href="#unixlinux-进程状态演化">UNIX/Linux 进程状态演化</a></li>
+        <li><a href="#unixlinux-进程创建与执行">UNIX/Linux 进程创建与执行</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-内核并发机制">Linux 内核并发机制</a>
+      <ul>
+        <li><a href="#并发控制的必要性和重要性">并发控制的必要性和重要性</a></li>
+        <li><a href="#linux-并发控制触发机制">Linux 并发控制触发机制</a></li>
+        <li><a href="#unixlinux-并发同步机制">UNIX/Linux 并发同步机制</a>
+          <ul>
+            <li><a href="#linux--原子操作">Linux- 原子操作</a></li>
+            <li><a href="#linux--自旋锁">Linux- 自旋锁</a></li>
+          </ul>
+        </li>
+        <li><a href="#linux--信号量">Linux- 信号量</a>
+          <ul>
+            <li><a href="#linux--内存屏障">Linux- 内存屏障</a></li>
+            <li><a href="#linux-rcu-读时复制更新">Linux-RCU 读时复制更新</a></li>
+            <li><a href="#linux--等待队列">Linux- 等待队列</a></li>
+            <li><a href="#简单应用实现">简单应用实现</a></li>
+          </ul>
+        </li>
+        <li><a href="#linux-父子进程间同步编程">Linux 父子进程间同步编程</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-内存管理">Linux 内存管理</a>
+      <ul>
+        <li><a href="#linux-启动与内存空间布局">Linux 启动与内存空间布局</a></li>
+        <li><a href="#unix-进程存储管理">UNIX 进程存储管理</a></li>
+        <li><a href="#linux-进程---线程空间探析">Linux 进程 - 线程空间探析</a></li>
+        <li><a href="#linux-内存管理-1">Linux 内存管理</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-处理器及进程调度">Linux 处理器及进程调度</a>
+      <ul>
+        <li><a href="#linux-处理器调度概要">Linux 处理器调度概要</a></li>
+        <li><a href="#linux-处理器调度算法">Linux 处理器调度算法</a></li>
+        <li><a href="#unix-进程调度">UNIX 进程调度</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

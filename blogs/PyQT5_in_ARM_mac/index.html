@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在 Apple Silicon 上配置 PyQt5 以及 LabelImg # Mac M1 芯片安装 labelImg - 简书
+最近突然需要继续做一些数据标注的任务，下载好了之前经常用的 Labelme 后发现输出的标记文件是 json 格式的，不符合项目规范。发现 labelImg 这款标注软件刚好是输出 xml 作为标记文件的，十分合适。
+但是由于最近刚刚换了电脑，时隔一年的试用后终于把我的主力机换到了 Apple Silicon 平台上来，随之而来的就是这一系列的配置问题。
+GitHub - heartexlabs/labelImg
+Q-问题 # 官方的安装文档向来是非常重要的部分。主要是在执行 pip3 install pyqt5 lxml # Install qt and lxml by pip 的时候报错，直接 error。
+在这一部分可能会有很多的人会遇到与我相似的问题，故将整个问题的出现与操作列出。
+一般到这里复制错误信息到 Google 会发现有一部分用户也遇到了这类问题，主要的原因就是 arm64 架构和此处的 PyQt5 不兼容所导致的。
+此时可以尝试利用 homebrew 中更新的命令：brew install pyqt@5 进行安装。
+并且可以看到这个命令安装的 PyQt5 已经是适配 arm64 架构的版本了。
+但此时如果继续按照官方文档走下去安装，会发现在安装labelimg的时候依旧会报错。并且所报的错误与之前几乎完全相同。
+此时就可以发现，整个的错误原因都是来源于PyQt5没有正确导入造成的。虽然已经在本地安装好相应的包了，但是并没有导入到对应的Python环境当中，导致无法正确使用。如果在此时尝试直接下载GitHub的源码编译安装的话，会非常直接的发现报错内容为：PyQt5 import error">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="在 Apple Silicon 上配置 PyQt5 以及 LabelImg" />
+<meta property="og:description" content="在 Apple Silicon 上配置 PyQt5 以及 LabelImg # Mac M1 芯片安装 labelImg - 简书
+最近突然需要继续做一些数据标注的任务，下载好了之前经常用的 Labelme 后发现输出的标记文件是 json 格式的，不符合项目规范。发现 labelImg 这款标注软件刚好是输出 xml 作为标记文件的，十分合适。
+但是由于最近刚刚换了电脑，时隔一年的试用后终于把我的主力机换到了 Apple Silicon 平台上来，随之而来的就是这一系列的配置问题。
+GitHub - heartexlabs/labelImg
+Q-问题 # 官方的安装文档向来是非常重要的部分。主要是在执行 pip3 install pyqt5 lxml # Install qt and lxml by pip 的时候报错，直接 error。
+在这一部分可能会有很多的人会遇到与我相似的问题，故将整个问题的出现与操作列出。
+一般到这里复制错误信息到 Google 会发现有一部分用户也遇到了这类问题，主要的原因就是 arm64 架构和此处的 PyQt5 不兼容所导致的。
+此时可以尝试利用 homebrew 中更新的命令：brew install pyqt@5 进行安装。
+并且可以看到这个命令安装的 PyQt5 已经是适配 arm64 架构的版本了。
+但此时如果继续按照官方文档走下去安装，会发现在安装labelimg的时候依旧会报错。并且所报的错误与之前几乎完全相同。
+此时就可以发现，整个的错误原因都是来源于PyQt5没有正确导入造成的。虽然已经在本地安装好相应的包了，但是并没有导入到对应的Python环境当中，导致无法正确使用。如果在此时尝试直接下载GitHub的源码编译安装的话，会非常直接的发现报错内容为：PyQt5 import error" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/blogs/PyQT5_in_ARM_mac/" /><meta property="article:section" content="blogs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>在 Apple Silicon 上配置 PyQt5 以及 LabelImg | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle"  />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle" checked />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="active">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>在 Apple Silicon 上配置 PyQt5 以及 LabelImg</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#在-apple-silicon-上配置-pyqt5-以及-labelimg">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+      <ul>
+        <li><a href="#q-问题">Q-问题</a></li>
+        <li><a href="#正确准备arm64架构上的pyqt5">正确准备arm64架构上的PyQt5</a>
+          <ul>
+            <li><a href="#outline">Outline</a></li>
+            <li><a href="#创建虚拟环境推荐">创建虚拟环境（推荐）</a></li>
+            <li><a href="#安装pyqt">安装PyQt</a></li>
+            <li><a href="#迁移最重要的环节">迁移——最重要的环节</a></li>
+            <li><a href="#安装labelimg">安装labelimg</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    <a href="/blogs/PyQT5_in_ARM_mac/">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  </h1>
+  
+
+
+  
+
+  
+  <div>
+    
+      <a href="/tags/tech/">tech</a>, 
+      <a href="/tags/gadget/">gadget</a>, 
+      <a href="/tags/hands-on/">hands-on</a>
+  </div>
+  
+
+
+
+<h1 id="在-apple-silicon-上配置-pyqt5-以及-labelimg">
+  在 Apple Silicon 上配置 PyQt5 以及 LabelImg
+  <a class="anchor" href="#%e5%9c%a8-apple-silicon-%e4%b8%8a%e9%85%8d%e7%bd%ae-pyqt5-%e4%bb%a5%e5%8f%8a-labelimg">#</a>
+</h1>
+<p>
+  <a href="https://www.jianshu.com/p/83da4f82e011">Mac M1 芯片安装 labelImg - 简书</a></p>
+<p>最近突然需要继续做一些数据标注的任务，下载好了之前经常用的 Labelme 后发现输出的标记文件是 json 格式的，不符合项目规范。发现 labelImg 这款标注软件刚好是输出 xml 作为标记文件的，十分合适。</p>
+<p>但是由于最近刚刚换了电脑，时隔一年的试用后终于把我的主力机换到了 Apple Silicon 平台上来，随之而来的就是这一系列的配置问题。</p>
+<p>
+  <a href="https://github.com/heartexlabs/labelImg">GitHub - heartexlabs/labelImg</a></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/9_22_14_27_Screen%20Shot%202022-11-09%20at%2022.14.21.png" alt="" /></p>
+<h2 id="q-问题">
+  Q-问题
+  <a class="anchor" href="#q-%e9%97%ae%e9%a2%98">#</a>
+</h2>
+<p>官方的安装文档向来是非常重要的部分。主要是在执行 <code>pip3 install pyqt5 lxml # Install qt and lxml by pip</code> 的时候报错，直接 error。</p>
+<p>在这一部分可能会有很多的人会遇到与我相似的问题，故将整个问题的出现与操作列出。</p>
+<p>一般到这里复制错误信息到 Google 会发现有一部分用户也遇到了这类问题，主要的原因就是 arm64 架构和此处的 PyQt5 不兼容所导致的。</p>
+<p><strong>此时可以尝试利用 homebrew 中更新的命令：<code>brew install pyqt@5</code> 进行安装。</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/9_22_20_22_Screen%20Shot%202022-11-09%20at%2022.20.19.png" alt="" /></p>
+<p>并且可以看到这个命令安装的 PyQt5 已经是适配 arm64 架构的版本了。</p>
+<p>但此时如果继续按照官方文档走下去安装，会发现在安装labelimg的时候依旧会报错。并且所报的错误与之前几乎完全相同。</p>
+<p>此时就可以发现，整个的错误原因都是来源于PyQt5没有正确导入造成的。虽然已经在本地安装好相应的包了，但是并没有导入到对应的Python环境当中，导致无法正确使用。如果在此时尝试直接下载GitHub的源码编译安装的话，会非常直接的发现报错内容为：PyQt5 import error</p>
+<h2 id="正确准备arm64架构上的pyqt5">
+  正确准备arm64架构上的PyQt5
+  <a class="anchor" href="#%e6%ad%a3%e7%a1%ae%e5%87%86%e5%a4%87arm64%e6%9e%b6%e6%9e%84%e4%b8%8a%e7%9a%84pyqt5">#</a>
+</h2>
+<h3 id="outline">
+  Outline
+  <a class="anchor" href="#outline">#</a>
+</h3>
+<ol>
+<li>安装并转移 pyqt5 arm64 版本： 
+  <a href="https://zhuanlan.zhihu.com/p/497492385">M1 Mac 安装 PyQt5 的方法 - 知乎</a></li>
+<li>直接 pip 安装 labelimg</li>
+<li>打开即可使用。且为 arm64 版本，性能极佳。</li>
+</ol>
+<h3 id="创建虚拟环境推荐">
+  创建虚拟环境（推荐）
+  <a class="anchor" href="#%e5%88%9b%e5%bb%ba%e8%99%9a%e6%8b%9f%e7%8e%af%e5%a2%83%e6%8e%a8%e8%8d%90">#</a>
+</h3>
+<p>非常推荐利用python和conda自带的虚拟环境来管理各种不同的空间和包，这样能做到最大限度的解耦，并且即用即取，不用即弃，也不易污染dev环境。</p>
+<ul>
+<li>创建空间：<code>conda create -n &quot;your_env_name&quot; python=&quot;3.9&quot;</code></li>
+<li>激活空间：<code>conda activate your_env_name</code></li>
+</ul>
+<p>由于labelimg的当前支持版本为Python3.9，此处便直接填入。</p>
+<h3 id="安装pyqt">
+  安装PyQt
+  <a class="anchor" href="#%e5%ae%89%e8%a3%85pyqt">#</a>
+</h3>
+<p>此处利用homebrew作为包管理器</p>
+<ul>
+<li>安装arm64架构的PyQt5：<code>brew install pyqt@5</code></li>
+</ul>
+<h3 id="迁移最重要的环节">
+  迁移——最重要的环节
+  <a class="anchor" href="#%e8%bf%81%e7%a7%bb%e6%9c%80%e9%87%8d%e8%a6%81%e7%9a%84%e7%8e%af%e8%8a%82">#</a>
+</h3>
+<p>这一步迁移就决定了可以实现完全原生arm64架构的PyQt5体验，并且基于这一套包的上层应用都可以在原生Apple Silicon架构中运行，获得最佳的性能和能耗表现。</p>
+<ul>
+<li>通过<code>conda env list</code>查看环境列表和路径</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/16_23_22_43_Screen%20Shot%202022-11-16%20at%2023.01.46.png" alt="" /></p>
+<p>切换到环境目录下，寻找对应的<code>site-package</code>目录。此目录下存放了全部在此python版本下安装的包文件。</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/17_23_7_18_Screen%20Shot%202022-11-17%20at%2023.07.12.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/17_23_8_35_Screen%20Shot%202022-11-17%20at%2023.08.32.png" alt="" /></p>
+<p>拷贝PyQt5到对应的目录下</p>
+<ul>
+<li>`cp -r PyQt5/ /opt/homebrew/Caskroom/miniforge/base/envs/label/lib/python3.9/site-packages</li>
+</ul>
+<p>全部准备工作就做好了。可以通过相应的命令来检测是否安装正确：</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/17_23_12_22_Screen%20Shot%202022-11-17%20at%2023.12.19.png" alt="" /></p>
+<ul>
+<li><code>import PyQt5</code></li>
+</ul>
+<p>没有报错即包导入成功</p>
+<h3 id="安装labelimg">
+  安装labelimg
+  <a class="anchor" href="#%e5%ae%89%e8%a3%85labelimg">#</a>
+</h3>
+<ul>
+<li><code>pip install labelimg</code></li>
+</ul>
+<p>即可成功安装。</p>
+<p>安装后在相应路径下打开python env，输入<code>labelimg .</code>即可打开程序</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#在-apple-silicon-上配置-pyqt5-以及-labelimg">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+      <ul>
+        <li><a href="#q-问题">Q-问题</a></li>
+        <li><a href="#正确准备arm64架构上的pyqt5">正确准备arm64架构上的PyQt5</a>
+          <ul>
+            <li><a href="#outline">Outline</a></li>
+            <li><a href="#创建虚拟环境推荐">创建虚拟环境（推荐）</a></li>
+            <li><a href="#安装pyqt">安装PyQt</a></li>
+            <li><a href="#迁移最重要的环节">迁移——最重要的环节</a></li>
+            <li><a href="#安装labelimg">安装labelimg</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

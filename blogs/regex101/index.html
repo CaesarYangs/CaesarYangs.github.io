@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="RegEx101 正则入门笔记 # 正则表达式的两种基本用途：搜索和替换。给定一个正则表达式，它要么匹配一些文本（进行一次搜索)，要么匹配并替换一些文本（进行一次替换)。
+非常好的在线正则表达式匹配检测工具： regex101: build, test, and debug regex 学习与工作上都非常好用 匹配单个字符 # 正则表达式，也被称为模式，其实是一些由字符构成的字符串。这些字符可以是字面字符（普通文本)或元字符（有特殊含义的字符)。
+普通文本
+正则表达式是区分大小写的。 任意字符
+注意正则表达式使用字符串内容来匹配模式。匹配到的未必总是整个字符串，也可能是与某个模式相匹配的子串。在上面的例子里，我们使用的正则表达式并不能匹配完整的文件名， 而是只匹配了其中一部分。如果你需要把某个正则表达式的匹配结果传递到其他代码或应用程序里做进一步处理，就必须记住这种差异。
+特殊字符
+. 表示匹配任意单个字符。 \ 是一个元字符（metacharacter，表示这个字符有特殊含义，代表的不是字符本身）。 .a.\. 结果：na1.xls 第一个.匹配a前面的单个字符；第二个.匹配a后面的单个字符；\.作为转义匹配真正的.符号 匹配一组字符 # 在正则表达式里，我们可以使用元字符 [ 和 ] 来定义一个字符集合。在使用 [ 和 ] 定义的字符集合里，出现在 [ 和 ] 之间的所有字符都是该集合的组成部分，必须匹配其中某个成员（但并非全部)。
+此处的 [ 和 ] 代表着强制匹配其中的元素。只有存在才能够匹配成功。 [ 和 ] 不匹配任何字符，它们只负责定义一个字符集合。接下来，再由真正的 regex 匹配部分参与匹配操作。 使用 [ 和 ] 的字符集合在不需要区分字母大小写（或是只需要匹配某个特定部分）的搜索操作里比较常见。 利用字符集合区间
+- 连字符，一种特殊的元字符。可以用这种连字符来定义字符区间。 一些合法的字符区间：
+[a-z]：匹配 a 到 z 所有小写字母 [A-Z]：匹配 A 到 Z 所有大写字母 [A-z]：匹配从 ASCⅡ字符 A 到 ASCIⅡ字符 z 的所有字母。这个模式一般不常用，因为它还包含 [ 和 ^ 等在 ASCⅡ字符表里排列在 Z 和 a 之间的字符。 字符区间的首、尾字符可以是 ASCⅡ字符表里的任意字符。但在实际工作中，最常用的字符区间还是数字字符区间和字母字符区间。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="RegEx101 正则入门笔记" />
+<meta property="og:description" content="RegEx101 正则入门笔记 # 正则表达式的两种基本用途：搜索和替换。给定一个正则表达式，它要么匹配一些文本（进行一次搜索)，要么匹配并替换一些文本（进行一次替换)。
+非常好的在线正则表达式匹配检测工具： regex101: build, test, and debug regex 学习与工作上都非常好用 匹配单个字符 # 正则表达式，也被称为模式，其实是一些由字符构成的字符串。这些字符可以是字面字符（普通文本)或元字符（有特殊含义的字符)。
+普通文本
+正则表达式是区分大小写的。 任意字符
+注意正则表达式使用字符串内容来匹配模式。匹配到的未必总是整个字符串，也可能是与某个模式相匹配的子串。在上面的例子里，我们使用的正则表达式并不能匹配完整的文件名， 而是只匹配了其中一部分。如果你需要把某个正则表达式的匹配结果传递到其他代码或应用程序里做进一步处理，就必须记住这种差异。
+特殊字符
+. 表示匹配任意单个字符。 \ 是一个元字符（metacharacter，表示这个字符有特殊含义，代表的不是字符本身）。 .a.\. 结果：na1.xls 第一个.匹配a前面的单个字符；第二个.匹配a后面的单个字符；\.作为转义匹配真正的.符号 匹配一组字符 # 在正则表达式里，我们可以使用元字符 [ 和 ] 来定义一个字符集合。在使用 [ 和 ] 定义的字符集合里，出现在 [ 和 ] 之间的所有字符都是该集合的组成部分，必须匹配其中某个成员（但并非全部)。
+此处的 [ 和 ] 代表着强制匹配其中的元素。只有存在才能够匹配成功。 [ 和 ] 不匹配任何字符，它们只负责定义一个字符集合。接下来，再由真正的 regex 匹配部分参与匹配操作。 使用 [ 和 ] 的字符集合在不需要区分字母大小写（或是只需要匹配某个特定部分）的搜索操作里比较常见。 利用字符集合区间
+- 连字符，一种特殊的元字符。可以用这种连字符来定义字符区间。 一些合法的字符区间：
+[a-z]：匹配 a 到 z 所有小写字母 [A-Z]：匹配 A 到 Z 所有大写字母 [A-z]：匹配从 ASCⅡ字符 A 到 ASCIⅡ字符 z 的所有字母。这个模式一般不常用，因为它还包含 [ 和 ^ 等在 ASCⅡ字符表里排列在 Z 和 a 之间的字符。 字符区间的首、尾字符可以是 ASCⅡ字符表里的任意字符。但在实际工作中，最常用的字符区间还是数字字符区间和字母字符区间。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/blogs/regex101/" /><meta property="article:section" content="blogs" />
+<meta property="article:published_time" content="2022-11-10T17:40:58+08:00" />
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>RegEx101 正则入门笔记 | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle"  />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle" checked />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="active">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>RegEx101 正则入门笔记</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#regex101-正则入门笔记">RegEx101 正则入门笔记</a>
+      <ul>
+        <li><a href="#匹配单个字符">匹配单个字符</a></li>
+        <li><a href="#匹配一组字符">匹配一组字符</a></li>
+        <li><a href="#元字符">元字符</a></li>
+        <li><a href="#重复匹配">重复匹配</a></li>
+        <li><a href="#位置匹配">位置匹配</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    <a href="/blogs/regex101/">RegEx101 正则入门笔记</a>
+  </h1>
+  
+  <h5>November 10, 2022</h5>
+
+
+
+  
+
+  
+  <div>
+    
+      <a href="/tags/regex/">regex</a>
+  </div>
+  
+
+
+
+<h1 id="regex101-正则入门笔记">
+  RegEx101 正则入门笔记
+  <a class="anchor" href="#regex101-%e6%ad%a3%e5%88%99%e5%85%a5%e9%97%a8%e7%ac%94%e8%ae%b0">#</a>
+</h1>
+<p><strong>正则表达式的两种基本用途</strong>：搜索和替换。给定一个正则表达式，它要么匹配一些文本（进行一次搜索)，要么匹配并替换一些文本（进行一次替换)。</p>
+<ul>
+<li>非常好的在线正则表达式匹配检测工具： 
+  <a href="https://regex101.com/">regex101: build, test, and debug regex</a> 学习与工作上都非常好用</li>
+</ul>
+<hr>
+<h2 id="匹配单个字符">
+  匹配单个字符
+  <a class="anchor" href="#%e5%8c%b9%e9%85%8d%e5%8d%95%e4%b8%aa%e5%ad%97%e7%ac%a6">#</a>
+</h2>
+<p>正则表达式，也被称为模式，其实是一些由字符构成的字符串。这些字符可以是字面字符（普通文本)或元字符（有特殊含义的字符)。</p>
+<p><strong>普通文本</strong></p>
+<ul>
+<li>正则表达式是区分大小写的。</li>
+</ul>
+<p><strong>任意字符</strong></p>
+<blockquote>
+<p>注意正则表达式使用字符串内容来匹配模式。匹配到的未必总是整个字符串，也可能是与某个模式相匹配的子串。在上面的例子里，我们使用的正则表达式并不能匹配完整的文件名， 而是只匹配了其中一部分。如果你需要把某个正则表达式的匹配结果传递到其他代码或应用程序里做进一步处理，就必须记住这种差异。</p>
+</blockquote>
+<p><strong>特殊字符</strong></p>
+<ul>
+<li><code>.</code> 表示匹配任意单个字符。</li>
+<li><code>\</code> 是一个元字符（metacharacter，表示这个字符有特殊含义，代表的不是字符本身）。</li>
+</ul>
+<pre tabindex="0"><code class="language-regex" data-lang="regex">.a.\.
+结果：na1.xls
+
+第一个.匹配a前面的单个字符；第二个.匹配a后面的单个字符；\.作为转义匹配真正的.符号
+</code></pre><h2 id="匹配一组字符">
+  匹配一组字符
+  <a class="anchor" href="#%e5%8c%b9%e9%85%8d%e4%b8%80%e7%bb%84%e5%ad%97%e7%ac%a6">#</a>
+</h2>
+<p>在正则表达式里，我们可以使用元字符 <code>[</code> 和 <code>]</code> 来定义一个字符集合。在使用 <code>[</code> 和 <code>]</code> 定义的字符集合里，出现在 <code>[</code> 和 <code>]</code> 之间的所有字符都是该集合的组成部分，<strong>必须匹配其中某个成员（但并非全部)。</strong></p>
+<ul>
+<li>此处的 <code>[</code> 和 <code>]</code> 代表着强制匹配其中的元素。只有存在才能够匹配成功。</li>
+<li><code>[</code> 和 <code>]</code> 不匹配任何字符，它们只负责定义一个字符集合。接下来，再由真正的 regex 匹配部分参与匹配操作。</li>
+<li>使用 <code>[</code> 和 <code>]</code> 的字符集合在不需要区分字母大小写（或是只需要匹配某个特定部分）的搜索操作里比较常见。
+<ul>
+<li>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_15_38_12_Screen%20Shot%202022-11-02%20at%2015.38.02.png" alt="" /></li>
+</ul>
+</li>
+</ul>
+<p><strong>利用字符集合区间</strong></p>
+<ul>
+<li><code>-</code> 连字符，一种特殊的元字符。可以用这种连字符来定义字符区间。</li>
+</ul>
+<p>一些合法的字符区间：</p>
+<ul>
+<li><code>[a-z]</code>：匹配 a 到 z 所有小写字母</li>
+<li><code>[A-Z]</code>：匹配 A 到 Z 所有大写字母</li>
+<li><code>[A-z]</code>：匹配从 ASCⅡ字符 A 到 ASCIⅡ字符 z 的所有字母。这个模式一般不常用，因为它还包含 <code>[</code> 和 <code>^</code> 等在 ASCⅡ字符表里排列在 Z 和 a 之间的字符。</li>
+</ul>
+<p>字符区间的首、尾字符可以是 ASCⅡ字符表里的任意字符。但在实际工作中，最常用的字符区间还是数字字符区间和字母字符区间。</p>
+<blockquote>
+<p>注意 <code>-</code>（连字符）是一个特殊的元字符，它只有出现在 <code>[</code> 和 <code>]</code> 之间的时候才是元字符。在字符集合以外的地方，<code>-</code> 只是一个普通字符，只能与 <code>-</code> 本身相匹配。因此，在正则表达式里，<code>-</code> 字符不需要被转义。</p>
+</blockquote>
+<p>在同一个字符集合里可以给出多个字符区间。比如说，下面这个模式可以匹配任何一个字母（无论大小写)或数字，但除此以外的其他字符（既不是数字也不是字母的字符)都不匹配：</p>
+<pre tabindex="0"><code class="language-regex" data-lang="regex">[A-Za-z0-9]==
+[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789]
+</code></pre><p><strong>排除</strong></p>
+<p>字符集合通常用来指定一组必须匹配其中之一的字符。但在某些场合，我们需要反过来做，即指定一组不需要匹配的字符。换句话说，就是<strong>排除字符集合里指定的那些字符。</strong></p>
+<ul>
+<li>使用元字符 <code>^</code> 来排除某个字符集合。而不用逐个列出要匹配的字符。</li>
+</ul>
+<pre tabindex="0"><code class="language-regex" data-lang="regex">[^0-9]这种用法就恰好与[0-9]相反
+</code></pre><p><strong>小结</strong></p>
+<ul>
+<li>元字符 <code>[</code> 和 <code>]</code> 用来定义一个字符集合，其含义是必须匹配该集合里的字符之一（<strong>各个字符之间是 OR 的关系，而不是 AND 的关系</strong>)。</li>
+<li>定义一个字符集合的具体做法有两种：
+<ul>
+<li>一是把所有的字符都列举出来；</li>
+<li>二是利用元字符 <code>-</code> 以字符区间的方式给出。可以用元字符 <code>^</code> 排除字符集合，强制匹配指定字符集合之外的字符。</li>
+</ul>
+</li>
+</ul>
+<h2 id="元字符">
+  元字符
+  <a class="anchor" href="#%e5%85%83%e5%ad%97%e7%ac%a6">#</a>
+</h2>
+<p><strong>转义字符</strong></p>
+<p>因为元字符在正则表达式里有着特殊的含义，所以这些字符就无法用来代表它们本身。比如说，你不能使用 <code>[</code> 来匹配 <code>[</code> 本身，也不能使用 <code>.</code> 来匹配 <code>.</code> 本身。</p>
+<ul>
+<li>通过加上通用的转义字符 <code>\</code> 对其进行转义</li>
+<li>对元字符进行转义需要用到 <code>\</code> 字符。这意味着 <code>\</code> 字符也是一个元字符，它的特殊含义是对其他元字符进行转义。在需要匹配 <code>\</code> 本身的时候，我们必须把它转义为 <code>\\</code>。</li>
+</ul>
+<p><strong>匹配空白字符</strong></p>
+<ul>
+<li>元字符大致可以分为两种：一种是用来匹配文本的（比如 <code>.</code>)，另一种是正则表达式语法的组成部分（比如 <code>[</code> 和 <code>]</code>)。</li>
+<li>空白字符匹配：
+<ul>
+<li>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_5_35_Screen%20Shot%202022-11-02%20at%2016.05.31.png" alt="" /></li>
+</ul>
+</li>
+</ul>
+<p><strong>匹配特定字符类型</strong></p>
+<p>数字元字符</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_7_13_Screen%20Shot%202022-11-02%20at%2016.07.10.png" alt="" /></p>
+<p>匹配字母数字（与非字母数字）</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_8_35_Screen%20Shot%202022-11-02%20at%2016.08.31.png" alt="" /></p>
+<p>匹配空白字符</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_9_7_Screen%20Shot%202022-11-02%20at%2016.09.04.png" alt="" /></p>
+<ul>
+<li>因此，正则表达式的写法并不唯一。只需挑选最舒服的即可。</li>
+</ul>
+<p><strong>匹配十六进制或八进制数值</strong></p>
+<ul>
+<li>十六进制：使用前缀 <code>\x</code> 给出</li>
+<li>八进制：使用前缀 <code>\0</code> 给出</li>
+</ul>
+<p><strong>POSIX 字符类</strong></p>
+<p>POSX 是一种特殊的标准字符类集，也是许多（但不是所有）正则表达式实现都支持的一种简写形式。</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_11_29_Screen%20Shot%202022-11-02%20at%2016.11.26.png" alt="" /></p>
+<h2 id="重复匹配">
+  重复匹配
+  <a class="anchor" href="#%e9%87%8d%e5%a4%8d%e5%8c%b9%e9%85%8d">#</a>
+</h2>
+<p>目的是要匹配尽可能多的字符。可以通过几种特殊的元字符实现。</p>
+<p><strong>匹配一个或多个字符</strong></p>
+<ul>
+<li>要匹配某个字符或字符集合，只要简单地在其后面加上一个 <code>+</code> 字符就行了。</li>
+<li><code>+</code> 匹配一个或多个字符（至少一个；不匹配零个字符的情况）</li>
+<li><code>+</code> 还可以用来匹配一个或多个字符集合。配合之前的 <code>[</code> 或 <code>]</code> 来实现</li>
+</ul>
+<blockquote>
+<p>注意你可能已经注意到了：我们没有对字符集合 <code>[\w.]</code> 里的.字符进行转义，但依然能够匹配.字符。一般来说，当在字符集合里使用的时候，像.和+这样的元字符将被解释为普通字符，不需要转义，但转义了也没有坏处。<code>[\w\.]</code> 的使用效果与 <code>[w\.]</code> 是一样的。</p>
+</blockquote>
+<p><strong>匹配零个或多个字符</strong></p>
+<ul>
+<li>这种匹配使用 <code>*</code> 元字符来完成。其与 <code>+</code> 的用法完全一样，但可以支持匹配零个或多个。</li>
+<li>注意：可以把 <code>*</code> 理解为一种“使其可选”(make it optional)的元字符。<code>+</code> 需要最少匹配一次，而 <code>*</code> 可以匹配多次，也可以一次都不匹配。</li>
+</ul>
+<p><strong>匹配零个或一个字符</strong></p>
+<ul>
+<li>使用元字符 <code>?</code> 来匹配可选文本</li>
+<li><code>?</code> 只能匹配某个字符或字符集合的零次或一次出现。最多不超过一次。非常适合匹配一段文本中某个特定的可选字符。</li>
+</ul>
+<p><strong>匹配的重复次数</strong></p>
+<p>为了解决这些指定重复的问题并对重复性匹配有更多的控制权，正则表达式允许使用重复范围(interval)。重复范围在 <code>{</code> 和 <code>}</code> 之间指定。</p>
+<ul>
+<li>要想设置具体的匹配次数，把数字写在 <code>{}</code> 之间即可。</li>
+<li>如：<code>{3}</code> 表示匹配前一个字符或字符集合 3 次。若只匹配两次，则不算匹配成功。</li>
+</ul>
+<p><strong>区间范围</strong></p>
+<p><code>{}</code> 语法还可以用来为重复匹配次数设定一个区间范围，也就是匹配的最小次数和最大次数。</p>
+<ul>
+<li>区间必须以 <code>{2,4}</code>（最少重复 2 次，最多重复 4 次)这样的形式给出。</li>
+</ul>
+<p><strong>匹配至少重复多少次</strong></p>
+<p>指定至少要匹配多少次(不指定最大匹配次数) 。这种用法的语法类似于区间范围语法,只是省略了最大值部分而已。</p>
+<ul>
+<li>比如说,<code>{3,}</code> 表示至少重复 3 次,换句话说,就是“重复 3 次或更多次” 。</li>
+<li>此时，<code>+</code> 在功能上便等价于 <code>{1,}</code></li>
+</ul>
+<p><strong>防止过度匹配</strong></p>
+<p><code>?</code> 的匹配范围有限(仅限零次或一次匹配) ,当使用精确数量或区间时,重复范围匹配也是如此。但其他重复匹配形式在重复次数方面都没有上限值,而这样做有时会导致过度匹配的现象。</p>
+<ul>
+<li><code>*</code> 和 <code>+</code> 都是所谓的“贪婪型”（greedy)元字符， 其匹配行为是多多益善而不是适可而止。它们会尽可能地从一段文本的开头一直匹配到末尾，而不是碰到第一个匹配时就停止。这是有意设的，量词就是贪婪的。</li>
+<li>在不需要这种“贪婪行为”的时候该怎么办？答案是使用这些量词的“懒惰型”（lazy)版本（之所以称之为“懒惰型”是因为其匹配尽可能少的字符，而非尽可能多地去匹配)。懒惰型量词的写法是在贪婪型量词后面加上一个 <code>？</code>。</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_17_18_16_Screen%20Shot%202022-11-02%20at%2017.18.13.png" alt="" /></p>
+<h2 id="位置匹配">
+  位置匹配
+  <a class="anchor" href="#%e4%bd%8d%e7%bd%ae%e5%8c%b9%e9%85%8d">#</a>
+</h2>
+<p><strong>单词边界</strong></p>
+<ul>
+<li><code>\b</code> 是由其所指定的单词边界。用来匹配一个单词的开头或结尾。</li>
+<li><code>\b</code> 匹配的是字符之间的一个位置，一边是单词另一边是其他内容。</li>
+<li>如果想要匹配完整的单词，就必须在匹配的文本前后都加上 <code>\b</code></li>
+</ul>
+<p><strong>字符串边界</strong></p>
+<ul>
+<li><code>^</code> 匹配一个字符串的开头位置</li>
+<li><code>$</code> 匹配字符串结尾位置</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#regex101-正则入门笔记">RegEx101 正则入门笔记</a>
+      <ul>
+        <li><a href="#匹配单个字符">匹配单个字符</a></li>
+        <li><a href="#匹配一组字符">匹配一组字符</a></li>
+        <li><a href="#元字符">元字符</a></li>
+        <li><a href="#重复匹配">重复匹配</a></li>
+        <li><a href="#位置匹配">位置匹配</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

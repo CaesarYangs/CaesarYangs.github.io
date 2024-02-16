@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Intro # 问题求解与搜索算法 # 问题求解涉及到两个方面:
+问题的表示，比如枚举对象、状态表示 求解的方法，比如自顶向下的递归，自底向上的动态规划 搜索算法是一种通用的问题求解方法: 首先把问题表示 转换为一个状态空间图，然后设计特定的图遍历方法在状态空间中搜索问题的答案。
+为了提高搜索的效率，在遍历状态空间时需要添加优化技术，比如剪枝策略用于尽可能避免无效搜索，启发式信息用来加速朝目标状态逼近的速度。
+状态空间图 # 一个问题用搜索算法求解时，往往需要把问题描述为状态空间图，包括以下要素
+状态 (State): 是为描述某类不同事物间的差别而引入的一组最少变量的有序集合，其矢量 形式为: 1 2 n ，其中每个分量 i 称为状态分量。 操作符 (运算符): 是指把一个状态转换为另外一个状态的操作或者运算。操作符可以是规划、数学运算和问题场景中行为等。 状态图: 如果把状态定义为图的结点，操作符定义为图的边，一个问题的全部可能状态则可 以表示为一个图，即状态图。 路径: 通过操作符序列连接起来的状态图中的一个状态序列。 路径耗散函数: 定义在路径上的一个数值函数，它反映了一条路径的性能度量或者求解问题 的代价。在求解最优化问题时，路径耗散函数往往与优化目标相关联。 状态空间图可以形式化地定义为一个四元组 (S，A，G，F)
+S 表示问题的初始状态，它是搜索的起点。 A 是采取的操作符集合，初始状态和操作符隐含地定义了问题的状态图。 G 表示目标测试，它判断给定的状态是否为目标状态。它可以是表示目标状态的一个状态集合，也可以是一个判定函数。 F 代表路径耗散函数，它的定义需要具体问题具体分析。 搜索就是在状态空间图中从初始状态出发，执行特定的操作，试探地寻找目标状态的过 程。当然，也可以从目标结点到初始结点反向进行。状态空间图中从初始状态到目标状 态的路径则代表问题的解。解的优劣由路径耗散函数量度，最优解就是路径耗散函数值 最小的路径。
+搜索算法类型 # 基于枚举的通用搜索 # DFS # 深度优先搜索 (Depth First Search, DFS) 是一种通用的图和树的遍历方法，给 定图𝐺 = (𝑉, 𝐸)，深度优先搜索的基本思想为:
+初始化 任选一个结点𝑣作为源结点，DFS 访问源结点𝑣，并将其标记为已访问过 能进则进，不进则退 递归遍历 扩展结点𝑣，即访问𝑣的下一个未访问邻接结点𝑤; 递归处理以𝑤为根的所有子结点; 退回到结点𝑣，继续扩展𝑣的其它未曾访问的邻接结点，直到𝑣的所有子结点均已访问过为止。 循环处理 若图𝐺中仍然存在未访问的结点，则另选一个未访问的结点作为新的源 结点重复上述过程，直到图中所有结点均被访问过为止。 基于栈的 DFS 算法框架:">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="Intro # 问题求解与搜索算法 # 问题求解涉及到两个方面:
+问题的表示，比如枚举对象、状态表示 求解的方法，比如自顶向下的递归，自底向上的动态规划 搜索算法是一种通用的问题求解方法: 首先把问题表示 转换为一个状态空间图，然后设计特定的图遍历方法在状态空间中搜索问题的答案。
+为了提高搜索的效率，在遍历状态空间时需要添加优化技术，比如剪枝策略用于尽可能避免无效搜索，启发式信息用来加速朝目标状态逼近的速度。
+状态空间图 # 一个问题用搜索算法求解时，往往需要把问题描述为状态空间图，包括以下要素
+状态 (State): 是为描述某类不同事物间的差别而引入的一组最少变量的有序集合，其矢量 形式为: 1 2 n ，其中每个分量 i 称为状态分量。 操作符 (运算符): 是指把一个状态转换为另外一个状态的操作或者运算。操作符可以是规划、数学运算和问题场景中行为等。 状态图: 如果把状态定义为图的结点，操作符定义为图的边，一个问题的全部可能状态则可 以表示为一个图，即状态图。 路径: 通过操作符序列连接起来的状态图中的一个状态序列。 路径耗散函数: 定义在路径上的一个数值函数，它反映了一条路径的性能度量或者求解问题 的代价。在求解最优化问题时，路径耗散函数往往与优化目标相关联。 状态空间图可以形式化地定义为一个四元组 (S，A，G，F)
+S 表示问题的初始状态，它是搜索的起点。 A 是采取的操作符集合，初始状态和操作符隐含地定义了问题的状态图。 G 表示目标测试，它判断给定的状态是否为目标状态。它可以是表示目标状态的一个状态集合，也可以是一个判定函数。 F 代表路径耗散函数，它的定义需要具体问题具体分析。 搜索就是在状态空间图中从初始状态出发，执行特定的操作，试探地寻找目标状态的过 程。当然，也可以从目标结点到初始结点反向进行。状态空间图中从初始状态到目标状 态的路径则代表问题的解。解的优劣由路径耗散函数量度，最优解就是路径耗散函数值 最小的路径。
+搜索算法类型 # 基于枚举的通用搜索 # DFS # 深度优先搜索 (Depth First Search, DFS) 是一种通用的图和树的遍历方法，给 定图𝐺 = (𝑉, 𝐸)，深度优先搜索的基本思想为:
+初始化 任选一个结点𝑣作为源结点，DFS 访问源结点𝑣，并将其标记为已访问过 能进则进，不进则退 递归遍历 扩展结点𝑣，即访问𝑣的下一个未访问邻接结点𝑤; 递归处理以𝑤为根的所有子结点; 退回到结点𝑣，继续扩展𝑣的其它未曾访问的邻接结点，直到𝑣的所有子结点均已访问过为止。 循环处理 若图𝐺中仍然存在未访问的结点，则另选一个未访问的结点作为新的源 结点重复上述过程，直到图中所有结点均被访问过为止。 基于栈的 DFS 算法框架:" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Algo/5-Search/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>5 Search | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle" checked />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="active">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>5 Search</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#intro">Intro</a>
+      <ul>
+        <li><a href="#问题求解与搜索算法">问题求解与搜索算法</a></li>
+        <li><a href="#状态空间图">状态空间图</a></li>
+      </ul>
+    </li>
+    <li><a href="#搜索算法类型">搜索算法类型</a>
+      <ul>
+        <li><a href="#基于枚举的通用搜索">基于枚举的通用搜索</a>
+          <ul>
+            <li><a href="#dfs">DFS</a></li>
+            <li><a href="#bfs">BFS</a></li>
+          </ul>
+        </li>
+        <li><a href="#枚举--优化的通用搜索">枚举 + 优化的通用搜索</a>
+          <ul>
+            <li><a href="#回溯算法">回溯算法</a></li>
+            <li><a href="#分支限界法">分支限界法</a></li>
+          </ul>
+        </li>
+        <li><a href="#启发式搜索">启发式搜索</a>
+          <ul>
+            <li><a href="#最佳优先搜索">最佳优先搜索</a></li>
+            <li><a href="#a-算法">A* 算法</a></li>
+          </ul>
+        </li>
+        <li><a href="#对抗搜索">对抗搜索</a></li>
+        <li><a href="#小结">小结</a></li>
+      </ul>
+    </li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#传教士问题">传教士问题</a></li>
+            <li><a href="#8-数码问题">8 数码问题</a></li>
+            <li><a href="#背包问题">背包问题</a></li>
+            <li><a href="#旅行商问题">旅行商问题</a></li>
+            <li><a href="#装载问题">装载问题</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="intro">
+  Intro
+  <a class="anchor" href="#intro">#</a>
+</h1>
+<h2 id="问题求解与搜索算法">
+  问题求解与搜索算法
+  <a class="anchor" href="#%e9%97%ae%e9%a2%98%e6%b1%82%e8%a7%a3%e4%b8%8e%e6%90%9c%e7%b4%a2%e7%ae%97%e6%b3%95">#</a>
+</h2>
+<p>问题求解涉及到两个方面:</p>
+<ul>
+<li>
+<ol>
+<li>问题的表示，比如枚举对象、状态表示</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>求解的方法，比如自顶向下的递归，自底向上的动态规划</li>
+</ol>
+</li>
+</ul>
+<p>搜索算法是一种<strong>通用的问题求解方法</strong>: 首先把问题表示 转换为一个状态空间图，然后设计特定的<strong>图遍历方法</strong>在状态空间中搜索问题的答案。</p>
+<p>为了提高搜索的效率，在遍历状态空间时需要添加优化技术，比如剪枝策略用于尽可能避免无效搜索，启发式信息用来加速朝目标状态逼近的速度。</p>
+<h2 id="状态空间图">
+  状态空间图
+  <a class="anchor" href="#%e7%8a%b6%e6%80%81%e7%a9%ba%e9%97%b4%e5%9b%be">#</a>
+</h2>
+<p>一个问题用搜索算法求解时，往往需要把问题描述为状态空间图，包括以下要素</p>
+<ul>
+<li>状态 (State): 是为描述某类不同事物间的差别而引入的一组最少变量的有序集合，其矢量 形式为: 1 2 n ，其中每个分量 i 称为状态分量。</li>
+<li>操作符 (运算符): 是指把一个状态转换为另外一个状态的操作或者运算。操作符可以是规划、数学运算和问题场景中行为等。</li>
+<li>状态图: 如果把状态定义为图的结点，操作符定义为图的边，一个问题的全部可能状态则可 以表示为一个图，即状态图。</li>
+<li>路径: 通过操作符序列连接起来的状态图中的一个状态序列。</li>
+<li>路径耗散函数: 定义在路径上的一个数值函数，它反映了一条路径的性能度量或者求解问题 的代价。在求解最优化问题时，路径耗散函数往往与优化目标相关联。</li>
+</ul>
+<p><strong>状态空间图可以形式化地定义为一个四元组 (S，A，G，F)</strong></p>
+<ul>
+<li>S 表示问题的初始状态，它是搜索的起点。</li>
+<li>A 是采取的操作符集合，初始状态和操作符隐含地定义了问题的状态图。</li>
+<li>G 表示目标测试，它判断给定的状态是否为目标状态。它可以是表示目标状态的一个状态集合，也可以是一个判定函数。</li>
+<li>F 代表路径耗散函数，它的定义需要具体问题具体分析。</li>
+</ul>
+<p>搜索就是在状态空间图中从初始状态出发，执行特定的操作，试探地寻找目标状态的过 程。当然，也可以从目标结点到初始结点反向进行。状态空间图中从初始状态到目标状 态的路径则代表问题的解。解的优劣由路径耗散函数量度，最优解就是路径耗散函数值 最小的路径。</p>
+<h1 id="搜索算法类型">
+  搜索算法类型
+  <a class="anchor" href="#%e6%90%9c%e7%b4%a2%e7%ae%97%e6%b3%95%e7%b1%bb%e5%9e%8b">#</a>
+</h1>
+<h2 id="基于枚举的通用搜索">
+  基于枚举的通用搜索
+  <a class="anchor" href="#%e5%9f%ba%e4%ba%8e%e6%9e%9a%e4%b8%be%e7%9a%84%e9%80%9a%e7%94%a8%e6%90%9c%e7%b4%a2">#</a>
+</h2>
+<h3 id="dfs">
+  DFS
+  <a class="anchor" href="#dfs">#</a>
+</h3>
+<p>深度优先搜索 (Depth First Search, DFS) 是一种通用的图和树的遍历方法，给 定图𝐺 = (𝑉, 𝐸)，深度优先搜索的基本思想为:</p>
+<ul>
+<li>初始化
+<ul>
+<li>任选一个结点𝑣作为源结点，DFS 访问源结点𝑣，并将其标记为已访问过</li>
+<li>能进则进，不进则退</li>
+</ul>
+</li>
+<li>递归遍历
+<ul>
+<li>扩展结点𝑣，即访问𝑣的下一个未访问邻接结点𝑤;</li>
+<li>递归处理以𝑤为根的所有子结点;</li>
+<li>退回到结点𝑣，继续扩展𝑣的其它未曾访问的邻接结点，直到𝑣的所有子结点均已访问过为止。</li>
+</ul>
+</li>
+<li>循环处理
+<ul>
+<li>若图𝐺中仍然存在未访问的结点，则另选一个未访问的结点作为新的源 结点重复上述过程，直到图中所有结点均被访问过为止。</li>
+</ul>
+</li>
+</ul>
+<p>基于栈的 DFS 算法框架:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>function <span style="color:#a6e22e">DFS</span>(problem,stack){
+</span></span><span style="display:flex;"><span>    node <span style="color:#f92672">=</span> Make<span style="color:#f92672">-</span><span style="color:#a6e22e">node</span>(Initial<span style="color:#f92672">-</span>State[problem]);
+</span></span><span style="display:flex;"><span>    stack <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">insert</span>(node,stack);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(<span style="color:#ae81ff">1</span>){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(stack <span style="color:#f92672">==</span> empty){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        node <span style="color:#f92672">=</span> <span style="color:#a6e22e">pop</span>(stack);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">visit</span>(node);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(state[node]<span style="color:#f92672">==</span> GOAL){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Solution</span>(node);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        sonNodes <span style="color:#f92672">=</span> <span style="color:#a6e22e">Expand</span>(node,problem);
+</span></span><span style="display:flex;"><span>        stack <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">InsertAll</span>(sonNodes,stack);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>基于递归的 DFS 算法框架：</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>function <span style="color:#a6e22e">DFS</span>(problem, node)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> State[node] <span style="color:#f92672">==</span> Goal<span style="color:#f92672">/</span>Failure <span style="color:#75715e">// 递归出口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Solution</span>(node); 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">visit</span>(node); <span style="color:#75715e">// 访问当前结点
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span>(iterator sonNode <span style="color:#f92672">=</span> <span style="color:#a6e22e">Init</span>(node); sonNode <span style="color:#f92672">&lt;=</span> <span style="color:#a6e22e">Last</span>(node); sonNode<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">notVisited</span>(sonNode)
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">DFS</span>(sonNode); <span style="color:#75715e">// 递归遍历其子树
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//注解:for循环用于扩展node的所有未访问子结点，并依次递归 调用，其中Init表示node的第一个子结点，Last表示最后一个子结点。
+</span></span></span></code></pre></div><h3 id="bfs">
+  BFS
+  <a class="anchor" href="#bfs">#</a>
+</h3>
+<p>广度优先搜索 (Breadth First Search, BFS) 类似于树的按层次遍历的过程，是 另外一种通用的图和树的遍历方法。给定图𝐺 = (𝑉, 𝐸)，BFS 基本思想为</p>
+<ul>
+<li>初始化
+<ul>
+<li>任选一个结点𝑣作为源结点， BFS 先访问源结点𝑣，并将其标记为已访问</li>
+<li>由近及远，按层展开</li>
+</ul>
+</li>
+<li>层次遍历
+<ul>
+<li>从𝑣出发，依次访问𝑣的邻接点:𝑤1,𝑤2,&hellip;,𝑤𝑡，如果𝑤𝑖(𝑖 = 1,2,&hellip;,𝑡) 未访 问过，则标记𝑤𝑖为已访问，并插入到先进先出的队列;</li>
+<li>取出并扩展队列的头结点，把它未访问的子结点插入队列;</li>
+<li>依此类推，直到图中所有和源结点𝑣有路径相通的结点均已访问过为止。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>function <span style="color:#a6e22e">BFS</span>(problem,queue)
+</span></span><span style="display:flex;"><span>    node <span style="color:#f92672">=</span> Make<span style="color:#f92672">-</span><span style="color:#a6e22e">Node</span>(Initial<span style="color:#f92672">-</span>State[problem]); 
+</span></span><span style="display:flex;"><span>    queue <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">Insert</span>(node, queue);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">do</span> <span style="color:#a6e22e">while</span>(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> queue <span style="color:#f92672">==</span> Empty 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> failure
+</span></span><span style="display:flex;"><span>        node <span style="color:#960050;background-color:#1e0010">←</span> Remove<span style="color:#f92672">-</span><span style="color:#a6e22e">First</span>(queue) <span style="color:#a6e22e">visit</span>(node);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> State[node] <span style="color:#f92672">==</span> Goal
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Solution</span>(node)
+</span></span><span style="display:flex;"><span>        sonNodes <span style="color:#f92672">=</span> <span style="color:#a6e22e">Expend</span>(node, problem);
+</span></span><span style="display:flex;"><span>        queue <span style="color:#960050;background-color:#1e0010">←</span> Insert<span style="color:#f92672">-</span><span style="color:#a6e22e">All</span>(sonNodes, queue) <span style="color:#75715e">//依次插入所有子状态
+</span></span></span></code></pre></div><h2 id="枚举--优化的通用搜索">
+  枚举 + 优化的通用搜索
+  <a class="anchor" href="#%e6%9e%9a%e4%b8%be--%e4%bc%98%e5%8c%96%e7%9a%84%e9%80%9a%e7%94%a8%e6%90%9c%e7%b4%a2">#</a>
+</h2>
+<h3 id="回溯算法">
+  回溯算法
+  <a class="anchor" href="#%e5%9b%9e%e6%ba%af%e7%ae%97%e6%b3%95">#</a>
+</h3>
+<p>深度优先搜索是一种依照“能进则进，不进则退”的策略进行的枚举算法，也就 意味着它可能遍历整个状态空间图，导致算法效率不高。给定一个问题的状态空 间表示，设计搜索算法时需要考虑以下两个事实:</p>
+<ul>
+<li>并不是所有的状态都是合法状态</li>
+<li>并不是所有的状态都能达到目标状态</li>
+</ul>
+<p><strong>回溯算法 = 深度优先搜索 + 剪枝策略</strong></p>
+<p>回溯算法需要定义问题的状态空间图，包括以下四个方面:</p>
+<ol>
+<li>问题的状态表示: 一般用 k 元组表示，即𝑋 = [𝑥1, 𝑥2, ⋯ , 𝑥𝑘]，其中向量的维度，以及每一个分量的值域是状态表示的关键问题</li>
+<li>约束条件:X 中每一个分量自身的取值约束; 分量之间的取值约束。注意: 约束条件是 剪枝策略的基础，需要深入分析和挖掘</li>
+<li>操作符集合: 从一个状态转换到另外一个状态的操作，在状态空间图中它构成边集。</li>
+<li>问题解和解空间: 问题的解可以认为是一类特殊的状态，即目标状态。对于问题的一个 实例，所有满足约束条件的解向量就构成该问题实例的解空间。</li>
+</ol>
+<p>注意: 在回溯算法中，状态空间图并不是显式地构造，也就是说，并没有在内存中生成一个完整的状态空间图。实际上，回溯算法只是根据初始状态，目标状态和操作符集合 (它产生后续状态)，隐式地构造状态空间图。</p>
+<p><strong>剪枝策略</strong></p>
+<p>回溯算法需要设计合适的剪枝策略，尽量避免不必要的搜索。常用的剪枝策略包括两大类:</p>
+<ol>
+<li><strong>约束函数剪枝</strong>: 根据约束条件，状态空间图中的部分状态可能是不合法 的。因此，在状态空间图中以不合法状态为根的子图/子树是不可能包 含可行解的，故其子空间不需要搜索。</li>
+<li><strong>限界函数剪枝</strong>: 这种策略一般应用于最优化问题。假设搜索算法当前访 问的状态为𝑆，且存在一个判定函数: 它能判定以𝑺为根的子图/子树不 可能包含最优解，因此该子图/子树可以剪除而无需搜索</li>
+</ol>
+<p><strong>约束函数剪枝 可以剪除状态空间图中的不可行解</strong></p>
+<p><strong>限界函数剪枝 用于剪除状态空间图中的可行但是非最优的解</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>DFS</th>
+<th>回溯算法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>搜索视角</td>
+<td>遍历整棵完全二叉树</td>
+<td>添加剪枝策略，尽量避免不必要的搜索</td>
+</tr>
+<tr>
+<td>枚举视角</td>
+<td>全局判定 [𝑥1,𝑥2,⋯,𝑥n]</td>
+<td>局部预判 [𝑥1,?,?, ⋯] [𝑥1,𝑥2,?, ⋯]</td>
+</tr>
+</tbody>
+</table>
+<p><strong>回溯算法程序框架：</strong></p>
+<p>回溯算法设计通常包含以下 2 个主要步骤:</p>
+<ul>
+<li>针对所给问题，定义问题的状态空间图。</li>
+<li>以深度优先方式搜索状态图，并用剪枝策略避免无效搜索。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">backtrack</span>(<span style="color:#66d9ef">int</span> t) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (t <span style="color:#f92672">&gt;</span> n)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">output</span>(x);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#a6e22e">Init</span>(n, t); i <span style="color:#f92672">&lt;=</span> <span style="color:#a6e22e">Last</span>(n, t); i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            x[t] <span style="color:#f92672">=</span> <span style="color:#a6e22e">Node</span>(i);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">constraint</span>(x) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">bound</span>(x)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">backtrack</span>(t <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div><p>注解:for 循环体依次扩展当前结点的所有子结点，Init() 和 Last() 是一种抽象表示，返回开始子结点和末尾子结点的编号。for 循环执行完毕则回溯到父结点。</p>
+<h3 id="分支限界法">
+  分支限界法
+  <a class="anchor" href="#%e5%88%86%e6%94%af%e9%99%90%e7%95%8c%e6%b3%95">#</a>
+</h3>
+<p>广度优先搜索是一种依照“由近及远，按层展开”的策略进行的枚举算法，也就 意味着它需要遍历整个状态空间图，导致算法效率不高。给定一个问题的状态空 间表示，设计搜索算法时需要考虑以下两个事实：</p>
+<ul>
+<li>并不是所有的分支都包含可行解</li>
+<li>并不是所有的分支都包含最优解</li>
+</ul>
+<p>扩展子结点时，一次性生成它的 所有孩子结点，判断孩子结点是 舍弃还是保存?舍弃那些不可能 导致可行解或最优解的孩子结点， 其余的结点进入队列中</p>
+<p><strong>分支限界算法 = 广度优先搜索 + 剪枝策略</strong></p>
+<p>分支限界算法需要定义问题的状态空间图，包括以下四个方面:</p>
+<ol>
+<li>问题的状态表示: 逻辑上用 k 元组表示，即𝑋 = [𝑥1, 𝑥2, ⋯ , 𝑥𝑘]，其中向量的维度，以及每
+一个分量的值域是状态表示的关键问题</li>
+<li>约束条件:X 中每一个分量自身的取值约束; 分量之间的取值约束。注意: 约束条件是 剪枝策略的基础，需要深入分析和挖掘</li>
+<li>操作符集合: 从一个状态转换到另外一个状态的操作，在状态空间图中它构成边集。</li>
+<li>问题解和解空间: 问题的解可以认为是一类特殊的状态，即目标状态。对于问题的一个 实例，所有满足约束条件的解向量就构成该问题实例的解空间。</li>
+</ol>
+<p>注意: 在分支限界算法中，状态空间图并不是显式地构造，也就是说，并没有在内存中生成一个完整的状态空间图。实际上，分支限界算法只是根据初始状态，目标状态和操作符集合 (它产生后续状态)，隐式地构造状态空间图。</p>
+<p><strong>约束函数剪枝</strong></p>
+<ul>
+<li>根据约束条件，状态空间图中的部分状态可能是不合法 的。因此，在状态空间图中以不合法状态为根的分支不包含可行解，故 其分支可以剪枝。</li>
+</ul>
+<p><strong>限界函数剪枝</strong></p>
+<ul>
+<li>这种策略一般应用于最优化问题。假设搜索算法当前访 问的状态为𝑆，且存在一个判定函数: 它能判定以𝑺为根的分支不包含最 优解，因此该分支可以剪除而无需搜索</li>
+</ul>
+<p><strong>约束函数剪枝 可以剪除状态空间图中的不可行解</strong></p>
+<p><strong>限界函数剪枝 用于剪除状态空间图中的可行但是非最优的解</strong></p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>BFS</th>
+<th>分支限界算法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>图搜索视角</td>
+<td>遍历整棵完全二叉树</td>
+<td>添加剪枝策略，尽量限制搜索无效的分支</td>
+</tr>
+<tr>
+<td>枚举视角</td>
+<td>全局判定 [𝑥1,𝑥2,⋯,𝑥n]</td>
+<td>局部预判 [𝑥1,?, ?, ⋯] [𝑥1,𝑥2,?, ⋯]</td>
+</tr>
+</tbody>
+</table>
+<p>分支限界算法设计通常包含以下 2 个主要步骤:</p>
+<ol>
+<li>针对所给问题，定义问题的状态空间图</li>
+<li>以广度优先方式搜索状态空间图，并在搜索过程中用剪枝策略避免无效搜索</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>function <span style="color:#a6e22e">BFS</span>(problem,queue)
+</span></span><span style="display:flex;"><span>    node <span style="color:#f92672">=</span> Make<span style="color:#f92672">-</span><span style="color:#a6e22e">Node</span>(Initial<span style="color:#f92672">-</span>State[problem]); 
+</span></span><span style="display:flex;"><span>    queue <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#a6e22e">Insert</span>(node, queue);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">do</span> <span style="color:#a6e22e">while</span>(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> queue <span style="color:#f92672">==</span> Empty 
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> failure
+</span></span><span style="display:flex;"><span>        node <span style="color:#960050;background-color:#1e0010">←</span> Remove<span style="color:#f92672">-</span><span style="color:#a6e22e">First</span>(queue) <span style="color:#a6e22e">visit</span>(node);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> State[node] <span style="color:#f92672">==</span> Goal
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">Solution</span>(node)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span>(sonNode <span style="color:#f92672">=</span> <span style="color:#a6e22e">Next</span>(problem,node)<span style="color:#f92672">!=</span>NULL){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">constraint</span>(sonNode) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">bound</span>(sonNode)){
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">Insert</span>(queue,sonNode);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span></code></pre></div><h2 id="启发式搜索">
+  启发式搜索
+  <a class="anchor" href="#%e5%90%af%e5%8f%91%e5%bc%8f%e6%90%9c%e7%b4%a2">#</a>
+</h2>
+<h3 id="最佳优先搜索">
+  最佳优先搜索
+  <a class="anchor" href="#%e6%9c%80%e4%bd%b3%e4%bc%98%e5%85%88%e6%90%9c%e7%b4%a2">#</a>
+</h3>
+<p><strong>最佳优先搜索</strong></p>
+<ul>
+<li>
+<p>挖掘每一个状态描述估计其“启发值”，评估状态逼近目标状态的优势</p>
+</li>
+<li>
+<p>设计评估函数 f(N)，估计状态 N 的启发值 (一般为实数)，既有 f(N) &gt;= 0 一般的， f(N) 估计结点的成本， f(N) 越小，结点 N 更有利于逼近目标状态</p>
+</li>
+<li>
+<p>最佳优先搜索则按照结点的评估值 f(N) 进行升序排列，优先扩展评估值比较小的结点如果多个结点的启发值 f(N) 相同，则这些结点随机排列</p>
+</li>
+<li>
+<p>“最佳”不代表当前搜索路径是最优的</p>
+</li>
+<li>
+<p>“最佳优先搜索”不一定能产生最优路径</p>
+</li>
+</ul>
+<p><strong>评估函数设计</strong></p>
+<ul>
+<li>评估函数 f(N) 的两种常见设计策略:
+<ul>
+<li>经过结点 N 的路径的成本
+<ul>
+<li>f(N) = g(N) + h(N), 要求:
+<ul>
+<li>g(N) 表示从初始状态到状态 N 的成本</li>
+<li>h(N) 表示从状态 N 到目标状态的成本估计</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>从状态 N 到目标状态的成本
+<ul>
+<li>f(N) = h(N) → 贪心策略</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>理论上评估函数可以是任何值域为正数的函数 f(N)，但是不见得所有 函数对于搜索算法有帮助。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#a6e22e">BestFirstSearch</span>() {
+</span></span><span style="display:flex;"><span>    Open <span style="color:#f92672">=</span> [<span style="color:#960050;background-color:#1e0010">起始结点</span>];
+</span></span><span style="display:flex;"><span>    Closed <span style="color:#f92672">=</span> [];
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (Open表非空) {
+</span></span><span style="display:flex;"><span>        <span style="color:#960050;background-color:#1e0010">从</span>Open中取得一个结点X, <span style="color:#960050;background-color:#1e0010">并从</span>OPEN表中删除.<span style="color:#66d9ef">if</span> (X是目标结点) {
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">求得路径</span>PATH;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#960050;background-color:#1e0010">每一个</span>X的合法子结点Y) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (Y不在OPEN表和CLOSED表中) <span style="color:#960050;background-color:#1e0010">求</span>Y的估价值 <span style="color:#a6e22e">f</span>(Y);
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">并将</span>Y插入OPEN表中; <span style="color:#75715e">// 还没有排序 else if( Y在OPEN表中 )
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span> (Y的估价值小于OPEN表的估价值)
+</span></span><span style="display:flex;"><span>                <span style="color:#960050;background-color:#1e0010">更新</span>OPEN表中的估价值;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span> { <span style="color:#75715e">// Y在CLOSED表中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                <span style="color:#66d9ef">if</span> (Y的估价值小于CLOSED表的估价值) <span style="color:#960050;background-color:#1e0010">更新</span>CLOSED表中的估价值;
+</span></span><span style="display:flex;"><span>                <span style="color:#960050;background-color:#1e0010">从</span>CLOSED表中移出结点, <span style="color:#960050;background-color:#1e0010">并放入</span>OPEN表中;
+</span></span><span style="display:flex;"><span>            } <span style="color:#75715e">// end for
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#960050;background-color:#1e0010">将</span>X结点插入CLOSED表中;
+</span></span><span style="display:flex;"><span>            <span style="color:#960050;background-color:#1e0010">按照估价值将</span>OPEN表中的结点排序;
+</span></span><span style="display:flex;"><span>        } <span style="color:#75715e">// end while } //end func
+</span></span></span></code></pre></div><ul>
+<li>OPEN 表用来存放活结点表，一 般用优先队列实现;</li>
+<li>CLOSE 表保存已扩展结点，它 用于求解最优路径，用线性表 实现;</li>
+<li>如果问题不需要求解最优路径， 而只需要最优值时，CLOSE 表可以省略。</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_9_54_Screenshot%202023-12-26%20at%2012.09.52.png" alt="" /></p>
+<p><strong>启发式搜索</strong></p>
+<p>选择下一个扩展结点的策略总是选择评估函数 𝑓(∙) 值最 小的状态结点作为新扩展结点。</p>
+<p>$$f (n) = g(n) + h(n)$$</p>
+<ul>
+<li>BFS 与分支限界法
+<ul>
+<li>如果𝑔(𝑛) 表示结点𝑛在解空间树中的深度, h(𝑛) = 0</li>
+</ul>
+</li>
+<li>DFS 与回溯法
+<ul>
+<li>如果𝑔(𝑛) = 0，h(𝑛) 的定义满足:m 是 n 的儿子结点，则 h(𝑚) &lt; h(𝑛)</li>
+</ul>
+</li>
+<li>A* 算法
+<ul>
+<li>满足 h(𝑛) ≤ h∗(𝑛) ，其中 h∗(𝑛) 表示结点𝑛到目标结点的最佳路径成本</li>
+</ul>
+</li>
+</ul>
+<h3 id="a-算法">
+  A* 算法
+  <a class="anchor" href="#a-%e7%ae%97%e6%b3%95">#</a>
+</h3>
+<p>启发式搜索选择下一个扩展结点的策略总是选择评估函数 𝑓(∙) 值最小的状态结 点作为新扩展结点。</p>
+<p>$$f (n) = g(n) + h(n)$$</p>
+<p>如果𝒈(𝒏) 表示从初始状态到状态 N 的成本，𝒉(𝒏) 表示从状态 N 到目标状态的成本估计，𝒉∗(𝑵) 是从状态结点 N 到目标状态的最优路径成本，满足:
+$$𝟎 ≤ 𝒉(𝑵) ≤ 𝒉∗(𝑵)，𝒘(𝑁,𝑁’) ≥𝜖&gt; 0$$
+其中𝑤(𝑁, 𝑁’) 表示任何两个状态之间的路径成本，要求大于 0。则最佳优先搜索得到
+的解总是最优解，对应搜索算法称之为 A* 算法。 如果 N 是目标状态 G，则定义𝐻(𝐺) = 0。</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_14_38_Screenshot%202023-12-26%20at%2012.14.36.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_16_19_Screenshot%202023-12-26%20at%2012.16.17.png" alt="" />
+
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_16_44_Screenshot%202023-12-26%20at%2012.16.43.png" alt="" /></p>
+<p><em><em>A</em> 算法的最优性证明</em>*</p>
+<ul>
+<li>【可采纳性定理】如果问题生成的状态空间图 G 和 h(𝑛) 满足稳定条件，即:
+<ul>
+<li>1 图中的每个结点的后继结点是有限的;</li>
+<li>2 图中的弧的代价都大于某个正数𝜺 ;</li>
+<li>3 对图中的所有结点𝑛，满足 h(𝑛) ≤ h∗(𝑛) ，即估计成本不会超过实际成本。 并且状态空间图中存在一条从开始状态结点𝑠到目标状态结点𝑔的有限代价的路径， 那么 A<em>算法总是在𝒔到𝒈的最佳路径上停止搜索，也称之为 A</em>算法是可采纳的。</li>
+</ul>
+</li>
+<li>证明思路
+<ul>
+<li>Step1: 如果问题存在可行解，则 A* 算法终止且返回可行解</li>
+<li>Step2: 当 A* 算法扩展到目标状态 g 时，则其扩展路径对应最优解</li>
+</ul>
+</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_17_1_Screenshot%202023-12-26%20at%2012.16.59.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_17_12_Screenshot%202023-12-26%20at%2012.17.10.png" alt="" /></p>
+<h2 id="对抗搜索">
+  对抗搜索
+  <a class="anchor" href="#%e5%af%b9%e6%8a%97%e6%90%9c%e7%b4%a2">#</a>
+</h2>
+<h2 id="小结">
+  小结
+  <a class="anchor" href="#%e5%b0%8f%e7%bb%93">#</a>
+</h2>
+<p><strong>搜索算法的基本原理</strong></p>
+<ul>
+<li>问题表示的状态空间图
+<ul>
+<li>状态表示</li>
+<li>操作集合</li>
+<li>路径/路径耗散函数</li>
+</ul>
+</li>
+<li>在状态空间图中搜索从初 始状态到目标状态的路径/ 最优路径。</li>
+</ul>
+<p><strong>常用的搜索策略</strong></p>
+<ul>
+<li>基于枚举的通用搜索
+<ul>
+<li>深度优先搜索</li>
+<li>广度优先搜索</li>
+</ul>
+</li>
+<li>基于“枚举 + 优化”的通用搜索
+<ul>
+<li>回溯算法</li>
+<li>分支限界法</li>
+</ul>
+</li>
+<li>基于规则的启发式搜索
+<ul>
+<li>最佳优先搜索</li>
+<li>A* 算法</li>
+</ul>
+</li>
+</ul>
+<h1 id="egs">
+  e.g.s
+  <a class="anchor" href="#egs">#</a>
+</h1>
+<h3 id="传教士问题">
+  传教士问题
+  <a class="anchor" href="#%e4%bc%a0%e6%95%99%e5%a3%ab%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>在河的左岸有三个传教士、一条船和三个野人，传教士们想用这条船将所有的成员都运 过河去，但是受到以下条件的限制:
+1 教士和野人都会划船，但船一次最多只能装运两个;
+2 在任何岸边野人数目都不得超过传教士，否则传教士会遭遇危险:被野人攻击甚至吃掉。 此外，假定野人会服从任何一种过河安排，试设计出一个确保全部成员安全过河的计划。
+</code></pre><ul>
+<li>
+<ol>
+<li>状态表示</li>
+</ol>
+<ul>
+<li>确定问题的状态表示，以及每一个状态变量的值域。 渡河问题包括三类对象: 传教士，野人和渡船，得三元组𝑺 =(𝒎,𝒄,𝒃)，其中:</li>
+<li>m 为左岸传教士数，有𝑚 ={0,1,2,3}; 对应右岸的传教士数为 3-𝑚。</li>
+<li>c 为左岸的野人数，有𝑐 ={0,1,2,3}; 对应右岸野人数为 3-𝑐。</li>
+<li>b 为左岸渡船数，有𝑏 = {0, 1}，右岸的船数为 1 − 𝑏。</li>
+<li>初始状态只有一个，即𝑆0 =(3,3,1)，表示全部成员在河的左岸; 目标状态也只一 个，即 𝑆𝑔 =(0,0,0)，表示全部成员从河左岸渡河完毕。</li>
+</ul>
+</li>
+<li>
+<ol start="2">
+<li>操作符集合</li>
+</ol>
+<ul>
+<li>把船从左岸划向右岸定义为𝐿𝑖𝑗操作，第一下标𝑖表示船载的传教士数, 第二下标𝑗表示船载 的野人数。</li>
+<li>从右岸将船划回左岸称之为𝑅𝑖𝑗操作，下标的定义同前。 ➢ 则共有 10 种操作，操作集为</li>
+<li>F={L01，L10，L11，L02，L20，R01，R10，R11，R02，R20}</li>
+</ul>
+</li>
+<li>
+<ol>
+<li>状态表示: 𝑺 = (𝒎, 𝒄, 𝒃)</li>
+</ol>
+<ul>
+<li>初始状态𝑆0 =(3,3,1)，目标状态𝑆𝑔 =(0,0,0)</li>
+</ul>
+</li>
+<li>
+<ol start="2">
+<li>操作符集合</li>
+</ol>
+<ul>
+<li>F = {L01，L10，L11，L02，L20，R01，R10，R11，R02，R20}</li>
+</ul>
+</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_22_0_Screenshot%202023-12-26%20at%2011.21.58.png" alt="" /></p>
+<h3 id="8-数码问题">
+  8 数码问题
+  <a class="anchor" href="#8-%e6%95%b0%e7%a0%81%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<p>把左图的 8 数码排列通过空格的 上下左右移动，转换为右图的 8 数码排列</p>
+<ul>
+<li>状态表示 数字格与空格组成的排列</li>
+<li>操作符集合 空格向上、下、左和右移动</li>
+<li>路径耗散函数
+<ul>
+<li>每一次移动代价为 1，路径耗散等于移 动次数</li>
+</ul>
+</li>
+</ul>
+<h3 id="背包问题">
+  背包问题
+  <a class="anchor" href="#%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>【例-1】对于 𝑛 = 3 的0-1背包问题，其中背包容量𝑐 = 30，每个物品的重 量和价值分别为:𝑤 =&lt; 16,15,15 &gt;, 𝑝 =&lt; 45,25,25 &gt;。
+</code></pre><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_41_32_Screenshot%202023-12-26%20at%2011.41.30.png" alt="" /></p>
+<h3 id="旅行商问题">
+  旅行商问题
+  <a class="anchor" href="#%e6%97%85%e8%a1%8c%e5%95%86%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>【例-2】某商人要到若干城市去推销商品，已知各城市之间的旅行费用，他要 选定一条从驻地出发，经过每个城市一遍，最后回到驻地的路线，使总的费用 最少。试构造下图对应问题实例的最优旅行方案。
+</code></pre><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_42_8_Screenshot%202023-12-26%20at%2011.42.06.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_42_21_Screenshot%202023-12-26%20at%2011.42.19.png" alt="" /></p>
+<h3 id="装载问题">
+  装载问题
+  <a class="anchor" href="#%e8%a3%85%e8%bd%bd%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>问题描述:有n个集装箱要装上2艘载重量分别为C1和C2的轮船，其中集装箱 i 的重量为Wi， 且 ∑ Wi ≤C1+C2。请设计算法确定是否有一个合理的装载方案可将这些集装箱上这2艘轮 船。 输入:多组测试数据。每组测试数据包括两行:第一行输入集装箱数目n(n&lt;1000)， 以及两艘轮船的载重C1和C2;第二行输入n个整数，表示每个集装箱的重量。 输出:如果存在合理装载方案，输出第一艘轮船的最大装载重量;否则，输出“No”。
+</code></pre><p>把原问题简化为一艘轮船的装载问题。容易证明下述 结论: 如果一个给定装载问题实例有解，则采用下面 的策略可得到最优装载方案: (1) 首先将第一艘轮船尽可能装满; (2) 将剩余的集装箱装上第二艘轮船。</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_47_17_Screenshot%202023-12-26%20at%2011.47.15.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_47_26_Screenshot%202023-12-26%20at%2011.47.24.png" alt="" /></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#define MaxBox 1000
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> globalWeight[MaxBox], globalNum, globalC1; <span style="color:#75715e">// 输入参数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> globalX[MaxBox],
+</span></span><span style="display:flex;"><span>    globalAns; <span style="color:#75715e">// 保存状态X和最优值的全局变量
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loadingDFS</span>(<span style="color:#66d9ef">int</span> t) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (t <span style="color:#f92672">==</span> globalNum) { <span style="color:#75715e">// 边界条件，判定一个n维-1向量是否是可行解 int
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>                          <span style="color:#75715e">// sumWeight1=0;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> globalNum; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            sumWeight1 <span style="color:#f92672">+=</span> globalX[i] <span style="color:#f92672">*</span> globalWeight[i];
+</span></span><span style="display:flex;"><span>        } <span style="color:#75715e">// 计算装载量
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">if</span> ((sumWeight1 <span style="color:#f92672">&lt;=</span> globalC1) <span style="color:#f92672">&amp;&amp;</span> sumWeight1 <span style="color:#f92672">&gt;</span> globalAns) {
+</span></span><span style="display:flex;"><span>            globalAns <span style="color:#f92672">=</span> sumWeight1;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#75715e">// end of if
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    globalX[t] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">loadingDFS</span>(t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>);    <span style="color:#75715e">//扩展左子树
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    globalX[t] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">loadingDFS</span>(t<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>);    <span style="color:#75715e">//扩展右子树
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h4 id="dfs--回溯算法">
+  DFS- 回溯算法
+  <a class="anchor" href="#dfs--%e5%9b%9e%e6%ba%af%e7%ae%97%e6%b3%95">#</a>
+</h4>
+<h5 id="约束函数剪枝">
+  约束函数剪枝
+  <a class="anchor" href="#%e7%ba%a6%e6%9d%9f%e5%87%bd%e6%95%b0%e5%89%aa%e6%9e%9d">#</a>
+</h5>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_50_44_Screenshot%202023-12-26%20at%2011.50.41.png" alt="" /></p>
+<h5 id="限界函数剪枝">
+  限界函数剪枝
+  <a class="anchor" href="#%e9%99%90%e7%95%8c%e5%87%bd%e6%95%b0%e5%89%aa%e6%9e%9d">#</a>
+</h5>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_51_33_Screenshot%202023-12-26%20at%2011.51.31.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_52_24_Screenshot%202023-12-26%20at%2011.52.22.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_52_40_Screenshot%202023-12-26%20at%2011.52.38.png" alt="" /></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#define MaxBox 1000 int globalWeight[MaxBox], globalNum, globalC1;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> globalX[MaxBox];
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> globalWt, globalBd, globalMaxWt;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">loadingBacktrack</span>(<span style="color:#66d9ef">int</span> t) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (t <span style="color:#f92672">==</span> globalNum) {
+</span></span><span style="display:flex;"><span>        globalMaxWt <span style="color:#f92672">=</span> globalWt;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#75715e">// end of if
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    globalBd <span style="color:#f92672">-=</span> globalWeight[t];
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (globalWt <span style="color:#f92672">+</span> globalWeight[t] <span style="color:#f92672">&lt;=</span> globalC1) {
+</span></span><span style="display:flex;"><span>        globalX[t] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>        globalWt <span style="color:#f92672">+=</span> globalWeight[t];
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">loadingBacktrack</span>(t <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>        globalWt <span style="color:#f92672">-=</span> globalWeight[t];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (globalWt <span style="color:#f92672">+</span> globalBd <span style="color:#f92672">&gt;</span> globalMaxWt) {
+</span></span><span style="display:flex;"><span>        globalX[t] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">loadingBacktrack</span>(t <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    globalBd <span style="color:#f92672">+=</span> globalWeight[t];
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="bfs--分支限界算法">
+  BFS- 分支限界算法
+  <a class="anchor" href="#bfs--%e5%88%86%e6%94%af%e9%99%90%e7%95%8c%e7%ae%97%e6%b3%95">#</a>
+</h4>
+<h5 id="约束函数剪枝-1">
+  约束函数剪枝
+  <a class="anchor" href="#%e7%ba%a6%e6%9d%9f%e5%87%bd%e6%95%b0%e5%89%aa%e6%9e%9d-1">#</a>
+</h5>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_1_51_Screenshot%202023-12-26%20at%2012.01.50.png" alt="" /></p>
+<h5 id="限界函数剪枝-1">
+  限界函数剪枝
+  <a class="anchor" href="#%e9%99%90%e7%95%8c%e5%87%bd%e6%95%b0%e5%89%aa%e6%9e%9d-1">#</a>
+</h5>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_2_9_Screenshot%202023-12-26%20at%2012.02.07.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_2_36_Screenshot%202023-12-26%20at%2012.02.35.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_3_8_Screenshot%202023-12-26%20at%2012.03.06.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_4_5_Screenshot%202023-12-26%20at%2012.04.02.png" alt="" /></p>
+<h4 id="a-算法-1">
+  A* 算法
+  <a class="anchor" href="#a-%e7%ae%97%e6%b3%95-1">#</a>
+</h4>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_17_56_Screenshot%202023-12-26%20at%2012.17.53.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_18_5_Screenshot%202023-12-26%20at%2012.18.03.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_18_49_Screenshot%202023-12-26%20at%2012.18.47.png" alt="" /></p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#intro">Intro</a>
+      <ul>
+        <li><a href="#问题求解与搜索算法">问题求解与搜索算法</a></li>
+        <li><a href="#状态空间图">状态空间图</a></li>
+      </ul>
+    </li>
+    <li><a href="#搜索算法类型">搜索算法类型</a>
+      <ul>
+        <li><a href="#基于枚举的通用搜索">基于枚举的通用搜索</a>
+          <ul>
+            <li><a href="#dfs">DFS</a></li>
+            <li><a href="#bfs">BFS</a></li>
+          </ul>
+        </li>
+        <li><a href="#枚举--优化的通用搜索">枚举 + 优化的通用搜索</a>
+          <ul>
+            <li><a href="#回溯算法">回溯算法</a></li>
+            <li><a href="#分支限界法">分支限界法</a></li>
+          </ul>
+        </li>
+        <li><a href="#启发式搜索">启发式搜索</a>
+          <ul>
+            <li><a href="#最佳优先搜索">最佳优先搜索</a></li>
+            <li><a href="#a-算法">A* 算法</a></li>
+          </ul>
+        </li>
+        <li><a href="#对抗搜索">对抗搜索</a></li>
+        <li><a href="#小结">小结</a></li>
+      </ul>
+    </li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#传教士问题">传教士问题</a></li>
+            <li><a href="#8-数码问题">8 数码问题</a></li>
+            <li><a href="#背包问题">背包问题</a></li>
+            <li><a href="#旅行商问题">旅行商问题</a></li>
+            <li><a href="#装载问题">装载问题</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

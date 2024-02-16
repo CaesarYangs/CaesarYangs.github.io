@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="操作系统相关概念 # 什么是操作系统
+最基础的系统软件
+计算机软硬件资源的管理与控制 软件涵盖程序、文档、数据 硬件涵盖处理器、内存、外存及各类设备 硬件资源及管理操作抽象示例
+磁盘操作：把数据处理结果写到磁盘，也就是从内存拷贝信息到磁盘 分解动作： 内存数据块拷贝到设备缓冲区 load(addrBlock, length, bufDev); 磁盘设备执行寻道操作 seek(dev, trackNo); 设备缓冲区写出到指定扇区 out(bufDev, sectorNo); void write(char *addrBlock, int length, int dev, int trackNo, int sectorNo){ load(addrBlock, length, bufDev); seek(dev, trackNo); out(bufDev, sectorNo)； } write(addrBlock, 8, dev, 21532); fprintf(fd, &#34;%d&#34;, data); &#43; fseek(fd, offset, whence); 什么是操作系统
+最基础的系统软件 计算机软硬件资源的管理与控制 软件涵盖程序、文档、数据 硬件涵盖处理器、内存、外存及各类设备 用户使用计算机的基本操作环境 命令接口、图形化用户接口 各类程序运行的基础环境 程序接口：系统调用接口、函数库 操作系统内核
+实现操作系统的核心功能 计算机系统的启动初始化及电源管控 处理器、内存、外设等硬件的管理与控制 文件系统的支持 操作系统的基本特征及支撑机制
+并发 注意与并行概念的区别 进程、线程、同步互斥及通信机制 共享 硬件共享：处理器、内存、外设 软件共享：程序、数据 共享与保护机制结伴而行 虚拟与异步 操作系统发展历程 # 单道批处理系统 监督程序（FMS Fortran Monitor System 、IBSYS） 多道批处理系统 多道程序设计技术 分时操作系统 CTSS（Compatible Time Sharing System） 麻省理工学院（1962 年） 时钟中断、时间片轮转调度、交换技术 实时操作系统 实时调度算法、可靠性 嵌入式操作系统 软硬件合体、微型化、专业化 网络操作系统 网络传输功能支持 分布式操作系统、网格操作系统 云操作系统、集群操作系统 UNIX/Linux 操作命令入门 # UNIX/Linux 系统启动及配置">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="操作系统相关概念 # 什么是操作系统
+最基础的系统软件
+计算机软硬件资源的管理与控制 软件涵盖程序、文档、数据 硬件涵盖处理器、内存、外存及各类设备 硬件资源及管理操作抽象示例
+磁盘操作：把数据处理结果写到磁盘，也就是从内存拷贝信息到磁盘 分解动作： 内存数据块拷贝到设备缓冲区 load(addrBlock, length, bufDev); 磁盘设备执行寻道操作 seek(dev, trackNo); 设备缓冲区写出到指定扇区 out(bufDev, sectorNo); void write(char *addrBlock, int length, int dev, int trackNo, int sectorNo){ load(addrBlock, length, bufDev); seek(dev, trackNo); out(bufDev, sectorNo)； } write(addrBlock, 8, dev, 21532); fprintf(fd, &#34;%d&#34;, data); &#43; fseek(fd, offset, whence); 什么是操作系统
+最基础的系统软件 计算机软硬件资源的管理与控制 软件涵盖程序、文档、数据 硬件涵盖处理器、内存、外存及各类设备 用户使用计算机的基本操作环境 命令接口、图形化用户接口 各类程序运行的基础环境 程序接口：系统调用接口、函数库 操作系统内核
+实现操作系统的核心功能 计算机系统的启动初始化及电源管控 处理器、内存、外设等硬件的管理与控制 文件系统的支持 操作系统的基本特征及支撑机制
+并发 注意与并行概念的区别 进程、线程、同步互斥及通信机制 共享 硬件共享：处理器、内存、外设 软件共享：程序、数据 共享与保护机制结伴而行 虚拟与异步 操作系统发展历程 # 单道批处理系统 监督程序（FMS Fortran Monitor System 、IBSYS） 多道批处理系统 多道程序设计技术 分时操作系统 CTSS（Compatible Time Sharing System） 麻省理工学院（1962 年） 时钟中断、时间片轮转调度、交换技术 实时操作系统 实时调度算法、可靠性 嵌入式操作系统 软硬件合体、微型化、专业化 网络操作系统 网络传输功能支持 分布式操作系统、网格操作系统 云操作系统、集群操作系统 UNIX/Linux 操作命令入门 # UNIX/Linux 系统启动及配置" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" /><meta property="article:section" content="docs" />
+
+
+
+<title>1 Linux Unix概论 | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle" checked />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle" checked />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="active">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>1 Linux Unix概论</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#操作系统相关概念">操作系统相关概念</a></li>
+    <li><a href="#操作系统发展历程">操作系统发展历程</a></li>
+    <li><a href="#unixlinux-操作命令入门">UNIX/Linux 操作命令入门</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="操作系统相关概念">
+  操作系统相关概念
+  <a class="anchor" href="#%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e7%9b%b8%e5%85%b3%e6%a6%82%e5%bf%b5">#</a>
+</h1>
+<p><strong>什么是操作系统</strong></p>
+<ul>
+<li>
+<p>最基础的系统软件</p>
+<ul>
+<li>计算机软硬件资源的管理与控制</li>
+<li>软件涵盖程序、文档、数据</li>
+<li>硬件涵盖处理器、内存、外存及各类设备</li>
+</ul>
+</li>
+<li>
+<p><em>硬件资源及管理操作抽象示例</em></p>
+<ul>
+<li>磁盘操作：把数据处理结果写到磁盘，也就是从内存拷贝信息到磁盘</li>
+<li>分解动作：
+<ul>
+<li>
+<ol>
+<li>内存数据块拷贝到设备缓冲区 <code>load(addrBlock, length, bufDev);</code></li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>磁盘设备执行寻道操作 <code>seek(dev, trackNo);</code></li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li>设备缓冲区写出到指定扇区 <code>out(bufDev, sectorNo);</code></li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">write</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>addrBlock, <span style="color:#66d9ef">int</span> length, <span style="color:#66d9ef">int</span> dev, <span style="color:#66d9ef">int</span> trackNo, <span style="color:#66d9ef">int</span> sectorNo){
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">load</span>(addrBlock, length, bufDev);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">seek</span>(dev, trackNo);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">out</span>(bufDev, sectorNo)<span style="color:#960050;background-color:#1e0010">；</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">write</span>(addrBlock, <span style="color:#ae81ff">8</span>, dev, <span style="color:#ae81ff">21532</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fprintf</span>(fd, <span style="color:#e6db74">&#34;%d&#34;</span>, data); <span style="color:#f92672">+</span> <span style="color:#a6e22e">fseek</span>(fd, offset, whence);
+</span></span></code></pre></div><p><strong>什么是操作系统</strong></p>
+<ul>
+<li>最基础的系统软件
+<ul>
+<li>计算机软硬件资源的管理与控制</li>
+<li>软件涵盖程序、文档、数据</li>
+<li>硬件涵盖处理器、内存、外存及各类设备</li>
+</ul>
+</li>
+<li>用户使用计算机的基本操作环境
+<ul>
+<li>命令接口、图形化用户接口</li>
+</ul>
+</li>
+<li>各类程序运行的基础环境
+<ul>
+<li>程序接口：系统调用接口、函数库</li>
+</ul>
+</li>
+</ul>
+<p>操作系统内核</p>
+<ul>
+<li>实现操作系统的核心功能</li>
+<li>计算机系统的启动初始化及电源管控</li>
+<li>处理器、内存、外设等硬件的管理与控制</li>
+<li>文件系统的支持</li>
+</ul>
+<p><strong>操作系统的基本特征及支撑机制</strong></p>
+<ul>
+<li>并发
+<ul>
+<li>注意与并行概念的区别</li>
+<li>进程、线程、同步互斥及通信机制</li>
+</ul>
+</li>
+<li>共享
+<ul>
+<li>硬件共享：处理器、内存、外设</li>
+<li>软件共享：程序、数据</li>
+<li>共享与保护机制结伴而行</li>
+</ul>
+</li>
+<li>虚拟与异步</li>
+</ul>
+<h1 id="操作系统发展历程">
+  操作系统发展历程
+  <a class="anchor" href="#%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%8f%91%e5%b1%95%e5%8e%86%e7%a8%8b">#</a>
+</h1>
+<ul>
+<li>单道批处理系统
+<ul>
+<li>监督程序（FMS Fortran Monitor System 、IBSYS）</li>
+</ul>
+</li>
+<li>多道批处理系统
+<ul>
+<li>多道程序设计技术</li>
+</ul>
+</li>
+<li>分时操作系统
+<ul>
+<li>CTSS（Compatible Time Sharing System）</li>
+<li>麻省理工学院（1962 年）</li>
+<li>时钟中断、时间片轮转调度、交换技术</li>
+</ul>
+</li>
+<li>实时操作系统
+<ul>
+<li>实时调度算法、可靠性</li>
+</ul>
+</li>
+<li>嵌入式操作系统
+<ul>
+<li>软硬件合体、微型化、专业化</li>
+</ul>
+</li>
+<li>网络操作系统
+<ul>
+<li>网络传输功能支持</li>
+<li>分布式操作系统、网格操作系统</li>
+<li>云操作系统、集群操作系统</li>
+</ul>
+</li>
+</ul>
+<h1 id="unixlinux-操作命令入门">
+  UNIX/Linux 操作命令入门
+  <a class="anchor" href="#unixlinux-%e6%93%8d%e4%bd%9c%e5%91%bd%e4%bb%a4%e5%85%a5%e9%97%a8">#</a>
+</h1>
+<p><strong>UNIX/Linux 系统启动及配置</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/18_20_39_10_Screenshot%202023-11-18%20at%2020.39.06.png" alt="" /></p>
+<p><strong>Shell 命令分隔/连接符</strong></p>
+<ul>
+<li>管道线| （左侧命令输出作为右侧命令输入）
+<ul>
+<li>ls -l | wc -l</li>
+</ul>
+</li>
+<li>||（左侧命令执行失败时执行右侧命令）
+<ul>
+<li>rmdir /home/zgs || echo &ldquo;Failed!&rdquo;</li>
+</ul>
+</li>
+<li>&amp;&amp;（左侧命令执行成功时执行右侧命令）
+<ul>
+<li>rmdir /home/zgs &amp;&amp; echo &ldquo;Success!&rdquo;</li>
+</ul>
+</li>
+<li>&amp;（后台执行左侧命令）
+<ul>
+<li>gas BJTU_OS.s  &amp;</li>
+</ul>
+</li>
+<li>输入输出重定向：命令 [&gt;、&lt;、&raquo;、&laquo;] 文件</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#操作系统相关概念">操作系统相关概念</a></li>
+    <li><a href="#操作系统发展历程">操作系统发展历程</a></li>
+    <li><a href="#unixlinux-操作命令入门">UNIX/Linux 操作命令入门</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tech on 📦 Caesar&#39;s Paperbox</title>
+    <link>https://caesaryangs.github.io/tags/tech/</link>
+    <description>Recent content in tech on 📦 Caesar&#39;s Paperbox</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <atom:link href="https://caesaryangs.github.io/tags/tech/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>在 Apple Silicon 上配置 PyQt5 以及 LabelImg</title>
+      <link>https://caesaryangs.github.io/blogs/PyQT5_in_ARM_mac/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/blogs/PyQT5_in_ARM_mac/</guid>
+      <description>在 Apple Silicon 上配置 PyQt5 以及 LabelImg # Mac M1 芯片安装 labelImg - 简书&#xA;最近突然需要继续做一些数据标注的任务，下载好了之前经常用的 Labelme 后发现输出的标记文件是 json 格式的，不符合项目规范。发现 labelImg 这款标注软件刚好是输出 xml 作为标记文件的，十分合适。&#xA;但是由于最近刚刚换了电脑，时隔一年的试用后终于把我的主力机换到了 Apple Silicon 平台上来，随之而来的就是这一系列的配置问题。&#xA;GitHub - heartexlabs/labelImg&#xA;Q-问题 # 官方的安装文档向来是非常重要的部分。主要是在执行 pip3 install pyqt5 lxml # Install qt and lxml by pip 的时候报错，直接 error。&#xA;在这一部分可能会有很多的人会遇到与我相似的问题，故将整个问题的出现与操作列出。&#xA;一般到这里复制错误信息到 Google 会发现有一部分用户也遇到了这类问题，主要的原因就是 arm64 架构和此处的 PyQt5 不兼容所导致的。&#xA;此时可以尝试利用 homebrew 中更新的命令：brew install pyqt@5 进行安装。&#xA;并且可以看到这个命令安装的 PyQt5 已经是适配 arm64 架构的版本了。&#xA;但此时如果继续按照官方文档走下去安装，会发现在安装labelimg的时候依旧会报错。并且所报的错误与之前几乎完全相同。&#xA;此时就可以发现，整个的错误原因都是来源于PyQt5没有正确导入造成的。虽然已经在本地安装好相应的包了，但是并没有导入到对应的Python环境当中，导致无法正确使用。如果在此时尝试直接下载GitHub的源码编译安装的话，会非常直接的发现报错内容为：PyQt5 import error</description>
+    </item>
+  </channel>
+</rss>

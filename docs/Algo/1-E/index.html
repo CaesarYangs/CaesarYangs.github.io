@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Theory&amp;Thinkings # 为什么要用枚举？ 解准确且全面 实现简单，通过循环或递归实现 执行效率提升空间通常较大 具体方法：
+枚举对象 枚举过程 验证解 不是所有问题都有巧妙的解决方案，没有想到就要进一步做优化，对于枚举来说：压缩枚举空间。
+枚举算法
+也称之为穷举算法，就是按照问题本身的性质，一 一列举出该问题所有可能的解， 并在列举的过程中，逐一检验每个可能解是否是问题的真正解。若是则采纳这个解; 否则抛弃它。
+不能遗漏，否则可能导致结果不正确 不要重复，否则可能导致效率比较低 枚举算法设计步骤
+确定枚举对象 枚举对象也可以理解为是问题解的表达形式，一般需要 用若干参数 (p1, p2, &hellip;&hellip;, pk) 来描述 参数之间需要相互独立，而且参数数目越少，问题解搜索空间的维度也相应地小 每个参数的取值范围越小，问题解的搜索空间也越小 优化模型 针对问题特征，优化对象模型 逐一列举可能解 根据枚举对象的参数构造循环 (也可以递归)，一一 列举其表达式的每一种取值情况。 优化过程 针对对象特征，优化列举和验证过程 逐一验证可能解 根据问题解的要求，一一验证枚举对象表达式的每一 个取值，如果满足条件，则采纳它; 否则，抛弃之。 e.g.s # 数组配对 # 给你一个长度为n的数组A和一个正整数k，问从数组中任选两个数使其和是k的倍数，有多少种选法？对于数组 a1=1 , a2=2 , a3=2 而言： (a1,a2) 和 (a2,a1)被认为是同一种选法； (a1,a2) 和 (a1,a3)被认为是不同的选法。 朴素方法 枚举对象：𝑂𝑏𝑗(𝑎𝑖,𝑎𝑗),1≤ 𝑖 &lt; 𝑗≤ 𝑛 逐一列举 逐一验证 存在问题：时间复杂度较高：𝑂(𝑛2) 如果问题规模较大，求解问题需要的时间也呈指数级别增长 尝试改进：如何减少问题空间？如何更加有效的枚举？ 利用桶思路，将原问题之间用 mod 运算降低到一个非常低的解空间中再进行枚举 枚举对象：𝑂𝑏𝑗(𝑎𝑖,𝑎𝑗),1≤ 𝑖 &lt; 𝑗≤ 𝑛 逐一列举： 预处理： (𝑎𝑖 &#43; 𝑎𝑗)%𝑘 = 0 逐一验证：(𝑎𝑖%𝑘 &#43; 𝑎𝑗%𝑘)%𝑘 = 0 求解细节： 会变成两个单独数字的配对问题，存在两种情况 两个数字在同一桶内：组合数公式 两数字不在同一桶内：直接相乘，相当于组合公式 void work() { LL ans = 0; for (int i = 0; i &lt; k; i&#43;&#43;) { int j = (k - i) % k; if (j &lt; i) break; // 避免重复 else if (j == i) // 0或者k/2 ans &#43;= 1LL * b[i] * (b[i] - 1) / 2; else ans &#43;= 1LL * b[i] * b[j]; } cout &lt;&lt; ans &lt;&lt; endl; } 绳子切割问题 # 有N条绳子，它们的长度分别为𝐿_𝑖 (≤1000)。如果从它们中切割出 K 条长度相同的绳子，这K条绳子每条最长能有多长？答案保留到小数点后2位。 枚举法的典型应用">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="Theory&amp;Thinkings # 为什么要用枚举？ 解准确且全面 实现简单，通过循环或递归实现 执行效率提升空间通常较大 具体方法：
+枚举对象 枚举过程 验证解 不是所有问题都有巧妙的解决方案，没有想到就要进一步做优化，对于枚举来说：压缩枚举空间。
+枚举算法
+也称之为穷举算法，就是按照问题本身的性质，一 一列举出该问题所有可能的解， 并在列举的过程中，逐一检验每个可能解是否是问题的真正解。若是则采纳这个解; 否则抛弃它。
+不能遗漏，否则可能导致结果不正确 不要重复，否则可能导致效率比较低 枚举算法设计步骤
+确定枚举对象 枚举对象也可以理解为是问题解的表达形式，一般需要 用若干参数 (p1, p2, &hellip;&hellip;, pk) 来描述 参数之间需要相互独立，而且参数数目越少，问题解搜索空间的维度也相应地小 每个参数的取值范围越小，问题解的搜索空间也越小 优化模型 针对问题特征，优化对象模型 逐一列举可能解 根据枚举对象的参数构造循环 (也可以递归)，一一 列举其表达式的每一种取值情况。 优化过程 针对对象特征，优化列举和验证过程 逐一验证可能解 根据问题解的要求，一一验证枚举对象表达式的每一 个取值，如果满足条件，则采纳它; 否则，抛弃之。 e.g.s # 数组配对 # 给你一个长度为n的数组A和一个正整数k，问从数组中任选两个数使其和是k的倍数，有多少种选法？对于数组 a1=1 , a2=2 , a3=2 而言： (a1,a2) 和 (a2,a1)被认为是同一种选法； (a1,a2) 和 (a1,a3)被认为是不同的选法。 朴素方法 枚举对象：𝑂𝑏𝑗(𝑎𝑖,𝑎𝑗),1≤ 𝑖 &lt; 𝑗≤ 𝑛 逐一列举 逐一验证 存在问题：时间复杂度较高：𝑂(𝑛2) 如果问题规模较大，求解问题需要的时间也呈指数级别增长 尝试改进：如何减少问题空间？如何更加有效的枚举？ 利用桶思路，将原问题之间用 mod 运算降低到一个非常低的解空间中再进行枚举 枚举对象：𝑂𝑏𝑗(𝑎𝑖,𝑎𝑗),1≤ 𝑖 &lt; 𝑗≤ 𝑛 逐一列举： 预处理： (𝑎𝑖 &#43; 𝑎𝑗)%𝑘 = 0 逐一验证：(𝑎𝑖%𝑘 &#43; 𝑎𝑗%𝑘)%𝑘 = 0 求解细节： 会变成两个单独数字的配对问题，存在两种情况 两个数字在同一桶内：组合数公式 两数字不在同一桶内：直接相乘，相当于组合公式 void work() { LL ans = 0; for (int i = 0; i &lt; k; i&#43;&#43;) { int j = (k - i) % k; if (j &lt; i) break; // 避免重复 else if (j == i) // 0或者k/2 ans &#43;= 1LL * b[i] * (b[i] - 1) / 2; else ans &#43;= 1LL * b[i] * b[j]; } cout &lt;&lt; ans &lt;&lt; endl; } 绳子切割问题 # 有N条绳子，它们的长度分别为𝐿_𝑖 (≤1000)。如果从它们中切割出 K 条长度相同的绳子，这K条绳子每条最长能有多长？答案保留到小数点后2位。 枚举法的典型应用" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Algo/1-E/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>1 E | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle" checked />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="active">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>1 E</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#theorythinkings">Theory&amp;Thinkings</a></li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#数组配对">数组配对</a></li>
+            <li><a href="#绳子切割问题">绳子切割问题</a></li>
+            <li><a href="#移除石头最重要枚举问题">移除石头——最重要枚举问题</a></li>
+            <li><a href="#函数求根问题">函数求根问题</a></li>
+            <li><a href="#problem-a-优美的立方质数">Problem A. 优美的立方质数</a></li>
+            <li><a href="#problem-b-课堂作业--6-2-木棍切割问题">Problem B. 课堂作业 -6-2 木棍切割问题</a></li>
+            <li><a href="#problem-c-李老师的幸运数字">Problem C. 李老师的幸运数字</a></li>
+            <li><a href="#problem-d-思维之花---简单背包">Problem D. 思维之花 - 简单背包</a></li>
+            <li><a href="#problem-e-课堂作业--7-2-石头移除问题">Problem E. 课堂作业 -7-2 石头移除问题</a></li>
+            <li><a href="#problem-f-数对选择">Problem F. 数对选择</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="theorythinkings">
+  Theory&amp;Thinkings
+  <a class="anchor" href="#theorythinkings">#</a>
+</h1>
+<ul>
+<li>为什么要用枚举？
+<ul>
+<li>解准确且全面</li>
+<li>实现简单，通过循环或递归实现</li>
+<li>执行效率提升空间通常较大</li>
+</ul>
+</li>
+</ul>
+<p><strong>具体方法：</strong></p>
+<ol>
+<li>枚举对象</li>
+<li>枚举过程</li>
+<li>验证解</li>
+</ol>
+<p>不是所有问题都有巧妙的解决方案，没有想到就要进一步做优化，对于枚举来说：压缩枚举空间。</p>
+<hr>
+<p><strong>枚举算法</strong></p>
+<p>也称之为穷举算法，就是按照问题本身的性质，一 一列举出该问题所有可能的解， 并在列举的过程中，逐一检验每个可能解是否是问题的真正解。若是则采纳这个解; 否则抛弃它。</p>
+<ul>
+<li>不能遗漏，否则可能导致结果不正确</li>
+<li>不要重复，否则可能导致效率比较低</li>
+</ul>
+<p><strong>枚举算法设计步骤</strong></p>
+<ol>
+<li>确定枚举对象 枚举对象也可以理解为是问题解的表达形式，一般需要 用若干参数 (p1, p2, &hellip;&hellip;, pk) 来描述
+<ol>
+<li>参数之间需要相互独立，而且参数数目越少，问题解搜索空间的维度也相应地小</li>
+<li>每个参数的取值范围越小，问题解的搜索空间也越小</li>
+<li><strong>优化模型 针对问题特征，优化对象模型</strong></li>
+</ol>
+</li>
+<li>逐一列举可能解 根据枚举对象的参数构造循环 (也可以递归)，一一 列举其表达式的每一种取值情况。
+<ol>
+<li><strong>优化过程 针对对象特征，优化列举和验证过程</strong></li>
+</ol>
+</li>
+<li>逐一验证可能解 根据问题解的要求，一一验证枚举对象表达式的每一 个取值，如果满足条件，则采纳它; 否则，抛弃之。</li>
+</ol>
+<h1 id="egs">
+  e.g.s
+  <a class="anchor" href="#egs">#</a>
+</h1>
+<h3 id="数组配对">
+  数组配对
+  <a class="anchor" href="#%e6%95%b0%e7%bb%84%e9%85%8d%e5%af%b9">#</a>
+</h3>
+<pre tabindex="0"><code>给你一个长度为n的数组A和一个正整数k，问从数组中任选两个数使其和是k的倍数，有多少种选法？对于数组 a1=1 , a2=2 , a3=2 而言：
+
+(a1,a2) 和 (a2,a1)被认为是同一种选法；
+
+(a1,a2) 和 (a1,a3)被认为是不同的选法。
+</code></pre><ul>
+<li>朴素方法
+<ul>
+<li>枚举对象：𝑂𝑏𝑗(𝑎𝑖,𝑎𝑗),1≤ 𝑖 &lt; 𝑗≤ 𝑛</li>
+<li>逐一列举</li>
+<li>逐一验证</li>
+</ul>
+</li>
+<li>存在问题：时间复杂度较高：𝑂(𝑛2)
+<ul>
+<li>如果问题规模较大，求解问题需要的时间也呈指数级别增长</li>
+</ul>
+</li>
+<li>尝试改进：如何减少问题空间？如何更加有效的枚举？
+<ul>
+<li>利用桶思路，将原问题之间用 mod 运算降低到一个非常低的解空间中再进行枚举</li>
+<li>枚举对象：𝑂𝑏𝑗(𝑎𝑖,𝑎𝑗),1≤ 𝑖 &lt; 𝑗≤ 𝑛</li>
+<li>逐一列举：
+<ul>
+<li>预处理： (𝑎𝑖 + 𝑎𝑗)%𝑘 = 0</li>
+</ul>
+</li>
+<li>逐一验证：(𝑎𝑖%𝑘 + 𝑎𝑗%𝑘)%𝑘 = 0</li>
+<li>求解细节：
+<ul>
+<li>会变成两个单独数字的配对问题，存在两种情况</li>
+<li>两个数字在同一桶内：组合数公式</li>
+<li>两数字不在同一桶内：直接相乘，相当于组合公式</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">work</span>() {
+</span></span><span style="display:flex;"><span>    LL ans <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> k; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> (k <span style="color:#f92672">-</span> i) <span style="color:#f92672">%</span> k;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (j <span style="color:#f92672">&lt;</span> i) <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e">// 避免重复 else if (j == i) // 0或者k/2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        ans <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1LL</span> <span style="color:#f92672">*</span> b[i] <span style="color:#f92672">*</span> (b[i] <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> ans <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1LL</span> <span style="color:#f92672">*</span> b[i] <span style="color:#f92672">*</span> b[j];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    cout <span style="color:#f92672">&lt;&lt;</span> ans <span style="color:#f92672">&lt;&lt;</span> endl;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="绳子切割问题">
+  绳子切割问题
+  <a class="anchor" href="#%e7%bb%b3%e5%ad%90%e5%88%87%e5%89%b2%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>有N条绳子，它们的长度分别为𝐿_𝑖 (≤1000)。如果从它们中切割出 K 条长度相同的绳子，这K条绳子每条最长能有多长？答案保留到小数点后2位。
+</code></pre><p><strong>枚举法的典型应用</strong></p>
+<p>我要枚举出一个最长长度出来，可以直接套用二分枚举的算法进行实现</p>
+<ul>
+<li>枚举对象：绳子长度</li>
+<li>枚举过程：二分枚举</li>
+<li>验证方法：到每个已知绳子中验证其切割结果是否为 k</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> n, k; <span style="color:#75715e">// 全局变量，数组长度和目标数值 int a[MAX_N]; //全局变量，待查找数组
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">binarySearch</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> lb <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    ub <span style="color:#f92672">=</span> n; <span style="color:#75715e">// 初始化解的存在范围
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">while</span> (ub <span style="color:#f92672">-</span> lb <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> mid <span style="color:#f92672">=</span> (lb <span style="color:#f92672">+</span> ub) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (a[mid] <span style="color:#f92672">&gt;=</span> k) ub <span style="color:#f92672">=</span> mid; 
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 解的范围更新为 [lb, mid] else
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        lb <span style="color:#f92672">=</span> mid <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>;              
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 解的范围更新为 [mid + 1, ub]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> lb; <span style="color:#75715e">// lb即为答案
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>
+  <a href="https://blog.csdn.net/weixin_44966641/article/details/122775097">关于二分法的边界问题及两种写法_二分法边界处理-CSDN博客</a></p>
+<p><strong>二分枚举基本原理</strong></p>
+<p>一般化模型：</p>
+<ul>
+<li>“求满足某个条件𝑪(𝒙) 的最小的𝒙”，其中𝐶(𝑥) 满足性质: 如果任意𝑥满足𝐶(𝑥)，则所有 的𝑥 ≥ 𝑥也满足𝐶(𝑥)</li>
+<li>“求满足某个条件𝑪(𝒙) 的最大的𝒙”，其中𝐶(𝑥) 满足性质: 如果任意𝑥满足𝐶(𝑥)，则所有 的𝑥 ≤ 𝑥也满足𝐶(𝑥)</li>
+</ul>
+<pre tabindex="0"><code>算法(模型1)
+1. 设置x的初始范围，即下界lb和上界ub 
+2. While (ub &gt; lb)
+1)𝑚𝑖𝑑 = (𝑙𝑏 + 𝑢𝑏)/2; 
+2)if (C(mid))
+更新上界: 𝑢𝑏 ← 𝑚𝑖𝑑; 
+3)else
+更新下界:𝑙𝑏 ← 𝑚𝑖𝑑+1
+</code></pre><pre tabindex="0"><code>算法(模型2)
+1. 设置x的初始范围，即下界lb和上界ub 
+2. While (ub &gt; lb)
+1)𝑚𝑖𝑑 = (𝑙𝑏 + 𝑢𝑏)/2; 
+2)if (C(mid))
+更新下界: 𝑙𝑏 ← 𝑚𝑖𝑑; 
+3)else
+更新上界:𝑢𝑏 ← 𝑚𝑖𝑑−1
+</code></pre><h3 id="移除石头最重要枚举问题">
+  移除石头——最重要枚举问题
+  <a class="anchor" href="#%e7%a7%bb%e9%99%a4%e7%9f%b3%e5%a4%b4%e6%9c%80%e9%87%8d%e8%a6%81%e6%9e%9a%e4%b8%be%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>有一条河，河中间有一些石头，石头的数量以及相邻两块石头之间的距离已知。现在可以移除一些石头，假设最多可以移除m块石头（注意：首尾两块石头不可以移除，且假定所有的石头都处于同一条直线），问最多移除m块石头后相邻两块石头之间的最小距离的最大值是多少？
+</code></pre><ul>
+<li>传统的贪心策略，二叉树搜索策略要么不可行，要么复杂度过高，需要一种高效的遍历算法——二分枚举</li>
+<li>问题建模:
+<ul>
+<li>求满足条件𝑪(𝒅) 的最大值𝑑，其中𝑪(𝒅) 描述为:𝑪 𝒅 ≔ 最多移除 m 个石头后最近两个石头的距离不小于 d</li>
+</ul>
+</li>
+<li>问题转换：
+<ul>
+<li>求满足条件𝑪(𝒅) 的最大值𝑑，其中𝑪(𝒅) 描述为:𝑪 𝒅 ≔ <strong>最多移除 m 个石头后任意相邻两个石头的距离不小于 d</strong></li>
+</ul>
+</li>
+<li>算法思路：
+<ul>
+<li>应用贪心思想</li>
+<li>循环依次考虑相邻石头，如果距离小于 d，则去掉一个石头;</li>
+<li>如果任意相邻石头的距离都不小于 d，则返回 true;</li>
+<li>如果移除的石头个数大于 m，则返回 false</li>
+</ul>
+</li>
+</ul>
+<pre tabindex="0"><code></code></pre><h3 id="函数求根问题">
+  函数求根问题
+  <a class="anchor" href="#%e5%87%bd%e6%95%b0%e6%b1%82%e6%a0%b9%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>有形如：𝑎𝑥^3+𝑏𝑥^2+𝑐𝑥+𝑑=0 的一元三次方程。给出该方程中各项的系数(a，b，c，d 均为实数)，并约定该方程存在三个不同实根(根的范围在-100至100之间)，且根与根之差的绝对值≥1。请设计算法求解三个实根。
+
+输入格式
+多组输入(不超过20组数据，读入以EOF结尾)
+每组输入四个数字，a，b，c，d (4个数绝对值小等于30)
+
+输出格式
+每组输出一行结果，由小到大输出3个根(保留两位有效数字)
+</code></pre><h3 id="problem-a-优美的立方质数">
+  Problem A. 优美的立方质数
+  <a class="anchor" href="#problem-a-%e4%bc%98%e7%be%8e%e7%9a%84%e7%ab%8b%e6%96%b9%e8%b4%a8%e6%95%b0">#</a>
+</h3>
+<pre tabindex="0"><code>题目描述
+如果一个质数能被表示为三个不同的质数的和的形式，那么我们称它为立方质数。现在给你一个数n，判断它是不是立方质数。
+
+输入数据
+正整数n，n&lt;=1000
+
+输出数据
+Yes或者No
+</code></pre><h3 id="problem-b-课堂作业--6-2-木棍切割问题">
+  Problem B. 课堂作业 -6-2 木棍切割问题
+  <a class="anchor" href="#problem-b-%e8%af%be%e5%a0%82%e4%bd%9c%e4%b8%9a--6-2-%e6%9c%a8%e6%a3%8d%e5%88%87%e5%89%b2%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<h3 id="problem-c-李老师的幸运数字">
+  Problem C. 李老师的幸运数字
+  <a class="anchor" href="#problem-c-%e6%9d%8e%e8%80%81%e5%b8%88%e7%9a%84%e5%b9%b8%e8%bf%90%e6%95%b0%e5%ad%97">#</a>
+</h3>
+<pre tabindex="0"><code>题目描述
+李老师的lucky number 是3，5和7，他爱屋及乌，还把所有质因数只有3，5，7的数字认定为lucky number，比如9, 15, 21, 25等等。请聪明的你帮忙算一算小于等于x的lucky number有多少个？
+
+输入数据
+一个正整数x，3=&lt;x&lt;=1000000000000
+
+输出数据
+小于等于x的lucky number的个数。
+</code></pre><h3 id="problem-d-思维之花---简单背包">
+  Problem D. 思维之花 - 简单背包
+  <a class="anchor" href="#problem-d-%e6%80%9d%e7%bb%b4%e4%b9%8b%e8%8a%b1---%e7%ae%80%e5%8d%95%e8%83%8c%e5%8c%85">#</a>
+</h3>
+<pre tabindex="0"><code>题目描述
+李老师正准备暑假旅行，他有一个容量为L的行李箱和n个物品（n不超过20），每个物品都有自己的体积，物品可以放入行李箱，但行李箱中物品的总体积不能超过行李箱容量，李老师现在想知道他有多少种携带物品的方案（一个物品都不带也算一种方案）
+
+输入数据
+第一行为两个正整数n和L，分别代表物品总数和行李箱容量，n&lt;=20，L&lt;=1e9 接下来一行为n个正整数vi，代表第i个物品的体积，vi&lt;=1e8
+
+输出数据
+方案数
+</code></pre><h3 id="problem-e-课堂作业--7-2-石头移除问题">
+  Problem E. 课堂作业 -7-2 石头移除问题
+  <a class="anchor" href="#problem-e-%e8%af%be%e5%a0%82%e4%bd%9c%e4%b8%9a--7-2-%e7%9f%b3%e5%a4%b4%e7%a7%bb%e9%99%a4%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>题目描述
+有一条河，河中间有一些石头，已知石头的数量和相邻两块石头之间的距离。现在可以移除一些石头，问最多移除m块石头后（首尾两块石头不可以移除），相邻两块石头之间的距离的最小值最大是多少。
+
+输入数据
+第一行输入两个数字，n（2&lt;=n&lt;=1000）为石头的个数，m（0&lt;=m&lt;=n-2）为可移除的石头数目 随后n-1个数字，表示顺序和相邻两块石头的距离d（d&lt;=1000）
+
+输出数据
+输出最小距离的最大值
+</code></pre><h3 id="problem-f-数对选择">
+  Problem F. 数对选择
+  <a class="anchor" href="#problem-f-%e6%95%b0%e5%af%b9%e9%80%89%e6%8b%a9">#</a>
+</h3>
+<pre tabindex="0"><code>题目描述
+给你一个长度为n的数组和一个正整数k，问从数组中任选两个数使其和是k的倍数，有多少种选法。 对于数组a1=1 , a2=2 , a3=2而言：
+(a1,a2)和(a2,a1)被认为是同一种选法；
+(a1,a2)和(a1,a3)被认为是不同的选法。
+
+输入数据
+第一行有两个正整数n，k。n&lt;=1000000，k&lt;=1000000 第二行有n个正整数，每个数的大小不超过1e9
+
+输出数据
+选出一对数使其和是k的倍数的选法个数
+</code></pre><ul>
+<li>Q：为什么使用 1LL 进行处理？
+<ul>
+<li>在这段代码中，乘以 LL 的目的是为了确保在进行乘法运算时使用长整型（long long）进行计算，避免整数溢出问题。</li>
+<li>具体来说，1LL 是一个将数字 1 转换为长整型的方式。在这里，1LL * (bucket[i] * (bucket[i] - 1) / 2) 和 1LL * (bucket[i] * bucket[j]) 中的乘法运算都会使用长整型进行计算。</li>
+<li>这是因为当进行乘法运算时，如果操作数中有一个是长整型，那么结果也将是长整型。在某些情况下，特别是当计算的结果可能超过整数范围时，使用长整型是很重要的，以防止溢出。如果不使用 1LL 进行转换，整个表达式的结果可能会被截断为普通整型，导致错误的结果。</li>
+</ul>
+</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#theorythinkings">Theory&amp;Thinkings</a></li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#数组配对">数组配对</a></li>
+            <li><a href="#绳子切割问题">绳子切割问题</a></li>
+            <li><a href="#移除石头最重要枚举问题">移除石头——最重要枚举问题</a></li>
+            <li><a href="#函数求根问题">函数求根问题</a></li>
+            <li><a href="#problem-a-优美的立方质数">Problem A. 优美的立方质数</a></li>
+            <li><a href="#problem-b-课堂作业--6-2-木棍切割问题">Problem B. 课堂作业 -6-2 木棍切割问题</a></li>
+            <li><a href="#problem-c-李老师的幸运数字">Problem C. 李老师的幸运数字</a></li>
+            <li><a href="#problem-d-思维之花---简单背包">Problem D. 思维之花 - 简单背包</a></li>
+            <li><a href="#problem-e-课堂作业--7-2-石头移除问题">Problem E. 课堂作业 -7-2 石头移除问题</a></li>
+            <li><a href="#problem-f-数对选择">Problem F. 数对选择</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="计算机系统性能优化理论 # 描述了实际项目中性能优化的五个方面
+Profile——针对优化目标进行性能测试摸底
+不同应用场景不同的采样工具（perf、VTurn） Analyze——分析性能的瓶颈和焦点
+Root——刨根问底，找出问题的根本原因
+Optimize——设法突破瓶颈和优化性能
+Test——测试验证性能优化成效
+上述过程是一个迭代循环过程
+printk——简单强大调试工具 # 内核提供的格式化显示输出函数 [环形缓冲机制]
+输出级别——在终端或串口输出的判断依据
+输出级别不低于控制台输出级别的消息将会在控制台显示输出 系统运行时输出级别的查看与修改
+cat /proc/sys/kernel/printk 15	4	1	7 分别对应控制台输出级别、消息默认输出级别、控制台输出级别最小取值和控制台默认输出级别 #echo 7 &gt; /proc/sys/kernel/printk $ cat /proc/sys/kernel/printk 7	4	1	7 函数名及代码行号的显示输出 printk(&quot;FunctionName[%s] LineNo[%d]\n&quot;, __func__, __LINE__); debugfs 文件系统及动态输出 # 动态输出（Dynamic printk）
+由系统维护者动态选择打开内核输出 动态输出对应于内核代码中有关函数 pr_debug() 和 dev_debug() 的输出信息 可指定内核子系统或内核模块 要求在内核编译配置时打开宏 CONFIG_DYNAMIC_DEBUG 需要系统挂载 debugfs 文件系统，并在其 control 节点加以查看，具体记录了系统中所有使用动态输入输出技术的文件名路径、输出所在行号、模块名字以及要打印的信息描述 cat/more &#43; grep 查看方式 proc 文件系统（系统及进程信息） # 内核和内核模块向用户空间发送消息的机制
+方便用户或用户进程访问内核数据结构以获取进程或系统的有关信息 本质上并非真正意义的文件系统，存在于内存，而不占用磁盘空间">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="计算机系统性能优化理论 # 描述了实际项目中性能优化的五个方面
+Profile——针对优化目标进行性能测试摸底
+不同应用场景不同的采样工具（perf、VTurn） Analyze——分析性能的瓶颈和焦点
+Root——刨根问底，找出问题的根本原因
+Optimize——设法突破瓶颈和优化性能
+Test——测试验证性能优化成效
+上述过程是一个迭代循环过程
+printk——简单强大调试工具 # 内核提供的格式化显示输出函数 [环形缓冲机制]
+输出级别——在终端或串口输出的判断依据
+输出级别不低于控制台输出级别的消息将会在控制台显示输出 系统运行时输出级别的查看与修改
+cat /proc/sys/kernel/printk 15	4	1	7 分别对应控制台输出级别、消息默认输出级别、控制台输出级别最小取值和控制台默认输出级别 #echo 7 &gt; /proc/sys/kernel/printk $ cat /proc/sys/kernel/printk 7	4	1	7 函数名及代码行号的显示输出 printk(&quot;FunctionName[%s] LineNo[%d]\n&quot;, __func__, __LINE__); debugfs 文件系统及动态输出 # 动态输出（Dynamic printk）
+由系统维护者动态选择打开内核输出 动态输出对应于内核代码中有关函数 pr_debug() 和 dev_debug() 的输出信息 可指定内核子系统或内核模块 要求在内核编译配置时打开宏 CONFIG_DYNAMIC_DEBUG 需要系统挂载 debugfs 文件系统，并在其 control 节点加以查看，具体记录了系统中所有使用动态输入输出技术的文件名路径、输出所在行号、模块名字以及要打印的信息描述 cat/more &#43; grep 查看方式 proc 文件系统（系统及进程信息） # 内核和内核模块向用户空间发送消息的机制
+方便用户或用户进程访问内核数据结构以获取进程或系统的有关信息 本质上并非真正意义的文件系统，存在于内存，而不占用磁盘空间" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" /><meta property="article:section" content="docs" />
+
+
+
+<title>7 Linux内核调试与性能优化 | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle" checked />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle" checked />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="active">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>7 Linux内核调试与性能优化</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#计算机系统性能优化理论">计算机系统性能优化理论</a></li>
+    <li><a href="#printk简单强大调试工具">printk——简单强大调试工具</a></li>
+    <li><a href="#debugfs-文件系统及动态输出">debugfs 文件系统及动态输出</a></li>
+    <li><a href="#proc-文件系统系统及进程信息">proc 文件系统（系统及进程信息）</a></li>
+    <li><a href="#sys-文件系统及新型设备驱动模型">sys 文件系统及新型设备驱动模型</a></li>
+    <li><a href="#oops-错误分析及示例">OOPS 错误分析及示例</a></li>
+    <li><a href="#内存检测工具及应用">内存检测工具及应用</a></li>
+    <li><a href="#性能功耗指标及-linux-性能测试工具">性能/功耗指标及 Linux 性能测试工具</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="计算机系统性能优化理论">
+  计算机系统性能优化理论
+  <a class="anchor" href="#%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%b3%bb%e7%bb%9f%e6%80%a7%e8%83%bd%e4%bc%98%e5%8c%96%e7%90%86%e8%ae%ba">#</a>
+</h1>
+<p>描述了实际项目中性能优化的五个方面</p>
+<p>Profile——针对优化目标进行性能测试摸底</p>
+<ul>
+<li>不同应用场景不同的采样工具（perf、VTurn）</li>
+</ul>
+<p>Analyze——分析性能的瓶颈和焦点</p>
+<p>Root——刨根问底，找出问题的根本原因</p>
+<p>Optimize——设法突破瓶颈和优化性能</p>
+<p>Test——测试验证性能优化成效</p>
+<p>上述过程是一个迭代循环过程</p>
+<h1 id="printk简单强大调试工具">
+  printk——简单强大调试工具
+  <a class="anchor" href="#printk%e7%ae%80%e5%8d%95%e5%bc%ba%e5%a4%a7%e8%b0%83%e8%af%95%e5%b7%a5%e5%85%b7">#</a>
+</h1>
+<p>内核提供的格式化显示输出函数 <code>[环形缓冲机制]</code></p>
+<p>输出级别——在终端或串口输出的判断依据</p>
+<ul>
+<li>输出级别不低于控制台输出级别的消息将会在控制台显示输出</li>
+</ul>
+<p>系统运行时输出级别的查看与修改</p>
+<ul>
+<li>cat /proc/sys/kernel/printk
+<ul>
+<li>15	4	1	7</li>
+<li>分别对应<strong>控制台输出级别</strong>、消息默认输出级别、控制台输出级别最小取值和控制台默认输出级别</li>
+<li><code>#echo 7 &gt; /proc/sys/kernel/printk</code></li>
+<li><code>$ cat /proc/sys/kernel/printk</code></li>
+<li>7	4	1	7</li>
+</ul>
+</li>
+<li>函数名及代码行号的显示输出
+<ul>
+<li><code>printk(&quot;FunctionName[%s] LineNo[%d]\n&quot;, __func__, __LINE__);</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="debugfs-文件系统及动态输出">
+  debugfs 文件系统及动态输出
+  <a class="anchor" href="#debugfs-%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%8f%8a%e5%8a%a8%e6%80%81%e8%be%93%e5%87%ba">#</a>
+</h1>
+<p><strong>动态输出（Dynamic printk）</strong></p>
+<ul>
+<li>由系统维护者动态选择打开内核输出
+<ul>
+<li>动态输出对应于内核代码中有关函数 pr_debug() 和 dev_debug() 的输出信息</li>
+<li>可指定内核子系统或内核模块</li>
+<li>要求在内核编译配置时打开宏 CONFIG_DYNAMIC_DEBUG</li>
+<li>需要系统挂载 debugfs 文件系统，并在其 control 节点加以查看，具体记录了系统中所有使用动态输入输出技术的文件名路径、输出所在行号、模块名字以及要打印的信息描述</li>
+<li>cat/more + grep 查看方式</li>
+</ul>
+</li>
+</ul>
+<h1 id="proc-文件系统系统及进程信息">
+  proc 文件系统（系统及进程信息）
+  <a class="anchor" href="#proc-%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e7%b3%bb%e7%bb%9f%e5%8f%8a%e8%bf%9b%e7%a8%8b%e4%bf%a1%e6%81%af">#</a>
+</h1>
+<p>内核和内核模块向用户空间发送消息的机制</p>
+<ul>
+<li>方便用户或用户进程访问内核数据结构以获取进程或系统的有关信息</li>
+</ul>
+<p>本质上并非真正意义的文件系统，存在于内存，而不占用磁盘空间</p>
+<p>典型应用场景</p>
+<ul>
+<li>通过/proc/meminfo 查看内存管理信息</li>
+<li>通过/proc/cpuinfo 查看处理器信息</li>
+<li>查看进程信息</li>
+<li>ps、top 等 Shell 命令</li>
+</ul>
+<h1 id="sys-文件系统及新型设备驱动模型">
+  sys 文件系统及新型设备驱动模型
+  <a class="anchor" href="#sys-%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f%e5%8f%8a%e6%96%b0%e5%9e%8b%e8%ae%be%e5%a4%87%e9%a9%b1%e5%8a%a8%e6%a8%a1%e5%9e%8b">#</a>
+</h1>
+<p>引入缘由</p>
+<ul>
+<li>包括设备驱动等在内的内核模块造成了/proc 文件系统目录的杂乱无章</li>
+<li>Linux2.5 起建立了统一的设备驱动模型，也由此诞生了 sys 这一新的内存型虚拟文件系统</li>
+</ul>
+<p>新型设备驱动模型</p>
+<ul>
+<li>对计算机系统中的所有设备进行统一的表示和操作，包括设备本身及设备之间的连接关系</li>
+<li>建立在 PCI 和 USB 的总线枚举过程分析基础之上</li>
+<li>CPU⬄PCI 总线设备⬄PCI 设备（USB 总线设备）⬄外部 USB 设备（譬如 USB 鼠标/键盘）关电与加电次序</li>
+</ul>
+<h1 id="oops-错误分析及示例">
+  OOPS 错误分析及示例
+  <a class="anchor" href="#oops-%e9%94%99%e8%af%af%e5%88%86%e6%9e%90%e5%8f%8a%e7%a4%ba%e4%be%8b">#</a>
+</h1>
+<p>OOPS（Out-of-Process Space）</p>
+<ul>
+<li>内核空间中，指针非法取值或访问</li>
+</ul>
+<p>OOPS 内核模块示例（Makefile、OOPS_LKM.c）</p>
+<p>实验过程及工具</p>
+<ul>
+<li>编译生成内核模块 OOPS_LKM.ko</li>
+<li>加载内核模块 OOPS_LKM.ko</li>
+<li>执行 dmesg 命令检查内核空间输出信息</li>
+<li>利用反汇编工具 objdump 检查汇编代码</li>
+<li>decodecode 脚本程序（/usr/src/linux-headers-4.4.0-21/scripts/decodecode）</li>
+<li>利用内核调试工具 gdb</li>
+</ul>
+<h1 id="内存检测工具及应用">
+  内存检测工具及应用
+  <a class="anchor" href="#%e5%86%85%e5%ad%98%e6%a3%80%e6%b5%8b%e5%b7%a5%e5%85%b7%e5%8f%8a%e5%ba%94%e7%94%a8">#</a>
+</h1>
+<p>slub-debug</p>
+<ul>
+<li>slab/slub 分配器提供的内存错误访问检测功能</li>
+</ul>
+<p>kmemleak</p>
+<ul>
+<li>用于检测内核内存泄露（只申请不释放）情况</li>
+</ul>
+<p>kasan（kernel address sanitizer）</p>
+<ul>
+<li>用于检测内核内存越界/已释放访问等错误情况</li>
+</ul>
+<p>valgrind</p>
+<ul>
+<li>用于检测应用程序的内存泄漏及越界访问情况</li>
+</ul>
+<p>kdump</p>
+<ul>
+<li>用于系统崩溃时的内核空间内存内容的转移存储</li>
+</ul>
+<p><strong>基于 slub-debug 的内存检测</strong></p>
+<ul>
+<li>内核编译配置
+<ul>
+<li>利用 slub_debug 选项打开 slub-debug 检测功能</li>
+</ul>
+</li>
+<li>slabinfo 工具
+<ul>
+<li>在 linux-4.8.8/tools/vm 目录下 make 编译生成</li>
+</ul>
+</li>
+<li>内存错误访问型 Linux 内核模块
+<ul>
+<li>Makefile、源程序 SlubDebugLKM.c</li>
+</ul>
+</li>
+<li>实验过程（QEMU 虚拟机上）
+<ul>
+<li>加载 SlubDebugLKM.ko 后，执行 slabinfo 命令</li>
+<li>卸载 SlubDebugLKM.ko 后，执行 dmesg 命令</li>
+</ul>
+</li>
+</ul>
+<h1 id="性能功耗指标及-linux-性能测试工具">
+  性能/功耗指标及 Linux 性能测试工具
+  <a class="anchor" href="#%e6%80%a7%e8%83%bd%e5%8a%9f%e8%80%97%e6%8c%87%e6%a0%87%e5%8f%8a-linux-%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95%e5%b7%a5%e5%85%b7">#</a>
+</h1>
+<p>PnP（Performance And Power）</p>
+<p>性能与功耗是一对矛盾体</p>
+<p>KPI（Key Performance Indicator）</p>
+<p>性能指标</p>
+<ul>
+<li>包括处理器指标、GPU 指标、I/O 指标、网络指标等</li>
+</ul>
+<p>功耗指标</p>
+<ul>
+<li>包括待机功耗、待机电流、播放 MP3 时长、观看视频时长等</li>
+<li>功耗测试会牵涉到诸多硬件设备</li>
+</ul>
+<p><strong>Linux 性能测试工具</strong></p>
+<ul>
+<li>kernel-selftests【linux-4.8.8/tools/testing/selftests】</li>
+<li>perf-bench【linux-4.8.8/tools/perf/bench】</li>
+<li>iperf【网络性能测试程序】</li>
+<li>pmbench【内存性能测试程序】</li>
+<li>sysbench【综合测试套件：CPU、内存、多线程】</li>
+<li>DBENCH【I/O 性能测试程序】</li>
+<li>GFXbenchmark/glbenchmark【GPU 性能测试程序】</li>
+<li>iozone【文件系统性能测试程序】</li>
+<li>vm-scalability【Linux 内核内存管理模块可扩展性测试程序】</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#计算机系统性能优化理论">计算机系统性能优化理论</a></li>
+    <li><a href="#printk简单强大调试工具">printk——简单强大调试工具</a></li>
+    <li><a href="#debugfs-文件系统及动态输出">debugfs 文件系统及动态输出</a></li>
+    <li><a href="#proc-文件系统系统及进程信息">proc 文件系统（系统及进程信息）</a></li>
+    <li><a href="#sys-文件系统及新型设备驱动模型">sys 文件系统及新型设备驱动模型</a></li>
+    <li><a href="#oops-错误分析及示例">OOPS 错误分析及示例</a></li>
+    <li><a href="#内存检测工具及应用">内存检测工具及应用</a></li>
+    <li><a href="#性能功耗指标及-linux-性能测试工具">性能/功耗指标及 Linux 性能测试工具</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

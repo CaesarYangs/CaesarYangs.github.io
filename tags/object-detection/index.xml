@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>object detection on 📦 Caesar&#39;s Paperbox</title>
+    <link>https://caesaryangs.github.io/tags/object-detection/</link>
+    <description>Recent content in object detection on 📦 Caesar&#39;s Paperbox</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 16 Feb 2024 22:28:38 +0800</lastBuildDate>
+    <atom:link href="https://caesaryangs.github.io/tags/object-detection/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>YOLOv5_HNet</title>
+      <link>https://caesaryangs.github.io/blogs/YOLOv5_HNet/</link>
+      <pubDate>Tue, 30 May 2023 10:40:58 +0800</pubDate>
+      <guid>https://caesaryangs.github.io/blogs/YOLOv5_HNet/</guid>
+      <description>YOLOv5_HNet # A YOLOv5 modification net for key objects on private helmet dataset CaesarYangs/YOLOv5_HNet&#xA;中文 | EN&#xA;本项目的主要目标是利用一些已有的论文方案，结合我自己的一些思考和改动，实现对于私人数据集上的安全帽检测的效果提升。&#xA;效果提升的标准定义：&#xA;准确率 速度（检测速度） 模型大小（所需算力） 本项目所基于的数据集种类、数量都极其复杂，涉及多场景的情况处理。也在这些珍贵的数据集上进行了大量的实验及必须的消融实验。&#xA;tips：本项目适合完全了解YOLOv5及以上版本源码的同学阅读及使用。建议可以先通过 GitHub - HuKai97/yolov5-5.x-annotations: 一个基于yolov5-5.0的中文注释版本！ HuKai大神之前做过的这个非常详尽的标注版本进行整体源码和必要细节阅读理解。也非常感谢这个项目让我在早期能够快速吃透并上手修改工作。&#xA;Solution1: 改变Anchor，添加小目标检测层 # 思路：&#xA;根据对数据集的分析，发现更多的情况是监控拍摄到的图片，结果就是目标的距离很远，物体较小。自然想到的第一个方向就是针对这些小目标着重优化。&#xA;改进要点：&#xA;添加一层新的小目标Anchor。 [5, 6, 8, 14, 15, 11] #new_anchor 修改FPN结构，增加层数。&#xA;在原来5层FPN的基础上增加两层：分别是对dim=512及dim=256维度特征的再次提取，经过再次上采样提取过的最后一层连接到检测头，替换原来的单层提取/上采。&#xA;利用kmeans，针对特定数据集情况做anchor重新聚类&#xA;本质上是针对后期YOLOv5模型自带的anchor回归预测的一个手动验证，看经过我解耦后的单独anchor重聚类算法能否对基础的YOLO模型有所提升，以验证这个方法对于安全帽检测这个特定领域的有效性。&#xA;训练结果：&#xA;type model parameters FLOPs pt_size mAP@0.5 mAP@0.5~0.95 FPS Power Plant YOLOv5s_baseline 7.06M 16.5G 14.3MB 0.75 0.484 30.5 Power Plant little_obj_anchor_fpn 50.9M 192.</description>
+    </item>
+  </channel>
+</rss>

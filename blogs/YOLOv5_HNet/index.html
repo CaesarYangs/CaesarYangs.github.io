@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YOLOv5_HNet # A YOLOv5 modification net for key objects on private helmet dataset CaesarYangs/YOLOv5_HNet
+中文 | EN
+本项目的主要目标是利用一些已有的论文方案，结合我自己的一些思考和改动，实现对于私人数据集上的安全帽检测的效果提升。
+效果提升的标准定义：
+准确率 速度（检测速度） 模型大小（所需算力） 本项目所基于的数据集种类、数量都极其复杂，涉及多场景的情况处理。也在这些珍贵的数据集上进行了大量的实验及必须的消融实验。
+tips：本项目适合完全了解YOLOv5及以上版本源码的同学阅读及使用。建议可以先通过 GitHub - HuKai97/yolov5-5.x-annotations: 一个基于yolov5-5.0的中文注释版本！ HuKai大神之前做过的这个非常详尽的标注版本进行整体源码和必要细节阅读理解。也非常感谢这个项目让我在早期能够快速吃透并上手修改工作。
+Solution1: 改变Anchor，添加小目标检测层 # 思路：
+根据对数据集的分析，发现更多的情况是监控拍摄到的图片，结果就是目标的距离很远，物体较小。自然想到的第一个方向就是针对这些小目标着重优化。
+改进要点：
+添加一层新的小目标Anchor。 [5, 6, 8, 14, 15, 11] #new_anchor 修改FPN结构，增加层数。
+在原来5层FPN的基础上增加两层：分别是对dim=512及dim=256维度特征的再次提取，经过再次上采样提取过的最后一层连接到检测头，替换原来的单层提取/上采。
+利用kmeans，针对特定数据集情况做anchor重新聚类
+本质上是针对后期YOLOv5模型自带的anchor回归预测的一个手动验证，看经过我解耦后的单独anchor重聚类算法能否对基础的YOLO模型有所提升，以验证这个方法对于安全帽检测这个特定领域的有效性。
+训练结果：
+type model parameters FLOPs pt_size mAP@0.5 mAP@0.5~0.95 FPS Power Plant YOLOv5s_baseline 7.06M 16.5G 14.3MB 0.75 0.484 30.5 Power Plant little_obj_anchor_fpn 50.9M 192.">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="YOLOv5_HNet" />
+<meta property="og:description" content="YOLOv5_HNet # A YOLOv5 modification net for key objects on private helmet dataset CaesarYangs/YOLOv5_HNet
+中文 | EN
+本项目的主要目标是利用一些已有的论文方案，结合我自己的一些思考和改动，实现对于私人数据集上的安全帽检测的效果提升。
+效果提升的标准定义：
+准确率 速度（检测速度） 模型大小（所需算力） 本项目所基于的数据集种类、数量都极其复杂，涉及多场景的情况处理。也在这些珍贵的数据集上进行了大量的实验及必须的消融实验。
+tips：本项目适合完全了解YOLOv5及以上版本源码的同学阅读及使用。建议可以先通过 GitHub - HuKai97/yolov5-5.x-annotations: 一个基于yolov5-5.0的中文注释版本！ HuKai大神之前做过的这个非常详尽的标注版本进行整体源码和必要细节阅读理解。也非常感谢这个项目让我在早期能够快速吃透并上手修改工作。
+Solution1: 改变Anchor，添加小目标检测层 # 思路：
+根据对数据集的分析，发现更多的情况是监控拍摄到的图片，结果就是目标的距离很远，物体较小。自然想到的第一个方向就是针对这些小目标着重优化。
+改进要点：
+添加一层新的小目标Anchor。 [5, 6, 8, 14, 15, 11] #new_anchor 修改FPN结构，增加层数。
+在原来5层FPN的基础上增加两层：分别是对dim=512及dim=256维度特征的再次提取，经过再次上采样提取过的最后一层连接到检测头，替换原来的单层提取/上采。
+利用kmeans，针对特定数据集情况做anchor重新聚类
+本质上是针对后期YOLOv5模型自带的anchor回归预测的一个手动验证，看经过我解耦后的单独anchor重聚类算法能否对基础的YOLO模型有所提升，以验证这个方法对于安全帽检测这个特定领域的有效性。
+训练结果：
+type model parameters FLOPs pt_size mAP@0.5 mAP@0.5~0.95 FPS Power Plant YOLOv5s_baseline 7.06M 16.5G 14.3MB 0.75 0.484 30.5 Power Plant little_obj_anchor_fpn 50.9M 192." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/blogs/YOLOv5_HNet/" /><meta property="article:section" content="blogs" />
+<meta property="article:published_time" content="2023-05-30T10:40:58+08:00" />
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>YOLOv5_HNet | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle"  />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle" checked />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="active">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>YOLOv5_HNet</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#yolov5_hnet">YOLOv5_HNet</a>
+      <ul>
+        <li><a href="#solution1-改变anchor添加小目标检测层">Solution1: 改变Anchor，添加小目标检测层</a></li>
+        <li><a href="#solution2-改变neckhead结构加入注意力机制transformer等">Solution2: 改变Neck&amp;Head结构，加入注意力机制，Transformer等</a></li>
+        <li><a href="#solution3-network-slim-轻量化网络设计">Solution3: Network Slim 轻量化网络设计</a>
+          <ul>
+            <li><a href="#shufflenetv2">shuffleNetV2</a></li>
+            <li><a href="#mobilenetv3">MobileNetV3</a></li>
+          </ul>
+        </li>
+        <li><a href="#solution4-conv卷积核--fpn修改">Solution4: Conv卷积核 + FPN修改</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    <a href="/blogs/YOLOv5_HNet/">YOLOv5_HNet</a>
+  </h1>
+  
+  <h5>May 30, 2023</h5>
+
+
+
+  
+
+  
+  <div>
+    
+      <a href="/tags/ai/">ai</a>, 
+      <a href="/tags/object-detection/">object detection</a>
+  </div>
+  
+
+
+
+<h1 id="yolov5_hnet">
+  YOLOv5_HNet
+  <a class="anchor" href="#yolov5_hnet">#</a>
+</h1>
+<p>A YOLOv5 modification net for key objects on private helmet dataset
+
+  <a href="https://github.com/CaesarYangs/YOLOv5_HNet">CaesarYangs/YOLOv5_HNet</a></p>
+<p>中文 | 
+  <a href="README_EN.md">EN</a></p>
+<p>本项目的主要目标是利用一些已有的论文方案，结合我自己的一些思考和改动，实现对于私人数据集上的安全帽检测的效果提升。</p>
+<p>效果提升的标准定义：</p>
+<ul>
+<li>准确率</li>
+<li>速度（检测速度）</li>
+<li>模型大小（所需算力）</li>
+</ul>
+<p>本项目所基于的数据集种类、数量都极其复杂，涉及多场景的情况处理。也在这些珍贵的数据集上进行了大量的实验及必须的消融实验。</p>
+<p>tips：本项目适合完全了解YOLOv5及以上版本源码的同学阅读及使用。建议可以先通过
+  <a href="https://github.com/HuKai97/yolov5-5.x-annotations">GitHub - HuKai97/yolov5-5.x-annotations: 一个基于yolov5-5.0的中文注释版本！</a> HuKai大神之前做过的这个非常详尽的标注版本进行整体源码和必要细节阅读理解。也非常感谢这个项目让我在早期能够快速吃透并上手修改工作。</p>
+<h2 id="solution1-改变anchor添加小目标检测层">
+  Solution1: 改变Anchor，添加小目标检测层
+  <a class="anchor" href="#solution1-%e6%94%b9%e5%8f%98anchor%e6%b7%bb%e5%8a%a0%e5%b0%8f%e7%9b%ae%e6%a0%87%e6%a3%80%e6%b5%8b%e5%b1%82">#</a>
+</h2>
+<p><strong>思路：</strong></p>
+<p>根据对数据集的分析，发现更多的情况是监控拍摄到的图片，结果就是目标的距离很远，物体较小。自然想到的第一个方向就是针对这些小目标着重优化。</p>
+<p><strong>改进要点：</strong></p>
+<ol>
+<li>添加一层新的小目标Anchor。</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>[<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">14</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">11</span>] <span style="color:#75715e">#new_anchor</span>
+</span></span></code></pre></div><ol start="2">
+<li>
+<p>修改FPN结构，增加层数。</p>
+<p>在原来5层FPN的基础上增加两层：分别是对dim=512及dim=256维度特征的再次提取，经过再次上采样提取过的最后一层连接到检测头，替换原来的单层提取/上采。</p>
+</li>
+<li>
+<p>利用kmeans，针对特定数据集情况做anchor重新聚类</p>
+<p>本质上是针对后期YOLOv5模型自带的anchor回归预测的一个手动验证，看经过我解耦后的单独anchor重聚类算法能否对基础的YOLO模型有所提升，以验证这个方法对于安全帽检测这个特定领域的有效性。</p>
+</li>
+</ol>
+<p><strong>训练结果：</strong></p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>model</th>
+<th>parameters</th>
+<th>FLOPs</th>
+<th>pt_size</th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a></th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a>~0.95</th>
+<th>FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Plant</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.3MB</td>
+<td>0.75</td>
+<td>0.484</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>little_obj_anchor_fpn</td>
+<td>50.9M</td>
+<td>192.5G</td>
+<td>102.3MB</td>
+<td>0.748</td>
+<td>0.45</td>
+<td>4.3</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>little_obj_anchor_kmeans</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.3MB</td>
+<td>0.75</td>
+<td>0.473</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>little_obj_anchor</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.3MB</td>
+<td>0.7552</td>
+<td>0.4867</td>
+<td>30.5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析：</strong></p>
+<p>此方法可谓”大而无当“。仅仅通过堆砌特征层，堆砌检测头的力大砖飞式改进并不能在安全帽这种特定领域下有很好的效果，而且徒增了接近十倍的算力需求，反而整体的准确率几乎没有提升。也有可能是需要特定的fine-tunning来实现目标检测上的“Large Model”，但肯定不会是无脑堆砌。作为一个反例值得思考。</p>
+<p>同时，证明了anchors重聚类对于提升还是比较有帮助的，不增加任何计算压力，不修改任何网络结构的情况下也能实现一些提升。证明了remapping anchors对于安全帽这种特定领域下的目标的可用性。</p>
+<h2 id="solution2-改变neckhead结构加入注意力机制transformer等">
+  Solution2: 改变Neck&amp;Head结构，加入注意力机制，Transformer等
+  <a class="anchor" href="#solution2-%e6%94%b9%e5%8f%98neckhead%e7%bb%93%e6%9e%84%e5%8a%a0%e5%85%a5%e6%b3%a8%e6%84%8f%e5%8a%9b%e6%9c%ba%e5%88%b6transformer%e7%ad%89">#</a>
+</h2>
+<p><strong>思路：</strong></p>
+<p>此方法的灵感来源于
+  <a href="https://arxiv.org/abs/2108.11539">TPH-YOLOv5</a> 这篇论文，原作者给YOLOv5加入了Transformer Prediction Head，最后的检测有了比较好的提高。我便基于这个检测头，根据我手中数据集的特点，选择重点优化FPN结构，并结合TPH和一些注意力机制。</p>
+<p><strong>改进要点：</strong></p>
+<ol>
+<li>改变FPN结构为Bi-FPH（加权双向特征金字塔网络），以期提升特征融合的精度及准确度，并一定程度上解决小目标问题。</li>
+<li>增加CBAM（卷积注意力模块），这是一种用于前馈卷积神经网络的简单而有效的注意力模块。CBAM是轻量级的通用模块，因此可以忽略的该模块的开销而将其无缝集成到任何CNN架构中，并且可以与基础CNN一起进行端到端训练。</li>
+<li>最后结合TPH检测头，最后组合为四头检测Head。</li>
+</ol>
+<p><strong>训练结果：</strong></p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>model</th>
+<th>parameters</th>
+<th>FLOPs</th>
+<th>pt_size</th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a></th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a>~0.95</th>
+<th>FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Plant</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.3MB</td>
+<td>0.75</td>
+<td>0.484</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>bifpn-cbam-tph</td>
+<td>45M</td>
+<td>180G</td>
+<td>87.5MB</td>
+<td>0.76</td>
+<td>0.388</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.4MB</td>
+<td>0.83</td>
+<td>0.585</td>
+<td>30</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>bifpn-cbam-tph</td>
+<td>45M</td>
+<td>180G</td>
+<td>87.5MB</td>
+<td>0.85</td>
+<td>0.574</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析：</strong></p>
+<p>加入了一系列机制后，整体的准确率的确有了提升，但是相对的就是算力的大幅提高以及收敛速度显著下降。同时检测速度也极大下降。我也对此有一些疑问，貌似过分的特征提取or注意力机制对于安全帽这类物体检测来说提升效果和意义并不明显。</p>
+<h2 id="solution3-network-slim-轻量化网络设计">
+  Solution3: Network Slim 轻量化网络设计
+  <a class="anchor" href="#solution3-network-slim-%e8%bd%bb%e9%87%8f%e5%8c%96%e7%bd%91%e7%bb%9c%e8%ae%be%e8%ae%a1">#</a>
+</h2>
+<p><strong>思路：</strong></p>
+<p>想法来源于
+  <a href="https://arxiv.org/abs/1807.11164">[1807.11164] ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design</a> 这篇论文。由于之前的测试都集中在对于准确率的提升上，以上提升准确率方法带来的弊端就是网络结构成倍增加，由此就需要一种能够轻量化网络的思路，我的想法是是否能够基于以上的有效的提升思路，再结合轻量化网络的方法，实现一种速度和准确率的balance。</p>
+<p><strong>改进要点：</strong></p>
+<ul>
+<li>G1. 卷积层的输入特征channel和输出特征channel要尽量相等；</li>
+<li>G2. 尽量不要使用组卷积，或者组卷积g尽量小；</li>
+<li>G3. 网络分支要尽量少，避免并行结构；</li>
+<li>G4. Element-Wise的操作要尽量少，如：ReLU、ADD、逐点卷积等；</li>
+</ul>
+<h3 id="shufflenetv2">
+  shuffleNetV2
+  <a class="anchor" href="#shufflenetv2">#</a>
+</h3>
+<ol>
+<li>替换backbone和后面所有C3结构为Shuffle Block，尽量减少非必要卷积操作。</li>
+<li>尽量减少如SPP此类的并行操作结构</li>
+<li>head中的C3改为DWConv结构</li>
+<li>两级结构尝试：stage1为仅处理backbone部分，stage2为同时处理backbone和neck部分</li>
+</ol>
+<h3 id="mobilenetv3">
+  MobileNetV3
+  <a class="anchor" href="#mobilenetv3">#</a>
+</h3>
+<ol>
+<li>使用MobileNetV3替换主要的特征提取backbone</li>
+</ol>
+<p><strong>训练结果：</strong></p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>model</th>
+<th>parameters</th>
+<th>FLOPs</th>
+<th>pt_size</th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a></th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a>~0.95</th>
+<th>FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Plant</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.3MB</td>
+<td>0.75</td>
+<td>0.484</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>ShuffuleNetV2</td>
+<td>0.7M</td>
+<td>2.6G</td>
+<td>1.6MB</td>
+<td>0.586</td>
+<td>0.299</td>
+<td>37</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>bifpn-cbam-tph-slim</td>
+<td>45M</td>
+<td>92.8G</td>
+<td>72.5MB</td>
+<td>0.758</td>
+<td>0.415</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.4MB</td>
+<td>0.83</td>
+<td>0.585</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>ShuffuleNetV2_stage1</td>
+<td>4.8M</td>
+<td>16.5G</td>
+<td>8.3MB</td>
+<td>0.796</td>
+<td>0.515</td>
+<td>25</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>ShuffuleNetV2_stage2</td>
+<td>0.7M</td>
+<td>16.5G</td>
+<td>1.7MB</td>
+<td>0.768</td>
+<td>0.523</td>
+<td>38</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>bifpn-cbam-tph-slim</td>
+<td>45M</td>
+<td>92.8G</td>
+<td>72.5MB</td>
+<td>0.86</td>
+<td>0.57</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>mobileNetV3</td>
+<td>5.6M</td>
+<td>12.8G</td>
+<td>3MB</td>
+<td>0.47</td>
+<td>0.229</td>
+<td>35</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析：</strong></p>
+<p>的确经过对应的设计后，在保证检测精度没有大幅下降的前提下，减少了一半多的算力需要，提升了一倍的FPS（但也就只有10帧&hellip;）。理论上所需的计算量与baseline相比还是差了很多，效果有提升但也比较小，从此我便开始思考以上这些修改方式造成这种结果的原因。</p>
+<p>后来再次做了一个纯ShuffleNetV2 backbone的实验后，发现针对安全帽这种特点的数据，原本的网络尤其是骨干特征提取网络backbone部分是非常优秀的，能够平衡特征提取的精度和速度，因此不应该针对这一块进行大改；同时，注意力机制这种结构对于目前的安全帽检测算法来说，增加算力，减少速度的影响要大于准确率提升带来的优势，所以要根据需求进行tradeoff，目前使用这些没有一个兼顾速度和准确的方法。</p>
+<h2 id="solution4-conv卷积核--fpn修改">
+  Solution4: Conv卷积核 + FPN修改
+  <a class="anchor" href="#solution4-conv%e5%8d%b7%e7%a7%af%e6%a0%b8--fpn%e4%bf%ae%e6%94%b9">#</a>
+</h2>
+<p><strong>思路：</strong></p>
+<p>从以上的三个solutions可以基本总结出一个情况，针对安全帽这类物体，YOLOv5原始的backbone效果已经足够好，有了足够的balance，因此结构不能进行大改；同时，在此基础上提高准确率的方法就导向了两种方法：一是改进卷积核，二是针对Neck中的FPN进行修改，并在此基础上做准确率和速度的balance</p>
+<p><strong>改进要点：</strong></p>
+<p>base modification：</p>
+<ol>
+<li>将一部分backbone中经过C3卷积核之前，添加新的Focus-Conv卷积核，替代全部之前的stride卷积层和池化层，用于进一步在像素中提取信息，提供给下一层卷积操作。常见的stride卷积操作会导致细粒度信息的丢失和学习效率较低的特征表示，从这一点出发，为了在使用类似stride的同时避免对小物体/低分辨率情况下的特征丢失。</li>
+<li>在Neck部分concat之前添加一层Focus-Conv卷积，用以增加特征提取，同时减弱stride操作带来的副作用。</li>
+</ol>
+<p>advanced modification：</p>
+<ol start="3">
+<li>在base基础上将FPN更换为Bi-FPN结构，实现更多层次的特征提取。</li>
+</ol>
+<p><strong>训练结果：</strong></p>
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th>model</th>
+<th>parameters</th>
+<th>FLOPs</th>
+<th>pt_size</th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a></th>
+<th>
+  <a href="mailto:mAP@0.5">mAP@0.5</a>~0.95</th>
+<th>FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Power Plant</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.3MB</td>
+<td>0.75</td>
+<td>0.484</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Power Plant</td>
+<td>focus-conv-yolov5</td>
+<td>8.56M</td>
+<td>28.8G</td>
+<td>17.3MB</td>
+<td>0.806</td>
+<td>0.485</td>
+<td>31</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>YOLOv5s_baseline</td>
+<td>7.06M</td>
+<td>16.5G</td>
+<td>14.4MB</td>
+<td>0.83</td>
+<td>0.585</td>
+<td>30.5</td>
+</tr>
+<tr>
+<td>Car Factory</td>
+<td>focus-conv-yolov5</td>
+<td>8.56M</td>
+<td>28.8G</td>
+<td>17.3MB</td>
+<td>0.875</td>
+<td>0.573</td>
+<td>31</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析：</strong></p>
+<p>在没有明显增加参数量及FLOPs的情况下，发现这种基于focus结构改进的focus-conv卷积核能够在针对安全帽检测的应用场景中有比较好的表现，且能够平衡准确率和检测速度，是一个比较可行的优化方案。</p>
+<h1 id="reference">
+  Reference
+  <a class="anchor" href="#reference">#</a>
+</h1>
+<p>
+  <a href="https://github.com/ultralytics/yolov5">GitHub - ultralytics/yolov5: YOLOv5 🚀 in PyTorch &gt; ONNX &gt; CoreML &gt; TFLite</a>
+
+  <a href="https://github.com/HuKai97/yolov5-5.x-annotations">GitHub - HuKai97/yolov5-5.x-annotations: 一个基于yolov5-5.0的中文注释版本！</a>
+
+  <a href="https://github.com/ppogg/YOLOv5-Lite">GitHub - ppogg/YOLOv5-Lite: 🍅🍅🍅YOLOv5-Lite: lighter, faster and easier to deploy. Evolved from yolov5 and the size of model is only 930+kb (int8) and 1.7M (fp16). It can reach 10+ FPS on the Raspberry Pi 4B when the input size is 320×320~</a>
+
+  <a href="https://github.com/HuKai97/YOLOv5-ShuffleNetv2">GitHub - HuKai97/YOLOv5-ShuffleNetv2: YOLOv5的轻量化改进(蜂巢检测项目)</a></p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#yolov5_hnet">YOLOv5_HNet</a>
+      <ul>
+        <li><a href="#solution1-改变anchor添加小目标检测层">Solution1: 改变Anchor，添加小目标检测层</a></li>
+        <li><a href="#solution2-改变neckhead结构加入注意力机制transformer等">Solution2: 改变Neck&amp;Head结构，加入注意力机制，Transformer等</a></li>
+        <li><a href="#solution3-network-slim-轻量化网络设计">Solution3: Network Slim 轻量化网络设计</a>
+          <ul>
+            <li><a href="#shufflenetv2">shuffleNetV2</a></li>
+            <li><a href="#mobilenetv3">MobileNetV3</a></li>
+          </ul>
+        </li>
+        <li><a href="#solution4-conv卷积核--fpn修改">Solution4: Conv卷积核 + FPN修改</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

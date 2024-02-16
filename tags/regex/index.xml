@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>regex on 📦 Caesar&#39;s Paperbox</title>
+    <link>https://caesaryangs.github.io/tags/regex/</link>
+    <description>Recent content in regex on 📦 Caesar&#39;s Paperbox</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 16 Feb 2024 22:28:38 +0800</lastBuildDate>
+    <atom:link href="https://caesaryangs.github.io/tags/regex/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RegEx101 正则入门笔记</title>
+      <link>https://caesaryangs.github.io/blogs/regex101/</link>
+      <pubDate>Thu, 10 Nov 2022 17:40:58 +0800</pubDate>
+      <guid>https://caesaryangs.github.io/blogs/regex101/</guid>
+      <description>RegEx101 正则入门笔记 # 正则表达式的两种基本用途：搜索和替换。给定一个正则表达式，它要么匹配一些文本（进行一次搜索)，要么匹配并替换一些文本（进行一次替换)。&#xA;非常好的在线正则表达式匹配检测工具： regex101: build, test, and debug regex 学习与工作上都非常好用 匹配单个字符 # 正则表达式，也被称为模式，其实是一些由字符构成的字符串。这些字符可以是字面字符（普通文本)或元字符（有特殊含义的字符)。&#xA;普通文本&#xA;正则表达式是区分大小写的。 任意字符&#xA;注意正则表达式使用字符串内容来匹配模式。匹配到的未必总是整个字符串，也可能是与某个模式相匹配的子串。在上面的例子里，我们使用的正则表达式并不能匹配完整的文件名， 而是只匹配了其中一部分。如果你需要把某个正则表达式的匹配结果传递到其他代码或应用程序里做进一步处理，就必须记住这种差异。&#xA;特殊字符&#xA;. 表示匹配任意单个字符。 \ 是一个元字符（metacharacter，表示这个字符有特殊含义，代表的不是字符本身）。 .a.\. 结果：na1.xls 第一个.匹配a前面的单个字符；第二个.匹配a后面的单个字符；\.作为转义匹配真正的.符号 匹配一组字符 # 在正则表达式里，我们可以使用元字符 [ 和 ] 来定义一个字符集合。在使用 [ 和 ] 定义的字符集合里，出现在 [ 和 ] 之间的所有字符都是该集合的组成部分，必须匹配其中某个成员（但并非全部)。&#xA;此处的 [ 和 ] 代表着强制匹配其中的元素。只有存在才能够匹配成功。 [ 和 ] 不匹配任何字符，它们只负责定义一个字符集合。接下来，再由真正的 regex 匹配部分参与匹配操作。 使用 [ 和 ] 的字符集合在不需要区分字母大小写（或是只需要匹配某个特定部分）的搜索操作里比较常见。 利用字符集合区间&#xA;- 连字符，一种特殊的元字符。可以用这种连字符来定义字符区间。 一些合法的字符区间：&#xA;[a-z]：匹配 a 到 z 所有小写字母 [A-Z]：匹配 A 到 Z 所有大写字母 [A-z]：匹配从 ASCⅡ字符 A 到 ASCIⅡ字符 z 的所有字母。这个模式一般不常用，因为它还包含 [ 和 ^ 等在 ASCⅡ字符表里排列在 Z 和 a 之间的字符。 字符区间的首、尾字符可以是 ASCⅡ字符表里的任意字符。但在实际工作中，最常用的字符区间还是数字字符区间和字母字符区间。</description>
+    </item>
+  </channel>
+</rss>

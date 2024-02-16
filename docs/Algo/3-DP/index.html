@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Theory&amp;Thinkings # 重叠子问题
+状态表示与递推方程 状态转移：状态转移方程
+状态无后效性： 最优性原理：
+找桥梁
+找这个大的最优化问题如何由很多子问题组合而成
+由易至难，自底向上
+T：矩阵连乘积 最优子结构性质 用最外层的循环实现由易至难
+最优子结构：问题的最优解包含其子问题的最优解 隐含了问题最优解和子问题最优解之间的一种递推关系 重叠子问题：对于每个子问题只会计算一次 动态规划算法设计步骤：
+分析最优解性质，刻画最优子结构性质 确定状态表示和状态递推方程，递归地定义最优值 确定状态转移顺序，自底向上计算最优值 根据计算最优值时得到的信息，自顶向下构造最优解 循环变量一定是问题难易程度的量化指标
+真实求解过程中的 DP 解决问题思路：
+明确 dp 数组下标的含义 定义 base case 确定状态转移方程 DP 算法最重要的是状态（阶段）的寻找，状态转移方程和推理方式的确定
+动态规划 (dynamic programming) 是运筹学的一个 分支，是求解决策过程 (decision process) 最优化的 数学方法。20 世纪 50 年代初美国数学家 R.E.Bellman 等 人在研究多阶段决策过程 (multistep decision process) 的优化问题时，提出了著名的最优化原理 (principle of optimality)，把多阶段过程转化为一 系列单阶段问题，利用各阶段之间的关系，逐个求解， 创立了解决这类过程优化问题的新方法—动态规划。
+基本概念
+状态和状态表示: 表示每个阶段开始时，问题或系统所处的客观状况。状态既是该 阶段的某个起点，又是前一个阶段的某个终点。通常一个阶段有若干个状态，每个状态用多元组𝑆(𝑝1, 𝑝2, &hellip; , 𝑝𝑘) 表示，值域表示状态值，或者对应子问题的答案。 状态转移: 在动态规划的多阶段决策过程中，决策序列对应状态序列，每一次决策 对应一次状态转移，状态转移用递推方程来描述，称之为状态转移方程。 状态无后效性: 如果某个阶段状态给定后，则该阶段以后过程的发展不受该阶段以前 各阶段状态的影响。 最优性原理: 求解问题的一个最优策略序列的子策略序列总是最优的，则称该问题满足最优性原理。 构建原问题最优解与子问题最优解之间的关系">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="Theory&amp;Thinkings # 重叠子问题
+状态表示与递推方程 状态转移：状态转移方程
+状态无后效性： 最优性原理：
+找桥梁
+找这个大的最优化问题如何由很多子问题组合而成
+由易至难，自底向上
+T：矩阵连乘积 最优子结构性质 用最外层的循环实现由易至难
+最优子结构：问题的最优解包含其子问题的最优解 隐含了问题最优解和子问题最优解之间的一种递推关系 重叠子问题：对于每个子问题只会计算一次 动态规划算法设计步骤：
+分析最优解性质，刻画最优子结构性质 确定状态表示和状态递推方程，递归地定义最优值 确定状态转移顺序，自底向上计算最优值 根据计算最优值时得到的信息，自顶向下构造最优解 循环变量一定是问题难易程度的量化指标
+真实求解过程中的 DP 解决问题思路：
+明确 dp 数组下标的含义 定义 base case 确定状态转移方程 DP 算法最重要的是状态（阶段）的寻找，状态转移方程和推理方式的确定
+动态规划 (dynamic programming) 是运筹学的一个 分支，是求解决策过程 (decision process) 最优化的 数学方法。20 世纪 50 年代初美国数学家 R.E.Bellman 等 人在研究多阶段决策过程 (multistep decision process) 的优化问题时，提出了著名的最优化原理 (principle of optimality)，把多阶段过程转化为一 系列单阶段问题，利用各阶段之间的关系，逐个求解， 创立了解决这类过程优化问题的新方法—动态规划。
+基本概念
+状态和状态表示: 表示每个阶段开始时，问题或系统所处的客观状况。状态既是该 阶段的某个起点，又是前一个阶段的某个终点。通常一个阶段有若干个状态，每个状态用多元组𝑆(𝑝1, 𝑝2, &hellip; , 𝑝𝑘) 表示，值域表示状态值，或者对应子问题的答案。 状态转移: 在动态规划的多阶段决策过程中，决策序列对应状态序列，每一次决策 对应一次状态转移，状态转移用递推方程来描述，称之为状态转移方程。 状态无后效性: 如果某个阶段状态给定后，则该阶段以后过程的发展不受该阶段以前 各阶段状态的影响。 最优性原理: 求解问题的一个最优策略序列的子策略序列总是最优的，则称该问题满足最优性原理。 构建原问题最优解与子问题最优解之间的关系" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Algo/3-DP/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>3 Dp | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle" checked />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="active">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>3 Dp</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#theorythinkings">Theory&amp;Thinkings</a>
+      <ul>
+        <li><a href="#基本策略">基本策略</a>
+          <ul>
+            <li><a href="#非递归策略">非递归策略</a></li>
+            <li><a href="#递归策略备忘录策略">递归策略——备忘录策略</a></li>
+          </ul>
+        </li>
+        <li><a href="#dp-基本要素">DP 基本要素</a>
+          <ul>
+            <li><a href="#最优子结构">最优子结构</a></li>
+            <li><a href="#重叠子问题">重叠子问题</a></li>
+            <li><a href="#算法设计步骤">算法设计步骤</a></li>
+          </ul>
+        </li>
+        <li><a href="#小结">小结</a></li>
+      </ul>
+    </li>
+    <li><a href="#eg-s">e.g. s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#数字三角路径问题">数字三角路径问题</a></li>
+            <li><a href="#矩阵加括号">矩阵加括号</a></li>
+            <li><a href="#多段图最短路径">多段图最短路径</a></li>
+            <li><a href="#最长公共子序列">最长公共子序列</a></li>
+            <li><a href="#0-1-背包问题">0-1 背包问题</a></li>
+            <li><a href="#最大上升子序列">最大上升子序列</a></li>
+            <li><a href="#problem-a-晴天小猪历险记之-hill">Problem A. 晴天小猪历险记之 Hill</a></li>
+            <li><a href="#problem-b-清帝之惑之顺治">Problem B. 清帝之惑之顺治</a></li>
+            <li><a href="#problem-c-积木城堡">Problem C. 积木城堡</a></li>
+            <li><a href="#problem-d-warcraft-iii-守望者的烦恼">Problem D. Warcraft III 守望者的烦恼</a></li>
+            <li><a href="#problem-e-加分二叉树">Problem E. 加分二叉树</a></li>
+            <li><a href="#双线程-dp">双线程 dp</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="theorythinkings">
+  Theory&amp;Thinkings
+  <a class="anchor" href="#theorythinkings">#</a>
+</h1>
+<p>重叠子问题</p>
+<p>状态表示与递推方程
+状态转移：状态转移方程</p>
+<p>状态无后效性：
+最优性原理：</p>
+<p>找桥梁</p>
+<p>找这个大的最优化问题如何由很多子问题组合而成</p>
+<p><strong>由易至难，自底向上</strong></p>
+<ul>
+<li>T：矩阵连乘积
+<ul>
+<li>最优子结构性质</li>
+</ul>
+</li>
+</ul>
+<p>用最外层的循环实现由易至难</p>
+<ul>
+<li>最优子结构：问题的最优解包含其子问题的最优解
+<ul>
+<li>隐含了问题最优解和子问题最优解之间的一种递推关系</li>
+</ul>
+</li>
+<li>重叠子问题：对于每个子问题只会计算一次</li>
+</ul>
+<p>动态规划算法设计步骤：</p>
+<ol>
+<li>分析最优解性质，刻画最<strong>优子结构性质</strong></li>
+<li>确定<strong>状态表示和状态递推方程</strong>，递归地定义最优值</li>
+<li>确定<strong>状态转移顺序</strong>，自底向上计算最优值</li>
+<li>根据计算最优值时得到的信息，自顶向下构造最优解</li>
+</ol>
+<p>循环变量一定是问题难易程度的量化指标</p>
+<p><strong>真实求解过程中的 DP 解决问题思路：</strong></p>
+<ol>
+<li>明确 dp 数组下标的含义</li>
+<li>定义 base case</li>
+<li>确定状态转移方程</li>
+</ol>
+<p><strong>DP 算法最重要的是状态（阶段）的寻找，状态转移方程和推理方式的确定</strong></p>
+<hr>
+<p>动态规划 (dynamic programming) 是运筹学的一个 分支，是求解决策过程 (decision process) 最优化的 数学方法。20 世纪 50 年代初美国数学家 R.E.Bellman 等 人在研究多阶段决策过程 (multistep decision process) 的优化问题时，提出了著名的最优化原理 (principle of optimality)，把多阶段过程转化为一 系列单阶段问题，利用各阶段之间的关系，逐个求解， 创立了解决这类过程优化问题的新方法—动态规划。</p>
+<p><strong>基本概念</strong></p>
+<ul>
+<li>状态和状态表示: 表示每个阶段开始时，问题或系统所处的客观状况。状态既是该 阶段的某个起点，又是前一个阶段的某个终点。通常一个阶段有若干个状态，每个状态用多元组𝑆(𝑝1, 𝑝2, &hellip; , 𝑝𝑘) 表示，值域表示状态值，或者对应子问题的答案。</li>
+<li>状态转移: 在动态规划的多阶段决策过程中，决策序列对应状态序列，每一次决策 对应一次状态转移，状态转移用递推方程来描述，称之为<strong>状态转移方程</strong>。
+<ul>
+<li>状态无后效性: 如果某个阶段状态给定后，则该阶段以后过程的发展不受该阶段以前 各阶段状态的影响。</li>
+<li>最优性原理: 求解问题的一个最优策略序列的子策略序列总是最优的，则称该问题满足最优性原理。</li>
+</ul>
+</li>
+</ul>
+<p><strong>构建原问题最优解与子问题最优解之间的关系</strong></p>
+<p><strong>状态表示</strong></p>
+<p>状态表示本质上是子问题的参数化描述: 每一个子矩阵链𝐴&amp; ⋯ 𝐴4 对应一个子问题，它由 开始矩阵和结束矩阵的下标决定，记为𝐴[𝑖: 𝑗]。</p>
+<p>𝐴[𝑖: 𝑗] 的最优计算次序对应的乘法次数表示为𝒎 𝒊, 𝒋 , 1 ≤ 𝑖, 𝑗 ≤n，</p>
+<p><strong>状态转移方程</strong></p>
+<p><strong>子问题个数及求解顺序</strong></p>
+<p>自底向上的顺序进行求解，或者说从易至难的顺序求解各个子问题。</p>
+<p><strong>构造最优解</strong></p>
+<h2 id="基本策略">
+  基本策略
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e7%ad%96%e7%95%a5">#</a>
+</h2>
+<h3 id="非递归策略">
+  非递归策略
+  <a class="anchor" href="#%e9%9d%9e%e9%80%92%e5%bd%92%e7%ad%96%e7%95%a5">#</a>
+</h3>
+<p>由易至难，依次通过</p>
+<h3 id="递归策略备忘录策略">
+  递归策略——备忘录策略
+  <a class="anchor" href="#%e9%80%92%e5%bd%92%e7%ad%96%e7%95%a5%e5%a4%87%e5%bf%98%e5%bd%95%e7%ad%96%e7%95%a5">#</a>
+</h3>
+<p>在递归过程中保存每一步的计算内容</p>
+<p>备忘录方法用表格保存已解决的子问题的答案，在下次需要解决此问题时，只 要从表格中提取答案即可，而不需要重新计算; 如果没有求解，则递归调用求 解过程进行计算。</p>
+<p>备忘录方法的控制结构与直接递归方法的控制结构相同，自顶向下的处理，程 序简单; 区别在于备忘录方法为每个求解过的子问题建立了备忘录以备需要时 查看，避免了相同子问题的重复求解。</p>
+<h2 id="dp-基本要素">
+  DP 基本要素
+  <a class="anchor" href="#dp-%e5%9f%ba%e6%9c%ac%e8%a6%81%e7%b4%a0">#</a>
+</h2>
+<h3 id="最优子结构">
+  最优子结构
+  <a class="anchor" href="#%e6%9c%80%e4%bc%98%e5%ad%90%e7%bb%93%e6%9e%84">#</a>
+</h3>
+<p>最优子结构性质，通俗地讲就是问题的最优解包含其子问题的最优解。也就是说，如果把问题的最优 解分解 (比如划分为两个或者多个部分，或者删除第一个或者最后一个分量)，得到一个子解，那么 这个子解是其相应子问题的最优解。</p>
+<p>最优子结构性质隐含了问题最优解和子问题最优解之间的一种递推关系。它是动态规划的基础，递推方程是最优子结构性质的体现。</p>
+<p>在分析问题的最优子结构性质时，人们一般采用反证法: 首先假设由问题最优解 S 导出的子问题的解不是最优的，然后再推导在这个假设下可构造出比 S 更好的解 S’，从而得到矛盾。</p>
+<p>注意: 同一个问题可以有多种方式刻画它的最优子结构</p>
+<h3 id="重叠子问题">
+  重叠子问题
+  <a class="anchor" href="#%e9%87%8d%e5%8f%a0%e5%ad%90%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<p>递归算法求解问题时，每次产生的子问题并不总是新问题，有些子问题被反复计算多次。这种性质称 为子问题的重叠性质。</p>
+<p>动态规划算法，对每一个子问题只解一次，而后将其解保存在一个表格中，当再次需要解此子问题时， 只是简单地用常数时间查看结果。</p>
+<p>通常不同的子问题数目随问题的大小呈多项式增长。因此用动态规划算法只需要多项式时间，从而获得较高的解题效率。</p>
+<h3 id="算法设计步骤">
+  算法设计步骤
+  <a class="anchor" href="#%e7%ae%97%e6%b3%95%e8%ae%be%e8%ae%a1%e6%ad%a5%e9%aa%a4">#</a>
+</h3>
+<ol>
+<li>分析最优解的性质，并刻划其最优子结构特征;</li>
+<li>确定状态表示 S(x1,x2,&hellip;) 和状态递推方程，递归地定义最优值;</li>
+<li>确定状态转移顺序，以自底向上的方式计算出最优值;</li>
+<li>根据计算最优值时得到的信息，自顶向下构造最优解。</li>
+</ol>
+<h2 id="小结">
+  小结
+  <a class="anchor" href="#%e5%b0%8f%e7%bb%93">#</a>
+</h2>
+<p><strong>动态规划基本原理</strong></p>
+<ul>
+<li>设计多阶段决策过程</li>
+<li>分析最优子结构性质</li>
+<li>建立状态表示和状态转移方程</li>
+</ul>
+<p><strong>最优子结构性质</strong></p>
+<ul>
+<li>问题的最优解包含其子问题的最优解。也就 是说，如果把问题的最优解分解 (比如划分 为两个或者多个部分，或者删除第一个或者 最后一个分量)，得到一个子解，那么这个 子解是其相应子问题的最优解。</li>
+<li>证明方法（反证法）
+<ul>
+<li>假设子解不是子问题最优解</li>
+<li>基于子解构造原问题的一个新解</li>
+<li>证明新解是原问题的更好答案，与前提矛盾!</li>
+</ul>
+</li>
+</ul>
+<p><strong>最优值计算</strong></p>
+<ul>
+<li>状态表示和状态转移方程确定问题解之 间的递推关系</li>
+<li>有限个 (多项式级别) 状态/子问题</li>
+<li>自底向上 (由易至难) 求解各状态值</li>
+<li>构造状态转移方程
+<ul>
+<li>
+<ol>
+<li>原问题最优解划分为多个子解: 矩阵连乘</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>原问题最优解约简为一个子解: 多段图最短路径、0-1 背包</li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li>对间接目标设计状态转移方程: 最大上升子序列</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="eg-s">
+  e.g. s
+  <a class="anchor" href="#eg-s">#</a>
+</h1>
+<h3 id="数字三角路径问题">
+  数字三角路径问题
+  <a class="anchor" href="#%e6%95%b0%e5%ad%97%e4%b8%89%e8%a7%92%e8%b7%af%e5%be%84%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>给定等腰直角数字三角形，请编一个程序计算从顶至底的某个位置的一条路径，使该路径所经过的数字的总和最大。假设每一步可延直线向下或右斜线向下走。
+</code></pre><h3 id="矩阵加括号">
+  矩阵加括号
+  <a class="anchor" href="#%e7%9f%a9%e9%98%b5%e5%8a%a0%e6%8b%ac%e5%8f%b7">#</a>
+</h3>
+<pre tabindex="0"><code>任意给定n个可乘的数字矩阵A1，A2，···，An，以及矩阵的维度p0×p1，p1×p2，…, p_(n-1)×p_n，求解给定矩阵链的最优计算次序使得所需要的数乘次数最少。
+</code></pre><h3 id="多段图最短路径">
+  多段图最短路径
+  <a class="anchor" href="#%e5%a4%9a%e6%ae%b5%e5%9b%be%e6%9c%80%e7%9f%ad%e8%b7%af%e5%be%84">#</a>
+</h3>
+<pre tabindex="0"><code>设G=(V, E）是一个赋权有向图，其顶点集 V 被划分成 k(k&gt;2)个不相交的子集V_i (1≤i≤k），其中V1 和Vk 分别只有一个顶点 s（称为源）和一个顶点 t（称为汇），所有的边(u,v)的始点和终点都在相邻的两个子集Vi 和V_(i+1) 中：u∈Vi, v∈V_(i+1)，且边(u, v)有一个正权重，记为w(u,v)。请设计一个算法，求解从源 s 到汇 t 的权重之和最小的路径。
+</code></pre><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/1_20_41_27_Screenshot%202023-11-01%20at%2020.41.25.png" alt="" /></p>
+<h3 id="最长公共子序列">
+  最长公共子序列
+  <a class="anchor" href="#%e6%9c%80%e9%95%bf%e5%85%ac%e5%85%b1%e5%ad%90%e5%ba%8f%e5%88%97">#</a>
+</h3>
+<pre tabindex="0"><code>若给定序列 X=｛x_1,x_2,…,x_m｝、 Z=｛z_1,z_2,…,z_k｝，若 Z 是 X 的子序列，当且仅当存在一个严递增下标序列｛i_1,i_2,…,i_k｝，使得对于所有j=1, 2,…,k有：z_j=x_ij。例如，序列 Z=｛B，C，D，B｝是序列 X=｛A，B，C，B，D，A，B｝的子序列，相应的递增下标序列为｛2，3，5，7｝。
+</code></pre><h3 id="0-1-背包问题">
+  0-1 背包问题
+  <a class="anchor" href="#0-1-%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>给定n种物品和一个背包，物品i的重量是w_i，其价值为v_i，背包的容量为C，问应如何选择装入背包的物品，使得装入背包中物品的总价值最大？
+</code></pre><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_15_54_Screenshot%202023-12-26%20at%2010.15.51.png" alt="" /></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">double</span> <span style="color:#a6e22e">binaryKnapsack</span>(<span style="color:#66d9ef">int</span> numItems, <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>w, <span style="color:#66d9ef">double</span> <span style="color:#f92672">*</span>v, <span style="color:#66d9ef">int</span> capacity){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> i, j;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">double</span> Val[MaxN][MaxC];
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">memset</span>(Val, <span style="color:#ae81ff">0</span>, <span style="color:#66d9ef">sizeof</span>(Val));  <span style="color:#75715e">//初始化状态数组
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span>(i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>numItems; i<span style="color:#f92672">++</span>) <span style="color:#75715e">//自底向上迭代求解每一个状态
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span>(j<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; j<span style="color:#f92672">&lt;=</span>capacity; j<span style="color:#f92672">++</span>){
+</span></span><span style="display:flex;"><span>            Val[i][j] <span style="color:#f92672">=</span> Val[i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>][j];  <span style="color:#75715e">// 第i个物品装不下 或者 放弃	
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#66d9ef">if</span>(j <span style="color:#f92672">&gt;=</span> w[i] <span style="color:#f92672">&amp;&amp;</span> Val[i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>][j] <span style="color:#f92672">&lt;</span> Val[i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>][j<span style="color:#f92672">-</span>w[i]]<span style="color:#f92672">+</span>v[i] )
+</span></span><span style="display:flex;"><span>			   Val[i][j] <span style="color:#f92672">=</span> Val[i][j<span style="color:#f92672">-</span>w[i]] <span style="color:#f92672">+</span> v[i] ;
+</span></span><span style="display:flex;"><span>	         }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> Val[numItems<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>][capacity];
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>Input: <span style="color:#960050;background-color:#1e0010">物品数目</span> n<span style="color:#960050;background-color:#1e0010">，</span> <span style="color:#960050;background-color:#1e0010">背包容量</span> C<span style="color:#960050;background-color:#1e0010">，状态矩阵</span> Val[n, C]<span style="color:#960050;background-color:#1e0010">，物品重量数组</span>W[n] Output: <span style="color:#960050;background-color:#1e0010">决策数组</span> X[n]
+</span></span><span style="display:flex;"><span>Description:
+</span></span><span style="display:flex;"><span>p <span style="color:#f92672">=</span> C;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> i <span style="color:#960050;background-color:#1e0010">←</span> n to <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (val[i, p] <span style="color:#f92672">!=</span> val[i<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, p]) then
+</span></span><span style="display:flex;"><span>X[i]<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>; <span style="color:#75715e">//装入背包 p = p - W[i];
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>X[i] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">// 未装入背包
+</span></span></span></code></pre></div><p><strong>算法改进 1：降低空间复杂度</strong></p>
+<p>计算 𝑣𝑎𝑙(𝑖, 𝑝) 的值只需要 Val 数组中第 𝒊 − 𝟏 行中第𝑝个分量之前的数值。如果计算𝑣𝑎𝑙(𝑖, 𝑝) 时按照 p 的 值从大到小计算，那么只需要 Val 数组的一行即可。</p>
+<p>两个缺点:</p>
+<ol>
+<li>算法要求所给物品的重量是整数</li>
+<li>当背包容量 C 很大时，算法需要的时间和空间都比较大</li>
+</ol>
+<p><strong>算法改进 2：跳跃点</strong></p>
+<p>跳跃点：</p>
+<ul>
+<li>由𝑣𝑎𝑙(𝑖, 𝑝) 的递归公式容易证明，在一般情况下，对每一个确定的 𝑖, 1 ≤ 𝑖 ≤ 𝑛， 函数𝑣𝑎𝑙(𝑖, 𝑝) 是关于变量 𝑝 的阶梯状单调不减函数。</li>
+<li>跳跃点是指在函数𝑣𝑎𝑙(𝑖, 𝑝) 中函数值发生跃迁的点，可以用一个实数序偶 (𝒙, 𝒗𝒂𝒍(𝒊,𝒙)) 描述。跳跃点是阶梯函数的描述特征，函数𝑣𝑎𝑙(𝑖,𝑝) 可由其全部跳跃点惟一确定。</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_22_44_Screenshot%202023-12-26%20at%2010.22.42.png" alt="" />
+
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_22_55_Screenshot%202023-12-26%20at%2010.22.53.png" alt="" /></p>
+<p>对每一个确定的𝑖, 1 ≤ 𝑖 ≤ 𝑛，用一个表 𝒑[𝒊] 存储函数𝒗𝒂𝒍(𝒊, 𝒑) 的全部跳跃点; 类似地，整个状态矩阵𝑣𝑎𝑙(𝑖, 𝑝) 则可用跳跃点集合来表示。</p>
+<p><strong>跳跃点递归求解</strong></p>
+<p>函数𝑣𝑎𝑙(𝑖, 𝑝) 的递归定义:</p>
+<ul>
+<li>𝑣𝑎𝑙 𝑖,𝑝 =max(𝑣𝑎𝑙 𝑖−1,𝑝 ,𝑣𝑎𝑙 𝑖−1,𝑝−𝑤&amp; +𝑣&amp;)</li>
+<li>𝒗𝒂𝒍(𝒊, 𝒑) 的跳跃点集合𝒑(𝒊) 是否可以由𝒑(𝒊 − 𝟏) 构造？</li>
+</ul>
+<p>构造过程：</p>
+<ul>
+<li>
+<p>𝐩𝟎 ={(𝟎,𝟎)}</p>
+</li>
+<li>
+<p>先由𝑝[𝑖−1] 计算出𝑞[i-1]</p>
+</li>
+<li>
+<p>合并𝑝[𝑖−1] 和𝑞[𝑖−1]，并清除其中的受控跳跃点</p>
+</li>
+<li>
+<p>跳跃点集𝒑(𝒊 − 𝟏): 由函数𝑣𝑎𝑙 𝑖 − 1, 𝑝 决定，对应于不装第𝒊个物品的所有装包情形</p>
+</li>
+<li>
+<p>跳跃点集𝒒(𝒊 − 𝟏): 由函数𝑣𝑎𝑙 𝑖 − 1, 𝑝 − 𝑤&amp; + 𝑣&amp;决定，对应于装上第𝑖个物品的所有情形，即𝑞𝑖−1=𝑝𝑖−1 Å 𝑤&amp;,𝑣&amp;={(𝑝+𝑤&amp;,𝑣𝑎𝑙(𝑖−1,𝑝)+𝑣&amp;)|𝑝,𝑣𝑎𝑙𝑖−1,𝑝 Î𝑝𝑖−1,𝒑+𝒘𝒊≤𝑪}</p>
+</li>
+<li>
+<p>受控跳跃点</p>
+</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_25_48_Screenshot%202023-12-26%20at%2010.25.45.png" alt="" /></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span>Input: <span style="color:#960050;background-color:#1e0010">物品数目</span> n<span style="color:#960050;background-color:#1e0010">，</span> <span style="color:#960050;background-color:#1e0010">背包容量</span> C<span style="color:#960050;background-color:#1e0010">，物品重量数组</span>W[n]<span style="color:#960050;background-color:#1e0010">，物品价值数组</span>V[n] Output: <span style="color:#960050;background-color:#1e0010">跳跃点集合</span> P[n]  
+</span></span><span style="display:flex;"><span>Description:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define PD pair&lt;double, double&gt; </span><span style="color:#75715e">// 定义跳跃点 vector&lt;PD&gt; setP, setPT; // 跳跃点集合p和临时集合
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>vector<span style="color:#f92672">&lt;</span>PD<span style="color:#f92672">&gt;</span> setQ; <span style="color:#75715e">// 跳跃点集合q  
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>clear setP, setPT, setQ; setP.<span style="color:#a6e22e">push_back</span>(<span style="color:#a6e22e">make_pair</span>(<span style="color:#ae81ff">0.0</span>, <span style="color:#ae81ff">0.0</span>)); <span style="color:#75715e">// 初始化p[0] fori← 0ton
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> j <span style="color:#960050;background-color:#1e0010">←</span> <span style="color:#ae81ff">0</span> to setP.<span style="color:#a6e22e">size</span>()  
+</span></span><span style="display:flex;"><span>generate setQ; <span style="color:#75715e">// 按照规则生成跳跃点集合q
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (posP <span style="color:#f92672">&lt;</span> setP.<span style="color:#a6e22e">size</span>()) <span style="color:#f92672">||</span> (posQ <span style="color:#f92672">&lt;</span> setQ.<span style="color:#a6e22e">size</span>())  
+</span></span><span style="display:flex;"><span>merge setP, setQ to setPT; <span style="color:#75715e">// 合并p[i] 和 q[i]，注意setPT要删除受控跳跃点
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>copy setPT to setP; clear setQ;
+</span></span></code></pre></div><h3 id="最大上升子序列">
+  最大上升子序列
+  <a class="anchor" href="#%e6%9c%80%e5%a4%a7%e4%b8%8a%e5%8d%87%e5%ad%90%e5%ba%8f%e5%88%97">#</a>
+</h3>
+<pre tabindex="0"><code>问题描述: 给出一个整数序列 𝑆 = 𝑠&#39;, 𝑠0, ⋯ , 𝑠$ ，假定每个数字互相不相同 如果其子序列 𝑠 𝑖&#39; , 𝑠 𝑖0 , ⋯ , 𝑠 𝑖#.&#39; ，满足1&lt;=𝑖&#39;&lt;𝑖0 &lt;··· &lt;𝑖# &lt;=n，
+𝑠 𝑖&#39; &lt;𝑠 𝑖0 &lt;⋯&lt;𝑠 𝑖# ，则称之为上升子序列。 请设计算法求解任意给定序列的最大上升子序列，即 k 最大的子序列。
+</code></pre><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_27_26_Screenshot%202023-12-26%20at%2010.27.24.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_28_6_Screenshot%202023-12-26%20at%2010.28.03.png" alt="" /></p>
+<p><strong>如果直接把最大上升子序列的长度作为规划目标，那么该问题不具备最优子结构性质。 只能采用间接的办法，引入一些 中间目标 作为动态规划的对象。</strong></p>
+<p><strong>限界上升子序列</strong></p>
+<pre tabindex="0"><code>给定序列𝑆 = [𝑠$, 𝑠(, ⋯ , 𝑠% ]，所有以𝒔𝒎为上界的上升子序列定义为限界上升子序列，描述为 [𝑆 𝑖$ ,𝑆 𝑖( ,⋯,𝑆 𝑖4 , 𝑆(𝑚)]，满足:
+1≤𝑖$ &lt;𝑖( &lt;⋯&lt;𝑖4 &lt;𝑚，𝑆 𝑖$ &lt;𝑆 𝑖( &lt;⋯&lt;𝑆 𝑖4 &lt;𝑆(𝑚)。 𝑆的限界上升子序列中最长的称之为最大限界上升子序列。
+</code></pre><p>最大限界上升子序列 与 最大上升子序列具有什么样的关系?</p>
+<ul>
+<li>得到所有𝑠$,𝑠(,⋯,𝑠% 为上界的最大限界上升子序列后，取其中的最大值即可得到输入序列 S 的最大上升子序</li>
+<li>从最大限界上升子序列计算最大上升子序列的时间复杂性为 O(n)。</li>
+</ul>
+<p><strong>状态表示与递推方程</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_30_58_Screenshot%202023-12-26%20at%2010.30.55.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_31_23_Screenshot%202023-12-26%20at%2010.31.20.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_32_15_Screenshot%202023-12-26%20at%2010.32.13.png" alt="" /></p>
+<p><strong>算法改进：取小值作为开头</strong></p>
+<p>对于𝐿𝑒𝑛[𝑖], 假设有 x, y &lt; i，其中 S[x] &lt; S[y] &lt; S[i]，并且 𝐿𝑒𝑛 𝑥 = 𝐿𝑒𝑛[𝑦]， 即选择 x 或 选择 y 可以构造得到相同的𝐿𝑒𝑛[𝑖]。</p>
+<p>那么在这个位置上选择哪个更好呢?</p>
+<p>显然，选 x 位置更好些，因为选 x 的话，有得到更长序列的可能性!</p>
+<p><strong>启示: 对于值相等的𝑳𝒆𝒏[𝒊]，我们可以保留所有 S[i] 中最小的值， 然后基于该值去构造更长的上升子序列。</strong></p>
+<p>T[k] 存储所有 Len[i] = k 中最小的𝑺[𝒊]，即: 𝑇[𝑘] = min{𝑆 𝑖 | Len[𝑖] = 𝑘}</p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_36_18_Screenshot%202023-12-26%20at%2010.36.16.png" alt="" />
+
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_36_50_Screenshot%202023-12-26%20at%2010.36.48.png" alt="" /></p>
+<h3 id="problem-a-晴天小猪历险记之-hill">
+  Problem A. 晴天小猪历险记之 Hill
+  <a class="anchor" href="#problem-a-%e6%99%b4%e5%a4%a9%e5%b0%8f%e7%8c%aa%e5%8e%86%e9%99%a9%e8%ae%b0%e4%b9%8b-hill">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+　　这一天，他来到了一座深山的山脚下，因为只有这座深山中的一位隐者才知道这种药草的所在。但是上山的路错综复杂，由于小小猪的病情，晴天小猪想找一条需时最少的路到达山顶，但现在它一头雾水，所以向你求助。  
+　　山用一个三角形表示，从山顶依次向下有1段、2段、3段等山路，每一段用一个数字T（1&lt; =T&lt; =100）表示，代表晴天小猪在这一段山路上需要爬的时间，每一次它都可以朝左、右、左上、右上四个方向走（**注意**：在任意一层的第一段也可以走到本层的最后一段或上一层的最后一段）。  
+　　晴天小猪从山的左下角出发，目的地为山顶，即隐者的小屋。
+
+#### 输入数据
+
+　　第一行有一个数 n (2≤n≤1000)，� (2≤�≤1000)， 表示山的高度。  
+　　从第二行至第 n+1�+1 行，第 i+1�+1 行有 i� 个数，每个数表示晴天小猪在这一段山路上需要爬的时间。  
+
+#### 输出数据
+
+　　一个数，即晴天小猪所需要的最短时间。
+</code></pre><p><strong>不好划分阶段怎么办？</strong>——抛弃阶段概念</p>
+<h3 id="problem-b-清帝之惑之顺治">
+  Problem B. 清帝之惑之顺治
+  <a class="anchor" href="#problem-b-%e6%b8%85%e5%b8%9d%e4%b9%8b%e6%83%91%e4%b9%8b%e9%a1%ba%e6%b2%bb">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+　　顺治喜欢滑雪，这并不奇怪， 因为滑雪的确很刺激。可是为了获得速度，滑的区域必须向下倾斜，而且当你滑到坡底，你不得不再次走上坡或者等待太监们来载你。顺治想知道载一个区域中最长的滑坡。  
+　　区域由一个二维数组给出。数组的每个数字代表点的高度。下面是一个例子：
+
+　　 1 2 3 4 5  
+　　16 17 18 19 6  
+　　15 24 25 20 7  
+　　14 23 22 21 8  
+　　13 12 11 10 9
+
+　　顺治可以从某个点滑向上下左右相邻四个点之一，当且仅当高度减小。在上面的例子中，一条可滑行的滑坡为24-17-16-1。当然25-24-23-...-3-2-1更长。事实上，这是最长的一条。
+
+#### 输入数据
+
+　　输入的第一行表示区域的行数 R� 和列数 C (1≤R,C≤500)� (1≤�,�≤500) 。下面是 R� 行，每行有 C� 个整数，代表高度 h,0≤h&lt;103ℎ,0≤ℎ&lt;103 。  
+
+#### 输出数据
+
+　　输出最长区域的长度。
+</code></pre><p><strong>同样，直接抛弃掉阶段的概念，直接作为类似坐标的点刻画</strong></p>
+<h3 id="problem-c-积木城堡">
+  Problem C. 积木城堡
+  <a class="anchor" href="#problem-c-%e7%a7%af%e6%9c%a8%e5%9f%8e%e5%a0%a1">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+XC的儿子小XC最喜欢玩的游戏用积木垒漂亮的城堡。城堡是用一些立方体的积木垒成的，城堡的每一层是一块积木。小XC是一个比他爸爸XC还聪明的孩子，他发现垒城堡的时候，如果下面的积木比上面的积木大，那么城堡便不容易倒。所以他在垒城堡的时候总是遵循这样的规则。  
+小XC想把自己垒的城堡送给幼儿园里漂亮的女孩子们，这样可以增加他的好感度。为了公平起见，他决定把送给每个女孩子一样高的城堡，这样可以避免女孩子们为了获得更漂亮的城堡而引起争执。可是他发现自己在垒城堡的时候并没有预先考虑到这一点。所以他现在要改造城堡。由于他没有多余的积木了，他灵机一动，想出了一个巧妙的改造方案。他决定从每一个城堡中挪去一些积木，使得最终每座城堡都一样高。为了使他的城堡更雄伟，他觉得应该使最后的城堡都尽可能的高。  
+任务：  
+请你帮助小XC编一个程序，根据他垒的所有城堡的信息，决定应该移去哪些积木才能获得最佳的效果。
+
+#### 输入数据
+
+第一行是一个整数 N (N≤100)，� (�≤100)， 表示一共有几座城堡。以下 N� 行每行是一系列非负整数，用一个空格分隔，按从下往上的顺序依次给出一座城堡中所有积木的棱长。用`-1`结束。一座城堡中的积木不超过100块，每块积木的棱长不超过100。  
+
+#### 输出数据
+
+一个整数，表示最后城堡的最大可能的高度。如果找不到合适的方案，则输出 00 。
+</code></pre><p><strong>0-1 背包问题变种</strong>——非常好的一道题</p>
+<h3 id="problem-d-warcraft-iii-守望者的烦恼">
+  Problem D. Warcraft III 守望者的烦恼
+  <a class="anchor" href="#problem-d-warcraft-iii-%e5%ae%88%e6%9c%9b%e8%80%85%e7%9a%84%e7%83%a6%e6%81%bc">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+头脑并不发达的warden最近在思考一个问题，她的闪烁技能是可以升级的，k级的闪烁技能最多可以向前移动k个监狱，一共有n个监狱要视察，她从入口进去，一路上有n个监狱，而且不会往回走，当然她并不用每个监狱都视察，但是她最后一定要到第n个监狱里去，因为监狱的出口在那里，但是她并不一定要到第1个监狱。  
+守望者warden现在想知道，她在拥有k级闪烁技能时视察n个监狱一共有多少种方案？
+
+#### 输入数据
+
+第一行是闪烁技能的等级 k (1≤k≤10)� (1≤�≤10)  
+第二行是监狱的个数 n (1≤n≤231−1)� (1≤�≤231−1)  
+
+#### 输出数据
+
+由于方案个数会很多，所以输出它 mod 7777777后的结果就行了
+</code></pre><h3 id="problem-e-加分二叉树">
+  Problem E. 加分二叉树
+  <a class="anchor" href="#problem-e-%e5%8a%a0%e5%88%86%e4%ba%8c%e5%8f%89%e6%a0%91">#</a>
+</h3>
+<pre tabindex="0"><code>#### 题目描述
+
+　　设一个n个节点的二叉树tree的中序遍历为（l,2,3,…,n），其中数字1,2,3,…,n为节点编号。每个节点都有一个分数（均为正整数），记第i个节点的分数为di，tree及它的每个子树都有一个加分，任一棵子树subtree（也包含tree本身）的加分计算方法如下：  
+　　subtree的左子树的加分× subtree的右子树的加分＋subtree的根的分数  
+　　若某个子树为空，规定其加分为1，叶子的加分就是叶节点本身的分数。不考虑它的空子树。  
+　　试求一棵符合中序遍历为（1,2,3,…,n）且加分最高的二叉树tree。要求输出；  
+　　（1）tree的最高加分  
+　　（2）tree的前序遍历
+
+#### 输入数据
+
+　　第 11 行：一个整数 n (n＜30)，� (�＜30)， 为节点个数。  
+　　第 22 行 ：n：� 个用空格隔开的整数，为每个节点的分数（分数 ＜100）＜100） 。  
+
+#### 输出数据
+
+　　第 11 行：一个整数，为最高加分（结果不会超过 4,000,000,000）4,000,000,000） 。  
+　　第 22 行 ：n：� 个用空格隔开的整数，为该树的前序遍历。  
+若存在多种前序遍历均为最高加分，则输出字典序最小的前序遍历
+</code></pre><hr>
+<h3 id="双线程-dp">
+  双线程 dp
+  <a class="anchor" href="#%e5%8f%8c%e7%ba%bf%e7%a8%8b-dp">#</a>
+</h3>
+<p>
+  <a href="https://www.luogu.com.cn/blog/18993/solution-p1004">题解 P1004 【方格取数】 - Born to be a miracle - 洛谷博客</a></p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#theorythinkings">Theory&amp;Thinkings</a>
+      <ul>
+        <li><a href="#基本策略">基本策略</a>
+          <ul>
+            <li><a href="#非递归策略">非递归策略</a></li>
+            <li><a href="#递归策略备忘录策略">递归策略——备忘录策略</a></li>
+          </ul>
+        </li>
+        <li><a href="#dp-基本要素">DP 基本要素</a>
+          <ul>
+            <li><a href="#最优子结构">最优子结构</a></li>
+            <li><a href="#重叠子问题">重叠子问题</a></li>
+            <li><a href="#算法设计步骤">算法设计步骤</a></li>
+          </ul>
+        </li>
+        <li><a href="#小结">小结</a></li>
+      </ul>
+    </li>
+    <li><a href="#eg-s">e.g. s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#数字三角路径问题">数字三角路径问题</a></li>
+            <li><a href="#矩阵加括号">矩阵加括号</a></li>
+            <li><a href="#多段图最短路径">多段图最短路径</a></li>
+            <li><a href="#最长公共子序列">最长公共子序列</a></li>
+            <li><a href="#0-1-背包问题">0-1 背包问题</a></li>
+            <li><a href="#最大上升子序列">最大上升子序列</a></li>
+            <li><a href="#problem-a-晴天小猪历险记之-hill">Problem A. 晴天小猪历险记之 Hill</a></li>
+            <li><a href="#problem-b-清帝之惑之顺治">Problem B. 清帝之惑之顺治</a></li>
+            <li><a href="#problem-c-积木城堡">Problem C. 积木城堡</a></li>
+            <li><a href="#problem-d-warcraft-iii-守望者的烦恼">Problem D. Warcraft III 守望者的烦恼</a></li>
+            <li><a href="#problem-e-加分二叉树">Problem E. 加分二叉树</a></li>
+            <li><a href="#双线程-dp">双线程 dp</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

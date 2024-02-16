@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="最简单 Shell 程序解析及运行 # #!/bin/sh 是指此脚本使用/bin/sh 来解释执行，#!是特殊的表示符，其后面跟的是此解释此脚本的 shell 的路径。
+Shell 程序第一行规范建议
+建议写法 #! /bin/sh 强烈不建议写法—— #!型注释 #! 其它注释内容 两种运行方式 ./ sh Shell 程序调试方式 # 命令 选项 功能说明 sh -n 程序名 纯粹性 解释分析 解释但不执行命令（用于检查程序语法错误） sh -x 程序名 显示替换结果程序并执行 在变量替换之后、执行命令之前，显示程序的每一有效行（非空且非注释行） sh -v 程序名 显示原始程序并执行 在执行之前，按输入的原样显示输出程序中所有各行（包括空行、注释行） set -x 打开（命令）回显 跟踪程序的执行（主要用于 Shell 程序中） set &#43;x 关闭（命令）回显 关闭跟踪功能（主要用于 Shell 程序中） 局部变量应用编程 # Shell 变量赋值与引用
+Shell 变量赋值 &lt;变量名&gt;=&lt;初始值&gt; 譬如：fileName=&ldquo;zgsFile.txt&rdquo; 注意等号两边不能有空格！！！ Shell 变量引用 $&lt;变量名&gt; &quot;$fileName&quot;、“$fileName”、‘$fileName’ 或任何引号外 $fileName 有效 &#39;$fileName&#39; 无效（$ 亦按普通字符处理） $fileName 比较特殊（按命令串处理） 清理变量 unset varName 空格在linux中时作为一个很典型的分隔符，比如string1=this is astring，这样执行就会报错。为了避免这个问题，因此就产生了单引号和双引号。他们的区别在于，单引号将剥夺其中的所有字符的特殊含义，而双引号中的&#39;$&#39;（参数替换）和&#39;`&#39;（命令替换）是例外。所以，两者基本上没有什么区别，除非在内容中遇到了参数替换符$和命令替换符`。 Shell 变量分类">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="最简单 Shell 程序解析及运行 # #!/bin/sh 是指此脚本使用/bin/sh 来解释执行，#!是特殊的表示符，其后面跟的是此解释此脚本的 shell 的路径。
+Shell 程序第一行规范建议
+建议写法 #! /bin/sh 强烈不建议写法—— #!型注释 #! 其它注释内容 两种运行方式 ./ sh Shell 程序调试方式 # 命令 选项 功能说明 sh -n 程序名 纯粹性 解释分析 解释但不执行命令（用于检查程序语法错误） sh -x 程序名 显示替换结果程序并执行 在变量替换之后、执行命令之前，显示程序的每一有效行（非空且非注释行） sh -v 程序名 显示原始程序并执行 在执行之前，按输入的原样显示输出程序中所有各行（包括空行、注释行） set -x 打开（命令）回显 跟踪程序的执行（主要用于 Shell 程序中） set &#43;x 关闭（命令）回显 关闭跟踪功能（主要用于 Shell 程序中） 局部变量应用编程 # Shell 变量赋值与引用
+Shell 变量赋值 &lt;变量名&gt;=&lt;初始值&gt; 譬如：fileName=&ldquo;zgsFile.txt&rdquo; 注意等号两边不能有空格！！！ Shell 变量引用 $&lt;变量名&gt; &quot;$fileName&quot;、“$fileName”、‘$fileName’ 或任何引号外 $fileName 有效 &#39;$fileName&#39; 无效（$ 亦按普通字符处理） $fileName 比较特殊（按命令串处理） 清理变量 unset varName 空格在linux中时作为一个很典型的分隔符，比如string1=this is astring，这样执行就会报错。为了避免这个问题，因此就产生了单引号和双引号。他们的区别在于，单引号将剥夺其中的所有字符的特殊含义，而双引号中的&#39;$&#39;（参数替换）和&#39;`&#39;（命令替换）是例外。所以，两者基本上没有什么区别，除非在内容中遇到了参数替换符$和命令替换符`。 Shell 变量分类" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/2-Linux-Shell/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>2 Linux Shell | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle" checked />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle" checked />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="active">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>2 Linux Shell</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#最简单-shell-程序解析及运行">最简单 Shell 程序解析及运行</a></li>
+    <li><a href="#shell-程序调试方式">Shell 程序调试方式</a></li>
+    <li><a href="#局部变量应用编程">局部变量应用编程</a></li>
+    <li><a href="#环境变量及-export-命令">环境变量及 export 命令</a></li>
+    <li><a href="#位置变量及特殊变量应用编程">位置变量及特殊变量应用编程</a></li>
+    <li><a href="#条件判断控制结构应用编程">条件判断控制结构应用编程</a></li>
+    <li><a href="#分支判断控制结构应用编程">分支判断控制结构应用编程</a></li>
+    <li><a href="#函数应用编程">函数应用编程</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="最简单-shell-程序解析及运行">
+  最简单 Shell 程序解析及运行
+  <a class="anchor" href="#%e6%9c%80%e7%ae%80%e5%8d%95-shell-%e7%a8%8b%e5%ba%8f%e8%a7%a3%e6%9e%90%e5%8f%8a%e8%bf%90%e8%a1%8c">#</a>
+</h1>
+<p>#!/bin/sh 是指此脚本使用/bin/sh 来解释执行，#!是特殊的表示符，其后面跟的是此解释此脚本的 shell 的路径。</p>
+<p><strong>Shell 程序第一行规范建议</strong></p>
+<ul>
+<li>建议写法
+<ul>
+<li><code>#! /bin/sh</code></li>
+</ul>
+</li>
+<li>强烈不建议写法—— #!型注释
+<ul>
+<li>#! 其它注释内容</li>
+</ul>
+</li>
+<li>两种运行方式
+<ul>
+<li><code>./</code></li>
+<li><code>sh</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="shell-程序调试方式">
+  Shell 程序调试方式
+  <a class="anchor" href="#shell-%e7%a8%8b%e5%ba%8f%e8%b0%83%e8%af%95%e6%96%b9%e5%bc%8f">#</a>
+</h1>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>选项</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sh -n 程序名</td>
+<td>纯粹性  解释分析</td>
+<td>解释但不执行命令（用于检查程序语法错误）</td>
+</tr>
+<tr>
+<td>sh -x 程序名</td>
+<td>显示替换结果程序并执行</td>
+<td>在变量替换之后、执行命令之前，显示程序的每一有效行（非空且非注释行）</td>
+</tr>
+<tr>
+<td>sh -v 程序名</td>
+<td>显示原始程序并执行</td>
+<td>在执行之前，按输入的原样显示输出程序中所有各行（包括空行、注释行）</td>
+</tr>
+<tr>
+<td>set -x</td>
+<td>打开（命令）回显</td>
+<td>跟踪程序的执行（主要用于 Shell 程序中）</td>
+</tr>
+<tr>
+<td>set +x</td>
+<td>关闭（命令）回显</td>
+<td>关闭跟踪功能（主要用于 Shell 程序中）</td>
+</tr>
+</tbody>
+</table>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/18_22_9_12_Screenshot%202023-11-18%20at%2022.09.10.png" alt="" /></p>
+<h1 id="局部变量应用编程">
+  局部变量应用编程
+  <a class="anchor" href="#%e5%b1%80%e9%83%a8%e5%8f%98%e9%87%8f%e5%ba%94%e7%94%a8%e7%bc%96%e7%a8%8b">#</a>
+</h1>
+<p><strong>Shell 变量赋值与引用</strong></p>
+<ul>
+<li>Shell 变量赋值
+<ul>
+<li>&lt;变量名&gt;=&lt;初始值&gt;</li>
+<li>譬如：fileName=&ldquo;zgsFile.txt&rdquo;</li>
+<li>注意等号两边不能有空格！！！</li>
+</ul>
+</li>
+<li>Shell 变量引用
+<ul>
+<li>$&lt;变量名&gt;</li>
+<li><code>&quot;$fileName&quot;、“$fileName”、‘$fileName’</code> 或任何引号外 $fileName 有效</li>
+<li><code>'$fileName'</code> 无效（$ 亦按普通字符处理）</li>
+<li><code>$fileName</code> 比较特殊（按命令串处理）</li>
+</ul>
+</li>
+<li>清理变量 unset varName</li>
+</ul>
+<pre tabindex="0"><code>空格在linux中时作为一个很典型的分隔符，比如string1=this is astring，这样执行就会报错。为了避免这个问题，因此就产生了单引号和双引号。他们的区别在于，单引号将剥夺其中的所有字符的特殊含义，而双引号中的&#39;$&#39;（参数替换）和&#39;`&#39;（命令替换）是例外。所以，两者基本上没有什么区别，除非在内容中遇到了参数替换符$和命令替换符`。
+</code></pre><p><strong>Shell 变量分类</strong></p>
+<ul>
+<li>局部变量（本地变量）
+<ul>
+<li>自己定义的变量</li>
+</ul>
+</li>
+<li>环境变量（类似于全局变量）
+<ul>
+<li>可以自己定义并全局化</li>
+<li>譬如 $PATH</li>
+</ul>
+</li>
+<li>预定义变量（特殊变量）
+<ul>
+<li><code>$+【*#$?!】</code></li>
+</ul>
+</li>
+<li>位置变量（类似于 C 程序的命令行参数）
+<ul>
+<li>$+【数字】</li>
+</ul>
+</li>
+</ul>
+<h1 id="环境变量及-export-命令">
+  环境变量及 export 命令
+  <a class="anchor" href="#%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%e5%8f%8a-export-%e5%91%bd%e4%bb%a4">#</a>
+</h1>
+<p>查看系统环境变量取值 -env 命令</p>
+<p>
+  <a href="https://blog.csdn.net/liumiaocn/article/details/104110665">BASH脚本基础：环境变量PS2介绍_bash ps2-CSDN博客</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ echo $HOME
+</span></span><span style="display:flex;"><span> home/zhaigaoshou2018
+</span></span><span style="display:flex;"><span>$ echo $LANG
+</span></span><span style="display:flex;"><span>  en_US.UTF-8
+</span></span><span style="display:flex;"><span>$ echo $TERM
+</span></span><span style="display:flex;"><span>  xterm-256color
+</span></span><span style="display:flex;"><span>$ echo $PS2
+</span></span><span style="display:flex;"><span>  &gt;
+</span></span><span style="display:flex;"><span>$ echo $PATH
+</span></span><span style="display:flex;"><span>opt/ros/kinetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+</span></span></code></pre></div><p><strong>Shell 程序的环境变量</strong></p>
+<ul>
+<li>定义方式类似于局部变量，但在作为环境变量使用前必须通过 export 命令进行导出</li>
+<li>环境变量生命周期和作用域涵盖对应所有各级子孙进程</li>
+<li>系统环境变量生命周期和作用域涵盖所有用户及各子孙进程，最好在.profile 文件中定义</li>
+</ul>
+<p><strong>export 命令解析</strong></p>
+<ul>
+<li>是变量（名）而非仅仅变量取值的传递</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/18_22_22_31_Screenshot%202023-11-18%20at%2022.22.29.png" alt="" /></p>
+<h1 id="位置变量及特殊变量应用编程">
+  位置变量及特殊变量应用编程
+  <a class="anchor" href="#%e4%bd%8d%e7%bd%ae%e5%8f%98%e9%87%8f%e5%8f%8a%e7%89%b9%e6%ae%8a%e5%8f%98%e9%87%8f%e5%ba%94%e7%94%a8%e7%bc%96%e7%a8%8b">#</a>
+</h1>
+<p><strong>Shell 程序的位置变量</strong></p>
+<ul>
+<li>类似于 C 程序的命令行参数，用来对命令行中各对应位置的参数进行描述
+<ul>
+<li>$0 对应 Shell 命令或 Shell 程序名本身</li>
+<li>$1、$2、…、$9 分别对应传入的第 1 个参数、第 2 参数、…、第 9 个参数</li>
+</ul>
+</li>
+<li>当实际参数大于 9 个时，需要用 shift 命令来移动位置参数
+<ul>
+<li>每执行一次 shift n 命令，最前面的 n 个传入参数将被移去，于是第 n+1 个参数成为 $1，以此类推</li>
+<li>缺省情况下，n 等于 1</li>
+</ul>
+</li>
+</ul>
+<p><strong>Shell 命令中的特殊变量</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$*
+</span></span><span style="display:flex;"><span>命令行中的传入参数序列
+</span></span><span style="display:flex;"><span>$#
+</span></span><span style="display:flex;"><span>命令行中的传入参数的个数
+</span></span><span style="display:flex;"><span>$?
+</span></span><span style="display:flex;"><span>前一个命令返回的结果（状态）值，0为正常
+</span></span><span style="display:flex;"><span>$$
+</span></span><span style="display:flex;"><span>当前Shell进程的进程标识符PID值
+</span></span><span style="display:flex;"><span>$!
+</span></span><span style="display:flex;"><span>最近访问的后台进程的进程标识符PID值
+</span></span></code></pre></div><h1 id="条件判断控制结构应用编程">
+  条件判断控制结构应用编程
+  <a class="anchor" href="#%e6%9d%a1%e4%bb%b6%e5%88%a4%e6%96%ad%e6%8e%a7%e5%88%b6%e7%bb%93%e6%9e%84%e5%ba%94%e7%94%a8%e7%bc%96%e7%a8%8b">#</a>
+</h1>
+<p><strong>if-else 基本代码结构</strong></p>
+<ul>
+<li>command-list1 或 command-list2 等两处命令行部分均可嵌套使用 if 条件判断控制结构</li>
+<li>else 分支可无</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$varZGS<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">=</span> valueZGS <span style="color:#f92672">]</span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span> 
+</span></span><span style="display:flex;"><span> command-list1
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span> command-list2
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span></code></pre></div><ul>
+<li>command-list1 或 command-list2 等三处命令行部分均可嵌套使用 if 条件判断控制结构，且 then 命令行与 fi 之间的 elif-then 命令行可有连续多个</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$varZGS1<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">=</span> valueZGS1 <span style="color:#f92672">]</span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span> 
+</span></span><span style="display:flex;"><span> command-list1
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">elif</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$varZGS2<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">=</span> valueZGS2 <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span> 
+</span></span><span style="display:flex;"><span> command-list2
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span> command-list3
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span></code></pre></div><h1 id="分支判断控制结构应用编程">
+  分支判断控制结构应用编程
+  <a class="anchor" href="#%e5%88%86%e6%94%af%e5%88%a4%e6%96%ad%e6%8e%a7%e5%88%b6%e7%bb%93%e6%9e%84%e5%ba%94%e7%94%a8%e7%bc%96%e7%a8%8b">#</a>
+</h1>
+<p><strong>case-Shell 例程</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;</span>$cmdID<span style="color:#e6db74">&#34;</span> in
+</span></span><span style="display:flex;"><span> d|D<span style="color:#f92672">)</span>  date ;;
+</span></span><span style="display:flex;"><span> w|W<span style="color:#f92672">)</span>  who ;;
+</span></span><span style="display:flex;"><span> s|S<span style="color:#f92672">)</span>  echo <span style="color:#e6db74">&#34;Hello! `who`&#34;</span> ;;
+</span></span><span style="display:flex;"><span> c|C<span style="color:#f92672">)</span>  echo <span style="color:#e6db74">&#34;Hello! China!&#34;</span> ;;
+</span></span><span style="display:flex;"><span> *<span style="color:#f92672">)</span>    echo <span style="color:#e6db74">&#34;</span>$cmdID<span style="color:#e6db74"> is not a valid choice!&#34;</span>
+</span></span><span style="display:flex;"><span>       echo <span style="color:#e6db74">&#34;Run the program and try again!&#34;</span>
+</span></span><span style="display:flex;"><span>       exit <span style="color:#ae81ff">1</span> ;;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">esac</span>
+</span></span><span style="display:flex;"><span>exit <span style="color:#ae81ff">0</span>
+</span></span></code></pre></div><p><strong>case 代码基本结构</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">case</span> <span style="color:#e6db74">&#34;</span>$varZGS<span style="color:#e6db74">&#34;</span> in 
+</span></span><span style="display:flex;"><span> pattern1<span style="color:#f92672">)</span> command-list1 ;;
+</span></span><span style="display:flex;"><span> pattern2<span style="color:#f92672">)</span> command-list2 ;;
+</span></span><span style="display:flex;"><span> pattern3<span style="color:#f92672">)</span> command-list3 ;;
+</span></span><span style="display:flex;"><span> pattern4<span style="color:#f92672">)</span> command-list4 ;;
+</span></span><span style="display:flex;"><span> ……
+</span></span><span style="display:flex;"><span> *<span style="color:#f92672">)</span> command-list ;;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">esac</span>
+</span></span></code></pre></div><p><strong>循环控制结构应用编程</strong></p>
+<p>while-Shell 例程</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>Sum<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $i !<span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;100&#34;</span> <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  i<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>expr $i + 1<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>  Sum<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>expr $Sum + $i<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Sum-from-1-to-</span>$i<span style="color:#e6db74"> = </span>$Sum<span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><ul>
+<li>
+  <a href="https://www.geeksforgeeks.org/expr-command-in-linux-with-examples/">expr command in Linux with examples - GeeksforGeeks</a>
+<ul>
+<li>Basic operations like addition, subtraction, multiplication, division, and modulus on integers.</li>
+<li>Evaluating regular expressions, string operations like substring, length of strings etc.</li>
+</ul>
+</li>
+</ul>
+<p><strong>while 循环结构编程要旨</strong></p>
+<ul>
+<li>基本代码结构</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$varZGS<span style="color:#e6db74">&#34;</span> !<span style="color:#f92672">=</span> valueZGS <span style="color:#f92672">]</span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span> 
+</span></span><span style="display:flex;"><span> command-list
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><ul>
+<li>while 循环执行过程
+<ul>
+<li>首先判断循环条件是否成立</li>
+<li>若不成立，则转③结束循环；否则，进入循环体执行有关命令，然后转①</li>
+<li>循环结束</li>
+</ul>
+</li>
+</ul>
+<p><strong>until 循环结构编程要旨</strong></p>
+<ul>
+<li>基本代码结构</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">until</span> <span style="color:#f92672">[</span> $varZGS <span style="color:#f92672">=</span> valueZGS <span style="color:#f92672">]</span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span> 
+</span></span><span style="display:flex;"><span> command-list
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><ul>
+<li>until 循环执行过程
+<ul>
+<li>首先判断循环条件是否成立</li>
+<li>若成立，则转③结束循环；否则，进入循环体执行有关命令，然后转①</li>
+<li>循环结束</li>
+</ul>
+</li>
+</ul>
+<p>for shell 例程</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>Sum<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> zI in <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  Sum<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>expr $Sum + $zI<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;SumOf[1 2 3 4 5 6] = </span>$Sum<span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p><strong>for 循环结构 1 编程要旨</strong></p>
+<ul>
+<li>基本代码结构</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> varZGS 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span> 
+</span></span><span style="display:flex;"><span> command-list
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><ul>
+<li>for 循环执行过程
+<ul>
+<li>首先判断 Shell 程序还有无传入参数</li>
+<li>若无，则转③结束循环；否则，将最前面的传入参数赋值给循环变量，进入循环体执行有关命令，然后传入参数执行左移操作，转①</li>
+<li>循环结束</li>
+</ul>
+</li>
+</ul>
+<p><strong>for 循环结构 2 编程要旨</strong></p>
+<ul>
+<li>基本代码结构</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> zI in zList
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span> 
+</span></span><span style="display:flex;"><span> command-list
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><ul>
+<li>for 循环执行过程
+<ul>
+<li>首先判断循环变量取值列表还有无数值</li>
+<li>若无，则转③结束循环；否则，将最前面的数值赋值给循环变量，进入循环体执行有关命令，然后有关取值列表执行左移操作，转①</li>
+<li>循环结束</li>
+</ul>
+</li>
+</ul>
+<p><strong>for 循环结构 3 编程要旨</strong></p>
+<ul>
+<li>基本代码结构</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#66d9ef">for</span> varZGS in <span style="color:#e6db74">`</span>cmd<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span> 
+</span></span><span style="display:flex;"><span> command-list
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><p><strong>break 与 continue 编程要旨</strong></p>
+<p><strong>逆序显示命令行参数的 shell 例程</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e"># A continue shell-script</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>count<span style="color:#f92672">=</span>$#
+</span></span><span style="display:flex;"><span>cmd<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;echo&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> true
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span> cmd<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$cmd<span style="color:#e6db74"> \$</span>$count<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span> count<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>expr $count - 1<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span> $count -gt <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span> eval $cmd
+</span></span><span style="display:flex;"><span> exit <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e"># A break shell-script</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>count<span style="color:#f92672">=</span>$#
+</span></span><span style="display:flex;"><span>cmd<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;echo&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> true
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span> cmd<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$cmd<span style="color:#e6db74"> \$</span>$count<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span> count<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>expr $count - 1<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span> $count -eq <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> break
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span>eval $cmd
+</span></span></code></pre></div><p><strong>拷贝若干文件的 shell 例程</strong></p>
+<p>
+  <a href="https://blog.csdn.net/superbfly/article/details/49274889">Fetching Title#lq1u</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e"># A shell script for copying files to directory  </span>
+</span></span><span style="display:flex;"><span>eval dir<span style="color:#f92672">=</span><span style="color:#ae81ff">\$</span>$#
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -d $dir <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span> echo $dir
+</span></span><span style="display:flex;"><span> cmd<span style="color:#f92672">=</span>cp
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $1 <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -f $1 <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>   cmd<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$cmd<span style="color:#e6db74"> </span>$1<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>   echo $cmd
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>   echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> is not a file&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>  shift
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">done</span>
+</span></span><span style="display:flex;"><span> cmd<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$cmd<span style="color:#e6db74"> </span>$dir<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span> echo $cmd
+</span></span><span style="display:flex;"><span> $cmd
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span></code></pre></div><p><strong>显示若干文件内容的 Shell 例程</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e"># A shell script for displaying contents of specified files</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;Error messgages:&#34;</span> &gt; errFile
+</span></span><span style="display:flex;"><span>exitStatus<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $# <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;At least one argument is needed!&#34;</span> &gt;&gt; errFile
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;Usage: shApp-CatFilesBv file1 [file2 … fileN]&#34;</span> &gt;&gt; errFile
+</span></span><span style="display:flex;"><span> exitStatus<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> <span style="color:#f92672">[</span> $1 <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> -f <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">[</span> -r <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  i<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">while</span> read LINE
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>   echo <span style="color:#e6db74">&#34;</span>$i<span style="color:#e6db74">#: &#34;</span> $LINE
+</span></span><span style="display:flex;"><span>   i<span style="color:#f92672">=</span><span style="color:#e6db74">`</span>expr $i + 1<span style="color:#e6db74">`</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">done</span> &lt; <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span> <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>  echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> is a not ordinary file or it can&#39;t be read!!!&#34;</span> &gt;&gt; errFile
+</span></span><span style="display:flex;"><span>  exitStatus<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span> shift
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><p><strong>监控系统用户的 shell 例程</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e"># A shell script for monitoring log-user</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>who | sort &gt; prev
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> true
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span> sleep <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span> who | sort &gt; curr
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;logged out:&#34;</span>
+</span></span><span style="display:flex;"><span> comm -23 prev curr   <span style="color:#75715e">#显示只在`prev`中而不在`curr`中的行，即已注销的用户</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;=================&#34;</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;logged in:&#34;</span>
+</span></span><span style="display:flex;"><span> comm -13 prev curr   <span style="color:#75715e">#显示只在`curr`中而不在`prev`中的行，即新登录的用户</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;=================&#34;</span>
+</span></span><span style="display:flex;"><span> mv curr prev
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">done</span>
+</span></span></code></pre></div><h1 id="函数应用编程">
+  函数应用编程
+  <a class="anchor" href="#%e5%87%bd%e6%95%b0%e5%ba%94%e7%94%a8%e7%bc%96%e7%a8%8b">#</a>
+</h1>
+<ul>
+<li>函数定义</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>function_name<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> &lt;命令行序列&gt;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#f92672">[</span>n<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><ul>
+<li>调用方式</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>function_name <span style="color:#f92672">[</span>&lt;参数序列&gt;<span style="color:#f92672">]</span>
+</span></span></code></pre></div><p><strong>Shell 文件中函数调用要旨</strong></p>
+<ul>
+<li>命令行中定义的函数
+<ul>
+<li>存在于 B-Shell 内存空间</li>
+</ul>
+</li>
+<li>文件中定义的 Shell 函数使用方式
+<ul>
+<li><code>source &lt;ShellFunFileName&gt;</code></li>
+<li>若想使有关函数永久保留在 Shell 空间，则需将语句 <code>“.~/&lt;ShellFunFileName&gt;”</code> 写入文件.profile 和.bashrc 中，从而在启动 Shell 时读取这些函数文件加载到 Shell 空间中 <code>【/etc/profile.d/*.sh】</code></li>
+</ul>
+</li>
+<li>查看（Shell 空间中的）函数与导出函数
+<ul>
+<li>set 命令、export &lt;函数名&gt;【使子进程可用】</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#! /bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e"># A shell script demonstrating functions for Jia/Jian/Cheng/Chu</span>
+</span></span><span style="display:flex;"><span>Add<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> echo -e <span style="color:#e6db74">&#34;add: </span>$1<span style="color:#e6db74"> + </span>$2<span style="color:#e6db74"> = \c&#34;</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> + </span>$2<span style="color:#e6db74">&#34;</span> | bc
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>Sub<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> echo -e <span style="color:#e6db74">&#34;sub: </span>$1<span style="color:#e6db74"> - </span>$2<span style="color:#e6db74"> = \c&#34;</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> - </span>$2<span style="color:#e6db74">&#34;</span> | bc
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>Mult<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> echo -e <span style="color:#e6db74">&#34;mult: </span>$1<span style="color:#e6db74"> * </span>$2<span style="color:#e6db74"> = \c&#34;</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> * </span>$2<span style="color:#e6db74">&#34;</span> | bc
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>Div<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> echo -e <span style="color:#e6db74">&#34;div: </span>$1<span style="color:#e6db74"> / </span>$2<span style="color:#e6db74"> = \c&#34;</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> / </span>$2<span style="color:#e6db74">&#34;</span> | bc
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>Mod<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span> echo -e <span style="color:#e6db74">&#34;mod: </span>$1<span style="color:#e6db74"> % </span>$2<span style="color:#e6db74"> = \c&#34;</span>
+</span></span><span style="display:flex;"><span> echo <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74"> % </span>$2<span style="color:#e6db74">&#34;</span> | bc
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><ul>
+<li>函数必须先定义，后使用</li>
+<li>函数在当前环境中运行，可共享其主调程序中的变量，还允许以给位置参量赋值的方式向函数传递参数</li>
+<li>可使用 local 功能在函数内部创建局部变量</li>
+<li>return 命令返回主调程序；exit 命令结束整个程序</li>
+<li>可用 export -f 把函数导出到子 Shell 中</li>
+<li>函数可以递归，且递归调用次数没有限制</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#最简单-shell-程序解析及运行">最简单 Shell 程序解析及运行</a></li>
+    <li><a href="#shell-程序调试方式">Shell 程序调试方式</a></li>
+    <li><a href="#局部变量应用编程">局部变量应用编程</a></li>
+    <li><a href="#环境变量及-export-命令">环境变量及 export 命令</a></li>
+    <li><a href="#位置变量及特殊变量应用编程">位置变量及特殊变量应用编程</a></li>
+    <li><a href="#条件判断控制结构应用编程">条件判断控制结构应用编程</a></li>
+    <li><a href="#分支判断控制结构应用编程">分支判断控制结构应用编程</a></li>
+    <li><a href="#函数应用编程">函数应用编程</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

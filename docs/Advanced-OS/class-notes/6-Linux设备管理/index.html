@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="设备管理概述 # 最复杂、最多样化的操作系统资源管理模块
+设备并行操作是提高设备利用率关键所在
+依赖于通道和中断机制、设备物理特性的支持 功能范畴
+对计算机系统中（除处理器和内存之外的）外部设备的管理（选择与分配输入输出设备） 实现多任务、多进程对多种设备的共享 对设备相关数据传输过程的控制 实现数据的高效传输（设备与处理器/设备并行） 设备分类
+存储设备（块设备） 计算机用来存储文件信息的设备，如磁/光盘/带 输入输出设备（字符设备） 输入设备，如键盘、鼠标、扫描仪 输出设备，如显示器、打印机、绘图仪 输入输出设备，如电传打字机 网络设备（通过套接字进行数据交换） 在 TCP/IP 协议网络通信中，套接字使用 IP 地址（32 位）和端口号（16 位）共计 48 位来唯一标识具有某个 IP 地址的计算机及其某个端口 设备管理模块功能
+提供进程使用设备的接口 一般为文件系统及文件操作相关系统调用 实施设备的分配与回收 实现设备与设备、设备与处理器之间的并行 依赖于硬件提供的输入输出控制方式 采取有效措施解决处理器与设备的速度差异矛盾、平衡计算机系统的输入输出负荷、提高设备的输入输出效率 缓冲技术、提前读、延迟写、异步写 设备独立性
+指用户在程序中所使用的设备与实际使用的设备无关 操作系统为同类设备设置一个逻辑设备名 当用户以逻辑设备名提出设备请求时，由操作系统的设备管理模块将逻辑设备名转化为具体的物理设备、实现物理设备的分配 优点 方便了用户 提高了系统效率 缓冲管理 # 缓冲及目的
+缓冲是在不同速度的部件之间传输信息时常用来平滑传输过程的技术手段 通常为内存缓冲区，用于暂存输入/输出数据 目的 解决设备与处理器之间以及设备与设备之间的速度不匹配的问题 解决系统中输入输出负荷的不均衡问题 有效减少输入输出（中断）次数，从而提高输入输出速度 分为单缓冲、双缓冲、循环缓冲和缓冲池 缓冲池
+三类缓冲区队列：空缓冲区队列、输入缓冲区队列、输出缓冲区队列 四类工作缓冲区：【收容/提取】【输入/输出】的工作缓冲区 缓冲池管理要旨 空缓冲区的分配与回收 输入/输出设备的输入/输出缓冲区队列管理 缓冲区与进程数据块之间的信息交换 采用内存块拷贝实现机制 缓冲区与设备（内存数据块与设备物理块）之间的信息交换（即设备输入输出） 基于中断的实现方式 中断服务程序实现设备的输入请求处理 对于设备输入过程而言，若还有数据输入请求，则申请空闲缓冲区、启动设备执行输入操作并将所输入的数据暂存到空闲缓冲区中，然后把该装满输入数据的缓冲区挂到设备的输入缓冲区队列上供用户进程拷贝和访问读取；若没有数据输入请求则通知设备结束输入操作，并将该设备重新分配给其他进程 中断服务程序实现设备的输出请求处理 对于设备输出过程而言，循环：若还有数据输出请求，则申请空闲缓冲区把所输出的数据拷贝和暂存其中并挂到设备的输出缓冲区队列上 待设备空闲时，系统从输出缓冲区队列队首缓冲区提取数据输出到设备上，然后把该缓冲区放回空缓冲区队列，循环执行这一过程直到输出缓冲区队列为空 设备分配 # 计算机系统中进程数总是多于设备数及由此导致的设备竞争的客观现实 设备分配须方便用户并有效规避死锁问题 设备分配方式 独占式分配及独占式设备（譬如打印机、绘图仪） 共享式分配及共享式设备（譬如磁盘） 虚拟式分配及假脱机技术（在共享式设备上实现独占式设备的虚拟和共享使用），可以提高输入输出速度、改善设备利用率和系统吞吐量，提高了进程的并发执行程度和执行效率 假脱机技术">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="设备管理概述 # 最复杂、最多样化的操作系统资源管理模块
+设备并行操作是提高设备利用率关键所在
+依赖于通道和中断机制、设备物理特性的支持 功能范畴
+对计算机系统中（除处理器和内存之外的）外部设备的管理（选择与分配输入输出设备） 实现多任务、多进程对多种设备的共享 对设备相关数据传输过程的控制 实现数据的高效传输（设备与处理器/设备并行） 设备分类
+存储设备（块设备） 计算机用来存储文件信息的设备，如磁/光盘/带 输入输出设备（字符设备） 输入设备，如键盘、鼠标、扫描仪 输出设备，如显示器、打印机、绘图仪 输入输出设备，如电传打字机 网络设备（通过套接字进行数据交换） 在 TCP/IP 协议网络通信中，套接字使用 IP 地址（32 位）和端口号（16 位）共计 48 位来唯一标识具有某个 IP 地址的计算机及其某个端口 设备管理模块功能
+提供进程使用设备的接口 一般为文件系统及文件操作相关系统调用 实施设备的分配与回收 实现设备与设备、设备与处理器之间的并行 依赖于硬件提供的输入输出控制方式 采取有效措施解决处理器与设备的速度差异矛盾、平衡计算机系统的输入输出负荷、提高设备的输入输出效率 缓冲技术、提前读、延迟写、异步写 设备独立性
+指用户在程序中所使用的设备与实际使用的设备无关 操作系统为同类设备设置一个逻辑设备名 当用户以逻辑设备名提出设备请求时，由操作系统的设备管理模块将逻辑设备名转化为具体的物理设备、实现物理设备的分配 优点 方便了用户 提高了系统效率 缓冲管理 # 缓冲及目的
+缓冲是在不同速度的部件之间传输信息时常用来平滑传输过程的技术手段 通常为内存缓冲区，用于暂存输入/输出数据 目的 解决设备与处理器之间以及设备与设备之间的速度不匹配的问题 解决系统中输入输出负荷的不均衡问题 有效减少输入输出（中断）次数，从而提高输入输出速度 分为单缓冲、双缓冲、循环缓冲和缓冲池 缓冲池
+三类缓冲区队列：空缓冲区队列、输入缓冲区队列、输出缓冲区队列 四类工作缓冲区：【收容/提取】【输入/输出】的工作缓冲区 缓冲池管理要旨 空缓冲区的分配与回收 输入/输出设备的输入/输出缓冲区队列管理 缓冲区与进程数据块之间的信息交换 采用内存块拷贝实现机制 缓冲区与设备（内存数据块与设备物理块）之间的信息交换（即设备输入输出） 基于中断的实现方式 中断服务程序实现设备的输入请求处理 对于设备输入过程而言，若还有数据输入请求，则申请空闲缓冲区、启动设备执行输入操作并将所输入的数据暂存到空闲缓冲区中，然后把该装满输入数据的缓冲区挂到设备的输入缓冲区队列上供用户进程拷贝和访问读取；若没有数据输入请求则通知设备结束输入操作，并将该设备重新分配给其他进程 中断服务程序实现设备的输出请求处理 对于设备输出过程而言，循环：若还有数据输出请求，则申请空闲缓冲区把所输出的数据拷贝和暂存其中并挂到设备的输出缓冲区队列上 待设备空闲时，系统从输出缓冲区队列队首缓冲区提取数据输出到设备上，然后把该缓冲区放回空缓冲区队列，循环执行这一过程直到输出缓冲区队列为空 设备分配 # 计算机系统中进程数总是多于设备数及由此导致的设备竞争的客观现实 设备分配须方便用户并有效规避死锁问题 设备分配方式 独占式分配及独占式设备（譬如打印机、绘图仪） 共享式分配及共享式设备（譬如磁盘） 虚拟式分配及假脱机技术（在共享式设备上实现独占式设备的虚拟和共享使用），可以提高输入输出速度、改善设备利用率和系统吞吐量，提高了进程的并发执行程度和执行效率 假脱机技术" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" /><meta property="article:section" content="docs" />
+
+
+
+<title>6 Linux设备管理 | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle" checked />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle" checked />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="active">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle"  />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>6 Linux设备管理</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#设备管理概述">设备管理概述</a></li>
+    <li><a href="#缓冲管理">缓冲管理</a></li>
+    <li><a href="#设备分配">设备分配</a></li>
+    <li><a href="#输入输出控制方式及模块">输入/输出控制方式及模块</a></li>
+    <li><a href="#unix-设备管理">Unix 设备管理</a>
+      <ul>
+        <li><a href="#unix-设备管理概要">Unix 设备管理概要</a></li>
+        <li><a href="#unix-设备管理数据结构">Unix 设备管理数据结构</a></li>
+        <li><a href="#unix-块设备缓冲区管理">Unix 块设备缓冲区管理</a></li>
+        <li><a href="#unix-设备驱动程序">Unix 设备驱动程序</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-内核模块及设备驱动">Linux 内核模块及设备驱动</a>
+      <ul>
+        <li><a href="#linux-内核架构及动态扩展机制">Linux 内核架构及动态扩展机制</a></li>
+        <li><a href="#linux-最简内核模块">Linux 最简内核模块</a></li>
+        <li><a href="#linux-传参内核模块">Linux 传参内核模块</a></li>
+        <li><a href="#linux-内核符号共享机制">Linux 内核符号共享机制</a></li>
+        <li><a href="#linux-字符设备驱动">Linux 字符设备驱动</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="设备管理概述">
+  设备管理概述
+  <a class="anchor" href="#%e8%ae%be%e5%a4%87%e7%ae%a1%e7%90%86%e6%a6%82%e8%bf%b0">#</a>
+</h1>
+<p>最复杂、最多样化的操作系统资源管理模块</p>
+<p>设备并行操作是提高设备利用率关键所在</p>
+<ul>
+<li>依赖于通道和中断机制、设备物理特性的支持</li>
+</ul>
+<p>功能范畴</p>
+<ul>
+<li>对计算机系统中（除处理器和内存之外的）外部设备的管理（选择与分配输入输出设备）</li>
+<li>实现多任务、多进程对多种设备的共享</li>
+<li>对设备相关数据传输过程的控制</li>
+<li>实现数据的高效传输（设备与处理器/设备并行）</li>
+</ul>
+<p><strong>设备分类</strong></p>
+<ul>
+<li>存储设备（块设备）
+<ul>
+<li>计算机用来存储文件信息的设备，如磁/光盘/带</li>
+</ul>
+</li>
+<li>输入输出设备（字符设备）
+<ul>
+<li>输入设备，如键盘、鼠标、扫描仪</li>
+<li>输出设备，如显示器、打印机、绘图仪</li>
+<li>输入输出设备，如电传打字机</li>
+</ul>
+</li>
+<li>网络设备（通过套接字进行数据交换）
+<ul>
+<li>在 TCP/IP 协议网络通信中，套接字使用 IP 地址（32 位）和端口号（16 位）共计 48 位来唯一标识具有某个 IP 地址的计算机及其某个端口</li>
+</ul>
+</li>
+</ul>
+<p>设备管理模块功能</p>
+<ul>
+<li>提供进程使用设备的接口
+<ul>
+<li>一般为文件系统及文件操作相关系统调用</li>
+</ul>
+</li>
+<li>实施设备的分配与回收
+<ul>
+<li>实现设备与设备、设备与处理器之间的并行</li>
+</ul>
+</li>
+<li>依赖于硬件提供的输入输出控制方式</li>
+<li>采取有效措施解决处理器与设备的速度差异矛盾、平衡计算机系统的输入输出负荷、提高设备的输入输出效率
+<ul>
+<li>缓冲技术、提前读、延迟写、异步写</li>
+</ul>
+</li>
+</ul>
+<p><strong>设备独立性</strong></p>
+<ul>
+<li>指用户在程序中所使用的设备与实际使用的设备无关
+<ul>
+<li>操作系统为同类设备设置一个逻辑设备名</li>
+<li>当用户以逻辑设备名提出设备请求时，由操作系统的设备管理模块将逻辑设备名转化为具体的物理设备、实现物理设备的分配</li>
+</ul>
+</li>
+<li>优点
+<ul>
+<li>方便了用户</li>
+<li>提高了系统效率</li>
+</ul>
+</li>
+</ul>
+<h1 id="缓冲管理">
+  缓冲管理
+  <a class="anchor" href="#%e7%bc%93%e5%86%b2%e7%ae%a1%e7%90%86">#</a>
+</h1>
+<p>缓冲及目的</p>
+<ul>
+<li>缓冲是在不同速度的部件之间传输信息时常用来平滑传输过程的技术手段
+<ul>
+<li>通常为内存缓冲区，用于暂存输入/输出数据</li>
+</ul>
+</li>
+<li>目的
+<ul>
+<li>解决设备与处理器之间以及设备与设备之间的速度不匹配的问题</li>
+<li>解决系统中输入输出负荷的不均衡问题</li>
+<li>有效减少输入输出（中断）次数，从而提高输入输出速度</li>
+</ul>
+</li>
+<li>分为单缓冲、双缓冲、循环缓冲和缓冲池</li>
+</ul>
+<p><strong>缓冲池</strong></p>
+<ul>
+<li>三类缓冲区队列：空缓冲区队列、输入缓冲区队列、输出缓冲区队列</li>
+<li>四类工作缓冲区：【收容/提取】【输入/输出】的工作缓冲区</li>
+<li>缓冲池管理要旨
+<ul>
+<li>空缓冲区的分配与回收</li>
+<li>输入/输出设备的输入/输出缓冲区队列管理</li>
+<li>缓冲区与进程数据块之间的信息交换
+<ul>
+<li>采用内存块拷贝实现机制</li>
+</ul>
+</li>
+<li>缓冲区与设备（内存数据块与设备物理块）之间的信息交换（即设备输入输出）
+<ul>
+<li>基于中断的实现方式</li>
+</ul>
+</li>
+<li>中断服务程序实现设备的输入请求处理
+<ul>
+<li>对于设备输入过程而言，若还有数据输入请求，则申请空闲缓冲区、启动设备执行输入操作并将所输入的数据暂存到空闲缓冲区中，然后把该装满输入数据的缓冲区挂到设备的输入缓冲区队列上供用户进程拷贝和访问读取；若没有数据输入请求则通知设备结束输入操作，并将该设备重新分配给其他进程</li>
+</ul>
+</li>
+<li>中断服务程序实现设备的输出请求处理
+<ul>
+<li>对于设备输出过程而言，循环：若还有数据输出请求，则申请空闲缓冲区把所输出的数据拷贝和暂存其中并挂到设备的输出缓冲区队列上</li>
+<li>待设备空闲时，系统从输出缓冲区队列队首缓冲区提取数据输出到设备上，然后把该缓冲区放回空缓冲区队列，循环执行这一过程直到输出缓冲区队列为空</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="设备分配">
+  设备分配
+  <a class="anchor" href="#%e8%ae%be%e5%a4%87%e5%88%86%e9%85%8d">#</a>
+</h1>
+<ul>
+<li>计算机系统中进程数总是多于设备数及由此导致的设备竞争的客观现实</li>
+<li>设备分配须方便用户并有效规避死锁问题</li>
+<li>设备分配方式
+<ul>
+<li>独占式分配及独占式设备（譬如打印机、绘图仪）</li>
+<li>共享式分配及共享式设备（譬如磁盘）</li>
+<li>虚拟式分配及假脱机技术（在共享式设备上实现独占式设备的虚拟和共享使用），可以提高输入输出速度、改善设备利用率和系统吞吐量，提高了进程的并发执行程度和执行效率</li>
+</ul>
+</li>
+</ul>
+<p><strong>假脱机技术</strong></p>
+<ul>
+<li>虚拟设备分配
+<ul>
+<li>采用共享式分配为进程分配一个共享式设备“井”，并将“井”与指定的独占式设备相关联</li>
+</ul>
+</li>
+</ul>
+<h1 id="输入输出控制方式及模块">
+  输入/输出控制方式及模块
+  <a class="anchor" href="#%e8%be%93%e5%85%a5%e8%be%93%e5%87%ba%e6%8e%a7%e5%88%b6%e6%96%b9%e5%bc%8f%e5%8f%8a%e6%a8%a1%e5%9d%97">#</a>
+</h1>
+<p>程序查询方式</p>
+<ul>
+<li>实现简单、无需硬件支持</li>
+<li>处理器和设备串行工作、处理器利用率低</li>
+<li>多台设备之间也只能串行工作</li>
+<li>依靠测试设备状态来控制数据传输过程，故而无法发现和处理由设备或其他硬件发生的错误</li>
+<li>仅适用于处理器执行速度较慢且外设数量较少的系统</li>
+</ul>
+<p>中断控制方式</p>
+<p>内存直接存取方式（DMA）</p>
+<p>通道方式</p>
+<p>输入输出模块：
+
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_22_14_46_202311202214763.png" alt="" /></p>
+<h1 id="unix-设备管理">
+  Unix 设备管理
+  <a class="anchor" href="#unix-%e8%ae%be%e5%a4%87%e7%ae%a1%e7%90%86">#</a>
+</h1>
+<h2 id="unix-设备管理概要">
+  Unix 设备管理概要
+  <a class="anchor" href="#unix-%e8%ae%be%e5%a4%87%e7%ae%a1%e7%90%86%e6%a6%82%e8%a6%81">#</a>
+</h2>
+<ul>
+<li>
+<p><strong>Unix 设备管理特点</strong></p>
+<ul>
+<li>将设备作为特殊文件，由文件系统统一管理</li>
+<li>支持系统中设备灵活、方便的配置</li>
+<li>高效的缓冲区管理算法</li>
+</ul>
+</li>
+<li>
+<p><strong>Unix 设备管理数据结构</strong></p>
+<ul>
+<li>设备控制表</li>
+<li>设备开关表</li>
+<li>控制器控制表（DMA 方式无此表）</li>
+<li>通道控制表</li>
+</ul>
+</li>
+<li>
+<p><strong>Unix 设备驱动程序管控方式</strong></p>
+<ul>
+<li>输入输出模块调用方式</li>
+</ul>
+</li>
+</ul>
+<h2 id="unix-设备管理数据结构">
+  Unix 设备管理数据结构
+  <a class="anchor" href="#unix-%e8%ae%be%e5%a4%87%e7%ae%a1%e7%90%86%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84">#</a>
+</h2>
+<ul>
+<li>
+<p><strong>设备控制表 (DCT / 设备控制块 DCB)</strong></p>
+<ul>
+<li>抽象的 I/O 调用函数 ⬄ 实际的 I/O 设备驱动</li>
+<li>包含抽象设备描述、对应实际物理设备接口地址及相应的设备驱动函数模块入口地址</li>
+<li>实现用户进程与物理设备无关性 ⬄ 设备独立性</li>
+</ul>
+</li>
+<li>
+<p>设备标识包括主设备号和次设备号</p>
+<ul>
+<li>主设备号为设备类型的标识</li>
+<li>次设备号为对应设备类型的不同设备的编号</li>
+</ul>
+</li>
+<li>
+<p><strong>设备开关表（函数指针结构体数组）</strong></p>
+<ul>
+<li>同一型号物理设备完成各种操作的驱动函数入口</li>
+<li>主设备号相同的所有设备共享一张设备开关表</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> devtab
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> dvid;			<span style="color:#75715e">/*设备标识符*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> dvadd; 		<span style="color:#75715e">/*设备地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>dvec; 		<span style="color:#75715e">/*设备中断向量*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>dvbuf; 		<span style="color:#75715e">/*设备缓冲区指针*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>dvque; 		<span style="color:#75715e">/*设备等待队列首址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span> (<span style="color:#f92672">*</span>dvinit)(); 		<span style="color:#75715e">/*设备驱动初始化函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvopen)(); 		<span style="color:#75715e">/*设备驱动打开函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvclose)(); 		<span style="color:#75715e">/*设备驱动关闭函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvread)(); 		<span style="color:#75715e">/*设备驱动读函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvwrite)(); 		<span style="color:#75715e">/*设备驱动写函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvseek)(); 		<span style="color:#75715e">/*设备驱动查询函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvcntl)(); 		<span style="color:#75715e">/*设备驱动控制操作函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvgetc)(); 		<span style="color:#75715e">/*设备驱动取字符函数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>(<span style="color:#f92672">*</span>dvputc)(); 		<span style="color:#75715e">/*设备驱动送字符函数*/</span>
+</span></span><span style="display:flex;"><span>}dct[];
+</span></span></code></pre></div><p><strong>Unix 设备请求及处理</strong></p>
+<ul>
+<li>用户进程通过系统调用发出读访问设备请求</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">read</span>(<span style="color:#66d9ef">int</span> dvcrp, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>buf, <span style="color:#66d9ef">int</span> size)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> devtab <span style="color:#f92672">*</span>devptr;  <span style="color:#75715e">/*定义指向设备表的指针*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isbaddev</span>(dvcrp)))	 <span style="color:#75715e">/*确认设备标识符是否有效*/</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span>(SYSERR);		
+</span></span><span style="display:flex;"><span> devptr <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>dct[dvcrp]; <span style="color:#75715e">/*有效则找到对应设备表项*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span>((<span style="color:#f92672">*</span>devptr<span style="color:#f92672">-&gt;</span>dvread)(devptr, buf, size));
+</span></span><span style="display:flex;"><span> <span style="color:#75715e">/*将参数传递给设备驱动程序*/</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>内核与设备驱动程序接口</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_22_17_13_202311202217438.png" alt="" /></p>
+<p>Unix 块设备控制器控制表 struct iobuf</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span>  iobuf
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  b_flags;		<span style="color:#75715e">/*设备的状态标志 */</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">dev_t</span>  b_dev;		<span style="color:#75715e">/*设备名，即逻辑设备号*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span>  b_active;		<span style="color:#75715e">/*设备正在执行一个I/O请求的标志*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">char</span>  b_errcnt;		<span style="color:#75715e">/*出错计数*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span>  buf  <span style="color:#f92672">*</span>b_forw;	<span style="color:#75715e">/*指向本设备缓冲区散列队列下一个buf*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span>  buf  <span style="color:#f92672">*</span>b_back;	<span style="color:#75715e">/*指向本设备缓冲区散列队列上一个buf*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span>  buf  <span style="color:#f92672">*</span>b_actf;	<span style="color:#75715e">/*指向本设备I/O请求队列中第一个buf*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span>  buf  <span style="color:#f92672">*</span>b_actl;	<span style="color:#75715e">/*指向本设备I/O请求队列中最后一个buf*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span>  eblock  <span style="color:#f92672">*</span>io_erec;	<span style="color:#75715e">/*指向块设备错误记录块*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  io_nreg;		<span style="color:#75715e">/*设备寄存器的个数*/</span>
+</span></span><span style="display:flex;"><span> physadr  io_addr;		<span style="color:#75715e">/*设备控制状态寄存器地址*/</span>
+</span></span><span style="display:flex;"><span> physadr  io_mba; 		<span style="color:#75715e">/*MBA配置结构寄存器地址*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span>  iostart  <span style="color:#f92672">*</span>io_stp; 	<span style="color:#75715e">/*指向部件I/O统计块*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">time_t</span>  io_start;		<span style="color:#75715e">/*输入输出启动时间*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  io_s1;		<span style="color:#75715e">/*驱动程序留用位置*/</span>
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">int</span>  io_s2;		<span style="color:#75715e">/*驱动程序留用位置*/</span>
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><h2 id="unix-块设备缓冲区管理">
+  Unix 块设备缓冲区管理
+  <a class="anchor" href="#unix-%e5%9d%97%e8%ae%be%e5%a4%87%e7%bc%93%e5%86%b2%e5%8c%ba%e7%ae%a1%e7%90%86">#</a>
+</h2>
+<p>块设备缓冲池及其组成</p>
+<ul>
+<li>数据缓冲区与缓冲控制块物理上分离</li>
+</ul>
+<p>Unix 缓冲区及块设备 I/O 管理</p>
+<ul>
+<li>三种队列及队列头
+<ul>
+<li>设备缓冲区散列队列（队列头 hbuf[i]）</li>
+<li>空闲缓冲区队列（队列头 bfreelist）</li>
+<li>每个物理设备的 I/O 请求队列（队列头 iobuf）</li>
+</ul>
+</li>
+<li>设备缓冲区散列队列
+<ul>
+<li>64 个双向队列：i = (b_dev + b_blkno) mod 64</li>
+<li>各队列挂接了所有曾经分配给各类块设备使用过且被释放了的空闲的缓冲区（av_forw 和 av_back）</li>
+<li>b_dev 和 b_blkno 取值由进程在 I/O 请求中给出、并在 buf 结构中描述，可唯一确定一个物理数据块</li>
+</ul>
+</li>
+</ul>
+<p><strong>盘块缓冲区的分配与回收</strong></p>
+<ul>
+<li>盘块缓冲池互斥操作要求</li>
+<li>盘块缓冲区获取过程 getblk()
+<ul>
+<li>返回任一空闲缓冲区，并设置 b-busy 标志</li>
+<li>若有延迟写标志，调用 bdwrite 过程</li>
+</ul>
+</li>
+<li>盘块缓冲区获取过程 getblk(dev, blkno)
+<ul>
+<li>为指定设备和盘块号的盘块申请缓冲区</li>
+</ul>
+</li>
+<li>盘块缓冲区回收过程 brelse()
+<ul>
+<li>进程唤醒</li>
+<li>视数据有效与否链入空闲链表末尾或首部</li>
+</ul>
+</li>
+</ul>
+<p><strong>Unix 块设备缓冲管理要旨归纳</strong></p>
+<ul>
+<li>基于 LRU 算法的缓冲区队列的管理
+<ul>
+<li>使已读到内存缓冲区的数据尽可能长时间地保留在缓冲区中，从而为数据的复用创造机会和条件</li>
+<li>有效减少读写磁盘的次数，并提高磁盘 I/O 速度</li>
+</ul>
+</li>
+<li>数据复用及数据一致性和完整性的保证
+<ul>
+<li>每一个文件数据块在内存只有一个缓冲区与之对应，从而为实现数据的一致性和完整性提供保证</li>
+</ul>
+</li>
+<li>缓冲区由系统统一管理控制
+<ul>
+<li>防止了某进程因永远得不到缓冲区而无限期睡眠</li>
+<li>防止任何进程无法永远霸占某个缓冲区，也即所有缓冲区都有可能被重新分配利用</li>
+</ul>
+</li>
+</ul>
+<h2 id="unix-设备驱动程序">
+  Unix 设备驱动程序
+  <a class="anchor" href="#unix-%e8%ae%be%e5%a4%87%e9%a9%b1%e5%8a%a8%e7%a8%8b%e5%ba%8f">#</a>
+</h2>
+<p>基本功能任务</p>
+<ul>
+<li>设备初始化</li>
+<li>设备&lt;=数据=&gt;内存/系统</li>
+<li>检测和处理设备错误</li>
+</ul>
+<p>管控对象为设备控制器（含三种寄存器）</p>
+<ul>
+<li>数据缓冲寄存器用于存放需要传输的数据</li>
+<li>状态寄存器用于设备状态如就绪、忙、操作出错等不同状态的编程</li>
+<li>控制寄存器用于控制设备的各种操作或指定设备的 I/O 地址</li>
+</ul>
+<p>磁盘驱动程序</p>
+<ul>
+<li>磁盘驱动器打开过程 gdopen
+<ul>
+<li>输入参数为设备号</li>
+<li>打开后设置 b-flag 为 B-ONCE</li>
+<li>调用 gdtimer 启动对应控制器与设备闹钟</li>
+</ul>
+</li>
+<li>磁盘控制器启动过程
+<ul>
+<li>gdstart 设置磁盘控制器各寄存器值并启动</li>
+<li>gdstrategy 把指定缓冲首部放至 I/O 队列末尾</li>
+</ul>
+</li>
+<li>磁盘中断处理过程 gdintr
+<ul>
+<li>输入参数为磁盘控制器号</li>
+</ul>
+</li>
+</ul>
+<p>磁盘读写程序</p>
+<ul>
+<li>一般读过程 bread
+<ul>
+<li>将盘块信息读入到缓冲区</li>
+</ul>
+</li>
+<li>提前读过程 breada
+<ul>
+<li>提前将下一盘块中的信息读入到缓冲区</li>
+</ul>
+</li>
+<li>一般写（同步写）过程 bwrite
+<ul>
+<li>真正把缓冲区中的数据写到磁盘上且须等待完成</li>
+</ul>
+</li>
+<li>异步写过程 bawrite
+<ul>
+<li>进程无需等待写操作完成便可返回</li>
+</ul>
+</li>
+<li>延迟写过程 bdwrite
+<ul>
+<li>缓冲首部设置延迟写标志，将缓冲区链至空缓冲尾</li>
+</ul>
+</li>
+</ul>
+<p><strong>基于设备文件的管理方式</strong></p>
+<ul>
+<li>底层物理特性视角（设备/普通文件不同）
+<ul>
+<li>设备文件在磁盘上无数据盘块，但在文件系统中却拥有一个永久的索引结点</li>
+</ul>
+</li>
+<li>设备文件的索引结点
+<ul>
+<li>无数据盘块号指针数组（=&gt;混合索引物理结构）</li>
+<li>有用来存放设备的主/次设备号的 i_dev 域</li>
+</ul>
+</li>
+<li>输入输出进程功能任务
+<ul>
+<li>根据用户命令中的设备文件名找到其索引结点，进而得到设备标识 i_dev，再由对应主设备号及用户提供的操作命令在系统设备开关表数组中查找映射到相应的设备驱动函数，并加以执行处理</li>
+</ul>
+</li>
+</ul>
+<h1 id="linux-内核模块及设备驱动">
+  Linux 内核模块及设备驱动
+  <a class="anchor" href="#linux-%e5%86%85%e6%a0%b8%e6%a8%a1%e5%9d%97%e5%8f%8a%e8%ae%be%e5%a4%87%e9%a9%b1%e5%8a%a8">#</a>
+</h1>
+<h2 id="linux-内核架构及动态扩展机制">
+  Linux 内核架构及动态扩展机制
+  <a class="anchor" href="#linux-%e5%86%85%e6%a0%b8%e6%9e%b6%e6%9e%84%e5%8f%8a%e5%8a%a8%e6%80%81%e6%89%a9%e5%b1%95%e6%9c%ba%e5%88%b6">#</a>
+</h2>
+<p><strong>Linux 采用了宏内核架构</strong></p>
+<ul>
+<li>操作系统的大部分功能（包括进程管理、内存管理、进程调度、设备管理）在内核空间实现</li>
+</ul>
+<p><strong>Linux 内核动态扩展机制</strong></p>
+<ul>
+<li>Linux 内核运行时加载一组目标代码来实现特定功能，从而使得 Linux 实际使用和运行过程中无需重新编译 Linux 内核（即核心模块）代码就能够实现内核的动态扩充</li>
+<li>具体基于 LKM（Loadable Kernel Module）机制来实现特定内核功能的增加或删减</li>
+<li>相对的 - 微内核架构：仅把最基本的功能放入内核，其他大部分功能（包括设备驱动）都放到非特权模式下，故而拥有天生的动态扩展性</li>
+</ul>
+<blockquote>
+<p>Linux 是一个借鉴了微内核精髓的宏内核结构，Linux 支持模块化的设计、抢占式内核、对内核线程的支持以及动态加载内核模块的能力。不仅如此，Linux 还避免了其微内核设计的性能损失，允许一切运行在内核模式下，直接调用函数，无需消息传递。</p>
+<p>所以综合一点来讲，Linux 是一个模块化、多线程和内核可调度的操作系统。</p>
+<p>
+  <a href="[https://segmentfault.com/a/1190000040898100]%28https://segmentfault.com/a/1190000040898100%29">聊了聊宏内核和微内核，并吹了一波 Linux</a></p>
+</blockquote>
+<p><strong>
+  <a href="https://cloud.tencent.com/developer/article/1368153">Linux用户抢占和内核抢占详解(概念, 实现和触发时机)&ndash;Linux进程的管理与调度(二十）-腾讯云开发者社区-腾讯云</a></strong></p>
+<h2 id="linux-最简内核模块">
+  Linux 最简内核模块
+  <a class="anchor" href="#linux-%e6%9c%80%e7%ae%80%e5%86%85%e6%a0%b8%e6%a8%a1%e5%9d%97">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/init.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/module.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> __init <span style="color:#a6e22e">init_lkm1st_zgs</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printk</span>(<span style="color:#e6db74">&#34;Welcome to init() for 1st LKM of BJTU_ZGS</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> __exit <span style="color:#a6e22e">exit_lkm1st_zgs</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printk</span>(<span style="color:#e6db74">&#34;Goodbye from exit() for 1st LKM of BJTU_ZGS</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">module_init</span>(init_lkm1st_zgs);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">module_exit</span>(exit_lkm1st_zgs);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_LICENSE</span>(<span style="color:#e6db74">&#34;GPL&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_AUTHOR</span>(<span style="color:#e6db74">&#34;GaoshouZhai@BJTU&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_DESCRIPTION</span>(<span style="color:#e6db74">&#34;First LKM of BJTU_ZGS&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_ALIAS</span>(<span style="color:#e6db74">&#34;LKM1ST_ZGS&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">//模块参数声明（可选）
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">//模块导出符号声明（可选
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Makefile" data-lang="Makefile"><span style="display:flex;"><span>BASEINCLUDE <span style="color:#f92672">?=</span> /lib/modules/<span style="color:#e6db74">`</span>uname -r<span style="color:#e6db74">`</span>/build/
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>obj-m <span style="color:#f92672">:=</span> FirstZgsLKM.o
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">all</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">$(</span>MAKE<span style="color:#66d9ef">)</span> -C <span style="color:#66d9ef">$(</span>BASEINCLUDE<span style="color:#66d9ef">)</span> M<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>PWD<span style="color:#66d9ef">)</span> modules
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">clean</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">$(</span>MAKE<span style="color:#66d9ef">)</span> -C <span style="color:#66d9ef">$(</span>BASEINCLUDE<span style="color:#66d9ef">)</span> M<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>PWD<span style="color:#66d9ef">)</span> clean
+</span></span></code></pre></div><ul>
+<li>retpoline
+<ul>
+<li>现代计算机系统 CPU 往往会提前执行 jmp 或 call 等指令的下一条指令，也即将其存到所谓 RSB（Return stack Buffer）的栈中，如果相关指令存在安全风险，就有可能被利用。为此，通常在 call 和 jmp 指令后面添加一段无用死循环代码，从而使 CPU 预测分支执行该无用代码。称为 Return trampoline</li>
+</ul>
+</li>
+<li>执行 <code>sudo insmod</code>、<code>dmesg</code>、<code>lsmod</code> 以及 <code>tree</code> 命令
+<ul>
+<li><code>sudo dmesg -c</code> 清理内核输出显示内容</li>
+</ul>
+</li>
+</ul>
+<p>
+  <a href="https://zh.wikipedia.org/zh-sg/%E5%8F%AF%E5%9F%B7%E8%A1%8C%E8%88%87%E5%8F%AF%E9%8F%88%E6%8E%A5%E6%A0%BC%E5%BC%8F?useskin=vector">可执行与可链接格式 - 维基百科，自由的百科全书</a></p>
+<p>
+  <a href="https://xinqiu.gitbooks.io/linux-inside-zh/content/Theory/linux-theory-2.html">ELF 文件格式 · Linux Inside 中文版</a></p>
+<h2 id="linux-传参内核模块">
+  Linux 传参内核模块
+  <a class="anchor" href="#linux-%e4%bc%a0%e5%8f%82%e5%86%85%e6%a0%b8%e6%a8%a1%e5%9d%97">#</a>
+</h2>
+<p><strong>Linux 内核模块参数传递</strong></p>
+<ul>
+<li>Linux 内核提供了用以实现模块参数传递的宏
+<ul>
+<li><code>#define module_param(name, type, perm) module_param_named(name, name, type, perm)</code></li>
+<li><code>#define MODULE_PARM_DESC(_parm, desc) __MODULE_INFO(parm, _parm, #_parm &quot;:&quot; desc)</code></li>
+<li><code>/include/linux/moduleparam.h</code></li>
+<li>指定 sysfs 中相应文件的访问权限：
+<ul>
+<li>0 文件不会出现在 sysfs 文件系统中</li>
+<li>S_IRUGO 可被所有人读不可写 (0444)</li>
+<li>S_IRUGO| S_IWUSR 可被所有 (0644) 人读且可被 root 用户写</li>
+</ul>
+</li>
+<li>byte、short、ushort、int、uint、long、ulong、char、bool、……</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/init.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;linux/module.h&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> zDebug <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">module_param</span>(zDebug, <span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0644</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_PARM_DESC</span>(zDebug, <span style="color:#e6db74">&#34;Enable to output debugging information&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#define printk_debug(args...) \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> if (zDebug) { \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">  printk(KERN_DEBUG args); \
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"> }
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> __init <span style="color:#a6e22e">init_lkm2nd_zgs</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printk</span>(<span style="color:#e6db74">&#34;Welcome to init() for 2nd LKM of BJTU_ZGS</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printk_debug</span>(<span style="color:#e6db74">&#34;Module parameter zDebug = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, zDebug);
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> __exit <span style="color:#a6e22e">exit_lkm2nd_zgs</span>(<span style="color:#66d9ef">void</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span> <span style="color:#a6e22e">printk</span>(<span style="color:#e6db74">&#34;Goodbye from exit() for 2nd LKM of BJTU_ZGS</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">module_init</span>(init_lkm2nd_zgs);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">module_exit</span>(exit_lkm2nd_zgs);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_LICENSE</span>(<span style="color:#e6db74">&#34;GPL&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_AUTHOR</span>(<span style="color:#e6db74">&#34;GaoshouZhai@BJTU&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_DESCRIPTION</span>(<span style="color:#e6db74">&#34;Second LKM of BJTU_ZGS&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MODULE_ALIAS</span>(<span style="color:#e6db74">&#34;LKM2ND_ZGS&#34;</span>);
+</span></span></code></pre></div><h2 id="linux-内核符号共享机制">
+  Linux 内核符号共享机制
+  <a class="anchor" href="#linux-%e5%86%85%e6%a0%b8%e7%ac%a6%e5%8f%b7%e5%85%b1%e4%ba%ab%e6%9c%ba%e5%88%b6">#</a>
+</h2>
+<p>Linux 主体内核以及内核模块间符号联系</p>
+<ul>
+<li>譬如，设备驱动往往按功能划分为若干内核模块，这些模块间如何实现接口函数的相互调用，包括它们如何调用主体内核提供的内存管理等相关支撑接口函数</li>
+</ul>
+<p>Linux 内核符号共享机制</p>
+<ul>
+<li><code>EXPORT_SYMBOL()</code></li>
+<li><code>EXPORT_SYMBOL_GPL()</code></li>
+</ul>
+<p>Linux 内核所导出的符号表查看方法</p>
+<ul>
+<li><code>cat /proc/kallsyms | grep sound</code></li>
+</ul>
+<h2 id="linux-字符设备驱动">
+  Linux 字符设备驱动
+  <a class="anchor" href="#linux-%e5%ad%97%e7%ac%a6%e8%ae%be%e5%a4%87%e9%a9%b1%e5%8a%a8">#</a>
+</h2>
+<p>Linux 字符设备节点创建</p>
+<ul>
+<li>Linux 系统环境中访问设备的前提条件
+<ul>
+<li>对应于设备的特殊文件已经创建</li>
+<li><code>ls -l /dev/</code> 可以查看系统已经生成的设备文件</li>
+</ul>
+</li>
+<li>Linux 创建设备特殊文件（节点）的两种方法
+<ul>
+<li>设备驱动中利用 <code>device_create()</code> 内核函数</li>
+<li>Shell 命令：mknod
+<ul>
+<li><code>sudo mknod /dev/FakeCharDev c 252 0</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-h" data-lang="h"><span style="display:flex;"><span><span style="color:#75715e">/* FakeCharDevDrv.h */</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef FAKE_CDEV_DRV_H_INCLUDED
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define FAKE_CDEV_DRV_H_INCLUDED
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* **可创建的伪字符设备最多台数，缺省情况下为2台** */</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef NUM_OF_FAKE_CDEVS
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define NUM_OF_FAKE_CDEVS 2    
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* **用于数据存储的缓冲区大小** */</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef SIZE_OF_BUFFER
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define SIZE_OF_BUFFER 4096
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* **每次操作可以读写的块大小** */</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef SIZE_OF_BLOCK
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define SIZE_OF_BLOCK 512
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* **伪字符设备结构体类型** */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> fake_cdev {
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>data;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> buffer_size;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">long</span> block_size;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> mutex fake_cdev_mutex;
+</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">struct</span> cdev cdev;
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">/* FAKE_CDEV_DRV_H_INCLUDED */</span>
+</span></span></code></pre></div><p>
+  <a href="https://www.cnblogs.com/xiaojiang1025/p/6196198.html">Linux设备管理（二）_从cdev_add说起 - Abnor - 博客园</a></p>
+<p>
+  <a href="https://blog.csdn.net/nothinglefttosay/article/details/42080663">char_traits struct 初步学习-CSDN博客</a></p>
+<p>
+  <a href="https://www.cnblogs.com/schips/p/linux_device_model_and_cdev_miscdev.html">Linux内核驱动：cdev、misc以及device三者之间的联系和区别 - schips - 博客园</a></p>
+<p>
+  <a href="https://www.cnblogs.com/wanpengcoder/p/11759620.html">Linux设备驱动程序 之 主次设备号 - AlexAlex - 博客园</a></p>
+<p><strong>从/dev 目录说起</strong></p>
+<p>从事 Linux 嵌入式驱动开发的人，都很熟悉下面的一些基础知识， 比如，对于一个 char 类型的设备，我想对其进行 read wirte 和 ioctl 操作，那么：</p>
+<p>1、我们通常会在内核驱动中实现一个 <code>file_operations</code> 结构体，然后分配主次设备号，调用 cdev_add 函数进行注册。</p>
+<p>2、从 <code>/proc/devices</code> 下面找到注册的设备的主次设备号，在用 <code>mknod /dev/char_dev c major minor</code> 命令行创建设备节点。</p>
+<p>3、在用户空间 <code>open /dev/char_dev</code> 这个设备，然后进行各种操作。</p>
+<p>OK，字符设备模型就这么简单，很多 ABC 教程都是一个类似的实现。</p>
+<p>然后我们去看内核代码时，突然一脸懵逼。。。怎么内核代码里很多常用的驱动的实现不是这个样子的？没看到有 <code>file_operations</code> 结构体，我怎么使用这些驱动？看到了 <code>/dev</code> 目录下有需要的 char 设备，可是怎么使用呢？</p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#设备管理概述">设备管理概述</a></li>
+    <li><a href="#缓冲管理">缓冲管理</a></li>
+    <li><a href="#设备分配">设备分配</a></li>
+    <li><a href="#输入输出控制方式及模块">输入/输出控制方式及模块</a></li>
+    <li><a href="#unix-设备管理">Unix 设备管理</a>
+      <ul>
+        <li><a href="#unix-设备管理概要">Unix 设备管理概要</a></li>
+        <li><a href="#unix-设备管理数据结构">Unix 设备管理数据结构</a></li>
+        <li><a href="#unix-块设备缓冲区管理">Unix 块设备缓冲区管理</a></li>
+        <li><a href="#unix-设备驱动程序">Unix 设备驱动程序</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux-内核模块及设备驱动">Linux 内核模块及设备驱动</a>
+      <ul>
+        <li><a href="#linux-内核架构及动态扩展机制">Linux 内核架构及动态扩展机制</a></li>
+        <li><a href="#linux-最简内核模块">Linux 最简内核模块</a></li>
+        <li><a href="#linux-传参内核模块">Linux 传参内核模块</a></li>
+        <li><a href="#linux-内核符号共享机制">Linux 内核符号共享机制</a></li>
+        <li><a href="#linux-字符设备驱动">Linux 字符设备驱动</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

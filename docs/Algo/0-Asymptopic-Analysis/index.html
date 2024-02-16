@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="算法复杂度 ─ 直观定义
+算法复杂度是算法运行所需要的计算机资源的量，需要时间资源的量称为时 间复杂性，需要的空间资源的量称为 空间复杂性
+时间复杂度和空间复杂度是只依赖于算法求解的问题规模和算法输入的函数 𝑁、𝐼 分别表示算法求解的问题规模和算法输入，则算法的时间复杂度𝑇和空 间复杂度𝑆可以分别表示为: 𝑇 = 𝑇(𝑁, 𝐼) 𝑆 = 𝑆(𝑁, 𝐼) 算法复杂度分析 ─ 指令抽象
+T(N, I) 表示特定算法在一台抽象的计算机上运行所需要的时间
+K 个元运算，O1, O2, &hellip;, Ok, 运行一次所需时间为 t1, t2, &hellip;, tk; 统计 Oi 的调用次数为 ei，ei = ei(N, I); 因此，T(N, I) = ∑tiei(N, I)。 归纳逻辑: 从个别到一般 T(N) 的表达式比较复杂，需合理的简化!
+对于算法 A 的复杂度函数𝑇(𝑁)，如果存在𝑇′(𝑁) ，使得当𝑁 → ∞时有 (𝑇𝑁 −𝑇′(𝑁))⁄𝑇(𝑁)→0，那么就称𝑇′(𝑁) 为算法 A 当𝑁→∞的渐近复杂性
+𝑇′(𝑁) 是𝑇(𝑁) 略去低阶项所留下的主项，表达简单 如果两个算法的渐近复杂性的阶不相同，那么只要确定出各自的阶就可以判断哪一个算法效率高 阶跟𝑇′(𝑁) 中的常数因子没有关系，𝑇′(𝑁) 可进一步简化，省略常数因子 时间复杂度的记号包括:O Ω Θ">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="算法复杂度 ─ 直观定义
+算法复杂度是算法运行所需要的计算机资源的量，需要时间资源的量称为时 间复杂性，需要的空间资源的量称为 空间复杂性
+时间复杂度和空间复杂度是只依赖于算法求解的问题规模和算法输入的函数 𝑁、𝐼 分别表示算法求解的问题规模和算法输入，则算法的时间复杂度𝑇和空 间复杂度𝑆可以分别表示为: 𝑇 = 𝑇(𝑁, 𝐼) 𝑆 = 𝑆(𝑁, 𝐼) 算法复杂度分析 ─ 指令抽象
+T(N, I) 表示特定算法在一台抽象的计算机上运行所需要的时间
+K 个元运算，O1, O2, &hellip;, Ok, 运行一次所需时间为 t1, t2, &hellip;, tk; 统计 Oi 的调用次数为 ei，ei = ei(N, I); 因此，T(N, I) = ∑tiei(N, I)。 归纳逻辑: 从个别到一般 T(N) 的表达式比较复杂，需合理的简化!
+对于算法 A 的复杂度函数𝑇(𝑁)，如果存在𝑇′(𝑁) ，使得当𝑁 → ∞时有 (𝑇𝑁 −𝑇′(𝑁))⁄𝑇(𝑁)→0，那么就称𝑇′(𝑁) 为算法 A 当𝑁→∞的渐近复杂性
+𝑇′(𝑁) 是𝑇(𝑁) 略去低阶项所留下的主项，表达简单 如果两个算法的渐近复杂性的阶不相同，那么只要确定出各自的阶就可以判断哪一个算法效率高 阶跟𝑇′(𝑁) 中的常数因子没有关系，𝑇′(𝑁) 可进一步简化，省略常数因子 时间复杂度的记号包括:O Ω Θ" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Algo/0-Asymptopic-Analysis/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>0 Asymptopic Analysis | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle" checked />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="active">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>0 Asymptopic Analysis</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#时间复杂度记号-o">时间复杂度记号 O</a></li>
+            <li><a href="#时间复杂度记号-ω">时间复杂度记号 Ω</a></li>
+            <li><a href="#时间复杂度记号-θ">时间复杂度记号 Θ</a></li>
+          </ul>
+        </li>
+        <li><a href="#时间复杂度分析">时间复杂度分析</a>
+          <ul>
+            <li><a href="#非递归算法">非递归算法</a></li>
+            <li><a href="#递归算法">递归算法</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><p><strong>算法复杂度 ─ 直观定义</strong></p>
+<p>算法复杂度是算法运行所需要的计算机资源的量，需要时间资源的量称为时
+间复杂性，需要的空间资源的量称为 空间复杂性</p>
+<ul>
+<li>时间复杂度和空间复杂度是只依赖于算法求解的问题规模和算法输入的函数</li>
+<li>𝑁、𝐼 分别表示算法求解的问题规模和算法输入，则算法的时间复杂度𝑇和空 间复杂度𝑆可以分别表示为:
+<ul>
+<li>𝑇 = 𝑇(𝑁, 𝐼) 𝑆 = 𝑆(𝑁, 𝐼)</li>
+</ul>
+</li>
+</ul>
+<p><strong>算法复杂度分析 ─ 指令抽象</strong></p>
+<p>T(N, I) 表示特定算法在一台抽象的计算机上运行所需要的时间</p>
+<ul>
+<li>K 个元运算，O1, O2, &hellip;, Ok, 运行一次所需时间为 t1, t2, &hellip;, tk;</li>
+<li>统计 Oi 的调用次数为 ei，ei = ei(N, I);</li>
+<li>因此，T(N, I) = ∑tiei(N, I)。</li>
+<li>归纳逻辑: 从个别到一般</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/25_12_16_25_Screenshot%202023-12-25%20at%2012.16.23.png" alt="" /></p>
+<p><strong>T(N) 的表达式比较复杂，需合理的简化!</strong></p>
+<p>对于算法 A 的复杂度函数𝑇(𝑁)，如果存在𝑇′(𝑁) ，使得当𝑁 → ∞时有 (𝑇𝑁 −𝑇′(𝑁))⁄𝑇(𝑁)→0，那么就称𝑇′(𝑁) 为算法 A 当𝑁→∞的<strong>渐近复杂性</strong></p>
+<ul>
+<li>𝑇′(𝑁) 是𝑇(𝑁) 略去低阶项所留下的主项，表达简单</li>
+<li>如果两个算法的渐近复杂性的阶不相同，那么只要确定出各自的阶就可以判断哪一个算法效率高</li>
+<li>阶跟𝑇′(𝑁) 中的常数因子没有关系，𝑇′(𝑁) 可进一步简化，省略常数因子</li>
+</ul>
+<p>时间复杂度的记号包括:O Ω Θ</p>
+<h3 id="时间复杂度记号-o">
+  时间复杂度记号 O
+  <a class="anchor" href="#%e6%97%b6%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6%e8%ae%b0%e5%8f%b7-o">#</a>
+</h3>
+<p>设 f(N) 和 g(N) 是定义在正数集上的正函数，如果存在正的常数 C 和自然数 N0，使得当 N≥N0 时有 f(N) ≤Cg(N)，则称函数 f(N) 当 N 充分大时上有界，g(N) 是 f(N) 的一个上界， 记为 f(N)=O(g(N))，即 f(N) 的阶不高于 g(N) 的阶。</p>
+<ul>
+<li>注意
+<ul>
+<li>不是直接比较 f(N) 和 g(N) 的数值大小</li>
+<li>O 表示的只是一个充分大的上界，上界的阶越低则评估越精确，结果越有价值!</li>
+</ul>
+</li>
+</ul>
+<p><strong>运算法则</strong></p>
+<ul>
+<li>
+<ol>
+<li>O(f)+O(g)=O(max(f,g));</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>O(f)+O(g)=O(f+g);</li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li>O(f)O(g)=O(fg);</li>
+</ol>
+</li>
+<li>
+<ol start="4">
+<li>如果 g(N)=O(f(N))，则 O(f)+O(g)=O(f);</li>
+</ol>
+</li>
+<li>
+<ol start="5">
+<li>O(Cf(N))=O(f(N))，其中 C 是一个正的常数;</li>
+</ol>
+</li>
+<li>
+<ol start="6">
+<li>f=O(f)</li>
+</ol>
+</li>
+</ul>
+<p><strong>大 O 比率定理</strong></p>
+<p>对于函数 f(N) 和 g(N)，如果极限 lim 𝑓(𝑁)/𝑔(𝑁) 存在，则𝑓(𝑁) = 𝑂(𝑔 𝑁 ) 当且仅当存在正的常数 C，使得 lim 𝑓(𝑁)/𝑔(𝑁) ≤ 𝐶</p>
+<h3 id="时间复杂度记号-ω">
+  时间复杂度记号 Ω
+  <a class="anchor" href="#%e6%97%b6%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6%e8%ae%b0%e5%8f%b7-%cf%89">#</a>
+</h3>
+<p>Ω的定义: 如果存在正的常数 C 和自然数 N0，使得当 N3N0 时有 f(N)3Cg(N)，则称 函数 f(N) 当 N 充分大时下有界，且 g(N) 是它的一个下界，记为 f(N) = Ω(g(N))， 即 f(N) 的阶不低于 g(N) 的阶。</p>
+<h3 id="时间复杂度记号-θ">
+  时间复杂度记号 Θ
+  <a class="anchor" href="#%e6%97%b6%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6%e8%ae%b0%e5%8f%b7-%ce%b8">#</a>
+</h3>
+<p>Θ的定义: 定义 f(N) = Θ(g(N)) 当且仅当 f(N)=O(g(N)) 且 f(N)= Ω(g(N))，此 时称 f(N) 与 g(N) 同阶。</p>
+<p>定理 1: 对于多项式函数 𝑓 𝑁 = 𝑎+𝑁+ + 𝑎+,%𝑁+,% + ⋯ + 𝑎%𝑁 + 𝑎&amp;，如果 𝑎+ &gt; 0，则有:
+𝑓 𝑁 =𝑂(𝑁+)，𝑓 𝑁 =𝛺(𝑁+)，𝑓 𝑁 =𝛩(𝑁+)</p>
+<p><strong>时间复杂度类别</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/25_12_22_36_Screenshot%202023-12-25%20at%2012.22.33.png" alt="" /></p>
+<h2 id="时间复杂度分析">
+  时间复杂度分析
+  <a class="anchor" href="#%e6%97%b6%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6%e5%88%86%e6%9e%90">#</a>
+</h2>
+<h3 id="非递归算法">
+  非递归算法
+  <a class="anchor" href="#%e9%9d%9e%e9%80%92%e5%bd%92%e7%ae%97%e6%b3%95">#</a>
+</h3>
+<ol>
+<li>确定关键操作: 可以是高级程序设计语言中的赋值、比较、算术运算、逻辑 运算、读写单个常量或单个变量等操作 (一般被看作是基本操作，并约定所 用的时间都是一个单位); 也可以是由常数个基本操作构成的程序块</li>
+<li>计算关键操作总的执行步数: 一般是数列和的形式。</li>
+<li>求解其渐进阶: 并用 O(.) 表示</li>
+</ol>
+<h3 id="递归算法">
+  递归算法
+  <a class="anchor" href="#%e9%80%92%e5%bd%92%e7%ae%97%e6%b3%95">#</a>
+</h3>
+<ol>
+<li>分析递归程序的结构，确定每一逻辑块的时间复杂性， 非递归的程序块 (或者 子函数) 用非递归方法分析其复杂性; 递归函数的复杂性则跟据其输入规模递 归地表示。</li>
+<li>构造复杂度函数的递推方程</li>
+<li>求解递归方程和渐进阶，并用 O(.) 表示</li>
+</ol>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#时间复杂度记号-o">时间复杂度记号 O</a></li>
+            <li><a href="#时间复杂度记号-ω">时间复杂度记号 Ω</a></li>
+            <li><a href="#时间复杂度记号-θ">时间复杂度记号 Θ</a></li>
+          </ul>
+        </li>
+        <li><a href="#时间复杂度分析">时间复杂度分析</a>
+          <ul>
+            <li><a href="#非递归算法">非递归算法</a></li>
+            <li><a href="#递归算法">递归算法</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

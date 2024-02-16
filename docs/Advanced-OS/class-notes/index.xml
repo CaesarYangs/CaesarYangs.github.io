@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>📦 Caesar&#39;s Paperbox</title>
+    <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/</link>
+    <description>Recent content on 📦 Caesar&#39;s Paperbox</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <atom:link href="https://caesaryangs.github.io/docs/Advanced-OS/class-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/</guid>
+      <description>操作系统相关概念 # 什么是操作系统&#xA;最基础的系统软件&#xA;计算机软硬件资源的管理与控制 软件涵盖程序、文档、数据 硬件涵盖处理器、内存、外存及各类设备 硬件资源及管理操作抽象示例&#xA;磁盘操作：把数据处理结果写到磁盘，也就是从内存拷贝信息到磁盘 分解动作： 内存数据块拷贝到设备缓冲区 load(addrBlock, length, bufDev); 磁盘设备执行寻道操作 seek(dev, trackNo); 设备缓冲区写出到指定扇区 out(bufDev, sectorNo); void write(char *addrBlock, int length, int dev, int trackNo, int sectorNo){ load(addrBlock, length, bufDev); seek(dev, trackNo); out(bufDev, sectorNo)； } write(addrBlock, 8, dev, 21532); fprintf(fd, &amp;#34;%d&amp;#34;, data); + fseek(fd, offset, whence); 什么是操作系统&#xA;最基础的系统软件 计算机软硬件资源的管理与控制 软件涵盖程序、文档、数据 硬件涵盖处理器、内存、外存及各类设备 用户使用计算机的基本操作环境 命令接口、图形化用户接口 各类程序运行的基础环境 程序接口：系统调用接口、函数库 操作系统内核&#xA;实现操作系统的核心功能 计算机系统的启动初始化及电源管控 处理器、内存、外设等硬件的管理与控制 文件系统的支持 操作系统的基本特征及支撑机制&#xA;并发 注意与并行概念的区别 进程、线程、同步互斥及通信机制 共享 硬件共享：处理器、内存、外设 软件共享：程序、数据 共享与保护机制结伴而行 虚拟与异步 操作系统发展历程 # 单道批处理系统 监督程序（FMS Fortran Monitor System 、IBSYS） 多道批处理系统 多道程序设计技术 分时操作系统 CTSS（Compatible Time Sharing System） 麻省理工学院（1962 年） 时钟中断、时间片轮转调度、交换技术 实时操作系统 实时调度算法、可靠性 嵌入式操作系统 软硬件合体、微型化、专业化 网络操作系统 网络传输功能支持 分布式操作系统、网格操作系统 云操作系统、集群操作系统 UNIX/Linux 操作命令入门 # UNIX/Linux 系统启动及配置</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/2-Linux-Shell/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/2-Linux-Shell/</guid>
+      <description>最简单 Shell 程序解析及运行 # #!/bin/sh 是指此脚本使用/bin/sh 来解释执行，#!是特殊的表示符，其后面跟的是此解释此脚本的 shell 的路径。&#xA;Shell 程序第一行规范建议&#xA;建议写法 #! /bin/sh 强烈不建议写法—— #!型注释 #! 其它注释内容 两种运行方式 ./ sh Shell 程序调试方式 # 命令 选项 功能说明 sh -n 程序名 纯粹性 解释分析 解释但不执行命令（用于检查程序语法错误） sh -x 程序名 显示替换结果程序并执行 在变量替换之后、执行命令之前，显示程序的每一有效行（非空且非注释行） sh -v 程序名 显示原始程序并执行 在执行之前，按输入的原样显示输出程序中所有各行（包括空行、注释行） set -x 打开（命令）回显 跟踪程序的执行（主要用于 Shell 程序中） set +x 关闭（命令）回显 关闭跟踪功能（主要用于 Shell 程序中） 局部变量应用编程 # Shell 变量赋值与引用&#xA;Shell 变量赋值 &amp;lt;变量名&amp;gt;=&amp;lt;初始值&amp;gt; 譬如：fileName=&amp;ldquo;zgsFile.txt&amp;rdquo; 注意等号两边不能有空格！！！ Shell 变量引用 $&amp;lt;变量名&amp;gt; &amp;quot;$fileName&amp;quot;、“$fileName”、‘$fileName’ 或任何引号外 $fileName 有效 &#39;$fileName&#39; 无效（$ 亦按普通字符处理） $fileName 比较特殊（按命令串处理） 清理变量 unset varName 空格在linux中时作为一个很典型的分隔符，比如string1=this is astring，这样执行就会报错。为了避免这个问题，因此就产生了单引号和双引号。他们的区别在于，单引号将剥夺其中的所有字符的特殊含义，而双引号中的&amp;#39;$&amp;#39;（参数替换）和&amp;#39;`&amp;#39;（命令替换）是例外。所以，两者基本上没有什么区别，除非在内容中遇到了参数替换符$和命令替换符`。 Shell 变量分类</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/</guid>
+      <description>Linux 内核编程及编译 # Linux 内核所用编程语言&#xA;C 语言 汇编语言 Linux 内核代码已超 2 千万行、接近 3 千万行&#xA;Linux 内核编译常用工具&#xA;GCC（GNU Compiler Collection） GCC 不仅支持 C 语言，还扩展支持了 C++、Java、Go 等语言 GCC 支持多种不同的硬件平台，如 x86、ARM、MIPS、LoongArch 等体系结构 GCC 编译流程 Linux 内核编程技巧 # 语句表达式 # 语句表达式（即括号内的复合语句）&#xA;宏构造利器：语句表达式 - Linux内核中语句表达式的使用 - 嵌入式C语言自我修养 | 宅学部落&#xA;旨在使宏定义变得更加安全 #define max(x,y) ((x)&amp;gt;(y)?(x):(y)) #基于整型数据的改进 #define max(x,y) \ ({ int _x=(x), _y=(y); _x &amp;gt; _y ? _x : _y; }) # 基于未知数据类型的改进 #define max(x, y) ({&#x9;\ typeof(x) _x = (x);&#x9;\ typeof(y) _y = (y);&#x9;\ (void) (&amp;amp;_x == &amp;amp;_y);&#x9;\ _x &amp;gt; _y ?</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</guid>
+      <description>Linux 进程/线程管理控制 # 进程与线程 # 为什么要引入进程？&#xA;单道环境 =&amp;gt; 多道环境 单道环境及计算机系统各类资源的利用率 多道环境及计算机系统资源利用率的提高 计算机不同部件成本与运行速度的差异性、计算机处理任务本身所需操作部件的差异性以及由此导致的计算机不同部件即资源利用的不平衡性 通过多道程序的并发执行（支持） 实现计算机系统资源利用效率的最大化 引入进程概念（由特定的程序及相关联的进程控制块所组成）来描述并发执行程序的动态运行过程，解决由此引发的资源共享问题 进程及其与程序之间的区别与联系?&#xA;程序的动态执行过程 系统资源分配的独立单位 进程标识符、进程控制块 与程序之间的区别（动态/静态性、生命周期、是否支持并发、组成） 进程控制块中的内容？&#xA;标识符 调度信息、控制信息 资源信息 为什么要引入线程？&#xA;进程并发执行基础（资源拥有 + 调度分派） 进程创建、切换和撤销等操作时空开销较大 进程并发执行程度及进程间通信效率受限 事务处理软件、数据库处理软件、窗口系统及操作系统自身对系统并发程度进一步提高的客观需求，而且有关需求呈现出多项任务处理同组数据（存储资源）的特征 解决方案：（非处理器）资源拥有与（处理器）调度分派两类特性的分离 线程与进程间的区别与联系？&#xA;轻型实体及共享进程资源 独立调度和分派的基本单位 创建、撤销、切换等系统开销 地址空间共享及通信效率 系统并发执行程度大大提高 UNIX/Linux 进程 # UNIX 进程&#xA;进程映像的概念 处理器映像 + 内存映像 + 进程控制块 + 程序（用户程序 内核程序） 数据段（静态/全局数据）+ 代码段 + 工作区（栈 + 堆） proc 结构 user 结构 共享代码段 proc 结构体数组&#xA;struct proc { char p_stat;&#x9;/*进程状态*/ char p_flag;&#x9;/*进程特征，含SLOAD标志位*/ char p_pri;&#x9;/*进程优先数*/ char p_uid;&#x9;/*用户标识符*/ char p_time;&#x9;/*驻留时间*/ char p_cpu;&#x9;/*占用CPU时间*/ char p_nice;&#x9;/*计算优先数时用，[-20,19]*/ int p_pid;&#x9;/*进程标识符*/ int p_ppid;&#x9;/*父进程标识符*/ int p_addr;&#x9;/*进程映像数据分部地址，由此可以找到user结构*/ int p_size;&#x9;/*进程映像数据分部大小*/ int p_wchan;&#x9;/*等待原因*/ int p_textp;&#x9;/*代码段所在的共享段表项text的地址*/ char p_sig;&#x9;/*软中断号*/ int p_ttyp;&#x9;/*控制终端tty结构的地址*/ }proc[NPROC]; UNIX 进程 user 结构体</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/</guid>
+      <description>文件及文件系统的引入 # 信息存储问题及要求&#xA;进程运行时内存空间有相应一定量的信息 进程终止时，有关信息将随之消失 一方面有关信息受到内存空间大小的限制 另一方面部分信息需要长久甚至永久保存 常常会有多个进程需要存取同样的信息 信息应当独立于进程而存在 信息存储要求 能够存储大量信息 使用信息的进程终止时，有关信息仍旧存在 支持多个进程并发存取有关信息 信息存储解决方案&#xA;把信息以某种单元即文件的形式存储在磁盘或其他外部介质上 文件是一个具有名字的存储在磁盘上的一组相关信息的集合体，是磁盘的最小逻辑分配单位 文件系统是操作系统中负责管理和存取文件信息的软件机构 管理文件所需的数据结构 实现文件管理的系统程序 文件操作相关系统调用 ls 命令及文件类型&#xA;ls -l hello.c -rw-rw-r-- 1 zgs zgs 561 Aug 24 07:31 hello.c d 目录 l 符号链接文件 s 套接字文件 b 块设备文件 c 字符设备文件 p 命名管道文件 - 普通文件 硬链接和软链接文件共享&#xA;建立 DataFile.txt 的硬链接文件 ln DataFile.txt DataFileYLJw 建立 DataFile.txt 的软链接文件 ln -s DataFile.txt DataFileRLJ 删除原数据文件 DataFile.txt 硬连接依旧可行 软连接无法继续输出文件内容 lrwxrwxrwx 1 zhaigaoshou2018 zhaigaoshou2018 12 Nov 6 05:49 DataFileRLJ -&amp;gt; DataFile.</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/</guid>
+      <description>设备管理概述 # 最复杂、最多样化的操作系统资源管理模块&#xA;设备并行操作是提高设备利用率关键所在&#xA;依赖于通道和中断机制、设备物理特性的支持 功能范畴&#xA;对计算机系统中（除处理器和内存之外的）外部设备的管理（选择与分配输入输出设备） 实现多任务、多进程对多种设备的共享 对设备相关数据传输过程的控制 实现数据的高效传输（设备与处理器/设备并行） 设备分类&#xA;存储设备（块设备） 计算机用来存储文件信息的设备，如磁/光盘/带 输入输出设备（字符设备） 输入设备，如键盘、鼠标、扫描仪 输出设备，如显示器、打印机、绘图仪 输入输出设备，如电传打字机 网络设备（通过套接字进行数据交换） 在 TCP/IP 协议网络通信中，套接字使用 IP 地址（32 位）和端口号（16 位）共计 48 位来唯一标识具有某个 IP 地址的计算机及其某个端口 设备管理模块功能&#xA;提供进程使用设备的接口 一般为文件系统及文件操作相关系统调用 实施设备的分配与回收 实现设备与设备、设备与处理器之间的并行 依赖于硬件提供的输入输出控制方式 采取有效措施解决处理器与设备的速度差异矛盾、平衡计算机系统的输入输出负荷、提高设备的输入输出效率 缓冲技术、提前读、延迟写、异步写 设备独立性&#xA;指用户在程序中所使用的设备与实际使用的设备无关 操作系统为同类设备设置一个逻辑设备名 当用户以逻辑设备名提出设备请求时，由操作系统的设备管理模块将逻辑设备名转化为具体的物理设备、实现物理设备的分配 优点 方便了用户 提高了系统效率 缓冲管理 # 缓冲及目的&#xA;缓冲是在不同速度的部件之间传输信息时常用来平滑传输过程的技术手段 通常为内存缓冲区，用于暂存输入/输出数据 目的 解决设备与处理器之间以及设备与设备之间的速度不匹配的问题 解决系统中输入输出负荷的不均衡问题 有效减少输入输出（中断）次数，从而提高输入输出速度 分为单缓冲、双缓冲、循环缓冲和缓冲池 缓冲池&#xA;三类缓冲区队列：空缓冲区队列、输入缓冲区队列、输出缓冲区队列 四类工作缓冲区：【收容/提取】【输入/输出】的工作缓冲区 缓冲池管理要旨 空缓冲区的分配与回收 输入/输出设备的输入/输出缓冲区队列管理 缓冲区与进程数据块之间的信息交换 采用内存块拷贝实现机制 缓冲区与设备（内存数据块与设备物理块）之间的信息交换（即设备输入输出） 基于中断的实现方式 中断服务程序实现设备的输入请求处理 对于设备输入过程而言，若还有数据输入请求，则申请空闲缓冲区、启动设备执行输入操作并将所输入的数据暂存到空闲缓冲区中，然后把该装满输入数据的缓冲区挂到设备的输入缓冲区队列上供用户进程拷贝和访问读取；若没有数据输入请求则通知设备结束输入操作，并将该设备重新分配给其他进程 中断服务程序实现设备的输出请求处理 对于设备输出过程而言，循环：若还有数据输出请求，则申请空闲缓冲区把所输出的数据拷贝和暂存其中并挂到设备的输出缓冲区队列上 待设备空闲时，系统从输出缓冲区队列队首缓冲区提取数据输出到设备上，然后把该缓冲区放回空缓冲区队列，循环执行这一过程直到输出缓冲区队列为空 设备分配 # 计算机系统中进程数总是多于设备数及由此导致的设备竞争的客观现实 设备分配须方便用户并有效规避死锁问题 设备分配方式 独占式分配及独占式设备（譬如打印机、绘图仪） 共享式分配及共享式设备（譬如磁盘） 虚拟式分配及假脱机技术（在共享式设备上实现独占式设备的虚拟和共享使用），可以提高输入输出速度、改善设备利用率和系统吞吐量，提高了进程的并发执行程度和执行效率 假脱机技术</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://caesaryangs.github.io/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</guid>
+      <description>计算机系统性能优化理论 # 描述了实际项目中性能优化的五个方面&#xA;Profile——针对优化目标进行性能测试摸底&#xA;不同应用场景不同的采样工具（perf、VTurn） Analyze——分析性能的瓶颈和焦点&#xA;Root——刨根问底，找出问题的根本原因&#xA;Optimize——设法突破瓶颈和优化性能&#xA;Test——测试验证性能优化成效&#xA;上述过程是一个迭代循环过程&#xA;printk——简单强大调试工具 # 内核提供的格式化显示输出函数 [环形缓冲机制]&#xA;输出级别——在终端或串口输出的判断依据&#xA;输出级别不低于控制台输出级别的消息将会在控制台显示输出 系统运行时输出级别的查看与修改&#xA;cat /proc/sys/kernel/printk 15&#x9;4&#x9;1&#x9;7 分别对应控制台输出级别、消息默认输出级别、控制台输出级别最小取值和控制台默认输出级别 #echo 7 &amp;gt; /proc/sys/kernel/printk $ cat /proc/sys/kernel/printk 7&#x9;4&#x9;1&#x9;7 函数名及代码行号的显示输出 printk(&amp;quot;FunctionName[%s] LineNo[%d]\n&amp;quot;, __func__, __LINE__); debugfs 文件系统及动态输出 # 动态输出（Dynamic printk）&#xA;由系统维护者动态选择打开内核输出 动态输出对应于内核代码中有关函数 pr_debug() 和 dev_debug() 的输出信息 可指定内核子系统或内核模块 要求在内核编译配置时打开宏 CONFIG_DYNAMIC_DEBUG 需要系统挂载 debugfs 文件系统，并在其 control 节点加以查看，具体记录了系统中所有使用动态输入输出技术的文件名路径、输出所在行号、模块名字以及要打印的信息描述 cat/more + grep 查看方式 proc 文件系统（系统及进程信息） # 内核和内核模块向用户空间发送消息的机制&#xA;方便用户或用户进程访问内核数据结构以获取进程或系统的有关信息 本质上并非真正意义的文件系统，存在于内存，而不占用磁盘空间</description>
+    </item>
+  </channel>
+</rss>

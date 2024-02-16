@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Method # 基本思想 # 贪心算法基本思想
+贪心算法是一个分阶段决策过程，在每个局部阶段，贪心法都做出一个当前 最优的局部决策，并期望通过每次所做的局部最优决策产生一个全局最优解。
+贪心算法类似于分治算法和动态规划，也是一种基于子问题思想的策略。
+贪心算法求解步骤
+分解，将原问题求解过程划分为连续的若干个决策阶段 决策，在每一个阶段依据贪心策略进行贪心决策，得到局部的最优解，并缩小待求解问题的规模 合并，将各个阶段的局部解合并为原问题的一个全局最优解 Greedy(C) { // C是问题的输入集合即候选集合 S = {}; // 初始解集合为空集 while (not Solution(S)) { // 集合S没有构成问题的一个可行解 x = Select(C); // 在候选集合C中做贪心决策 S = S &#43; {x}; C = C - {Collection(x)}; // 减去一个与x关联的集合，缩小问题规模 } return S; } 候选集合 C 是构造问题的解 (包括最优解) 的对象集合 解集合 S 表示问题的解，它随着贪心选择的进行不断扩展，直到构成一个满足问题的完整解 选择函数 Select 是贪心策略的实现过程，这是贪心法的关键，它指出哪个候 选对象最有希望构成问题的最优解，选择函数通常和目标函数有关 正确性证明 # 数学归纳法
+证明目标 ∀ 𝒏 𝒑(𝒏) 为真 / / n 的论域为正整数集合 证明框架 基础步骤: p(1) 为真 归纳步骤: 证明∀k(p(k) →p(k&#43;1)) //对任意正整数 k, 给出 p(k)├ P(k&#43;1) 的论证步骤 结论: 对任意正整数 n，p(n) 成立 交换论证法">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:title" content="" />
+<meta property="og:description" content="Method # 基本思想 # 贪心算法基本思想
+贪心算法是一个分阶段决策过程，在每个局部阶段，贪心法都做出一个当前 最优的局部决策，并期望通过每次所做的局部最优决策产生一个全局最优解。
+贪心算法类似于分治算法和动态规划，也是一种基于子问题思想的策略。
+贪心算法求解步骤
+分解，将原问题求解过程划分为连续的若干个决策阶段 决策，在每一个阶段依据贪心策略进行贪心决策，得到局部的最优解，并缩小待求解问题的规模 合并，将各个阶段的局部解合并为原问题的一个全局最优解 Greedy(C) { // C是问题的输入集合即候选集合 S = {}; // 初始解集合为空集 while (not Solution(S)) { // 集合S没有构成问题的一个可行解 x = Select(C); // 在候选集合C中做贪心决策 S = S &#43; {x}; C = C - {Collection(x)}; // 减去一个与x关联的集合，缩小问题规模 } return S; } 候选集合 C 是构造问题的解 (包括最优解) 的对象集合 解集合 S 表示问题的解，它随着贪心选择的进行不断扩展，直到构成一个满足问题的完整解 选择函数 Select 是贪心策略的实现过程，这是贪心法的关键，它指出哪个候 选对象最有希望构成问题的最优解，选择函数通常和目标函数有关 正确性证明 # 数学归纳法
+证明目标 ∀ 𝒏 𝒑(𝒏) 为真 / / n 的论域为正整数集合 证明框架 基础步骤: p(1) 为真 归纳步骤: 证明∀k(p(k) →p(k&#43;1)) //对任意正整数 k, 给出 p(k)├ P(k&#43;1) 的论证步骤 结论: 对任意正整数 n，p(n) 成立 交换论证法" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://caesaryangs.github.io/docs/Algo/4-Greedy/" /><meta property="article:section" content="docs" />
+
+<meta property="article:modified_time" content="2024-02-16T22:28:38+08:00" />
+
+<title>4 Greedy | 📦 Caesar&#39;s Paperbox</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/avatar.png" >
+<link rel="stylesheet" href="/book.min.f8de3645fe00591b41524aee174e19edd98a22255a2930a0cdc82a94835ba387.css" integrity="sha256-&#43;N42Rf4AWRtBUkruF04Z7dmKIiVaKTCgzcgqlINbo4c=" crossorigin="anonymous">
+  <script defer src="/flexsearch.min.js"></script>
+  <script defer src="/en.search.min.29239a2154af43110a017eb804fd0382d2a922de90ca6fed90aa9ddad775f280.js" integrity="sha256-KSOaIVSvQxEKAX64BP0DgtKpIt6Qym/tkKqd2td18oA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>📦 Caesar&#39;s Paperbox</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="/blogs/"  >
+        Blogs
+      </a>
+  </li>
+  
+  <li>
+    <a href="/memos/"  >
+        Memos
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+
+  
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-2f67fdc9a362fd86f1cfd4450ed56551" class="toggle" checked />
+    <label for="section-2f67fdc9a362fd86f1cfd4450ed56551" class="flex justify-between">
+      <a role="button" class="">Docs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6e58628da870d44309f6786bf93843a1" class="toggle"  />
+    <label for="section-6e58628da870d44309f6786bf93843a1" class="flex justify-between">
+      <a role="button" class="">Advanced Os</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="toggle"  />
+    <label for="section-9cbdbc5aed03a66a9ccd02361ed9153b" class="flex justify-between">
+      <a role="button" class="">Class Notes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/1-Linux-UNIX%E6%A6%82%E8%AE%BA/" class="">1 Linux Unix概论</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/2-Linux-Shell/" class="">2 Linux Shell</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/3-Linux%E5%86%85%E6%A0%B8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%8F%8A%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8/" class="">3 Linux内核数据结构及系统调用</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/4-Linux%E5%A4%84%E7%90%86%E5%99%A8%E5%8F%8A%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="">4 Linux处理器及内存管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/5-Linux%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86/" class="">5 Linux文件管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/6-Linux%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/" class="">6 Linux设备管理</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Advanced-OS/class-notes/7-Linux%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" class="">7 Linux内核调试与性能优化</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-b94db67c23ce6ae6342e3da94e31ea57" class="toggle" checked />
+    <label for="section-b94db67c23ce6ae6342e3da94e31ea57" class="flex justify-between">
+      <a role="button" class="">Algo</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/0-Asymptopic-Analysis/" class="">0 Asymptopic Analysis</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/1-E/" class="">1 E</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/2-Divide-and-Conquer/" class="">2 Divide and Conquer</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/3-DP/" class="">3 Dp</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/4-Greedy/" class="active">4 Greedy</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/Algo/5-Search/" class="">5 Search</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="toggle"  />
+    <label for="section-8c14ab2d8aecfbedfb55fbca3bdb6a6b" class="flex justify-between">
+      <a role="button" class="">Blogs</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/IELTS_2023/" class="">雅思备考指北-v2023</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/YOLOv5_HNet/" class="">YOLOv5_HNet</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/regex101/" class="">RegEx101 正则入门笔记</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/blogs/PyQT5_in_ARM_mac/" class="">在 Apple Silicon 上配置 PyQt5 以及 LabelImg</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-8742e3da3616ce2d1f61090027419b59" class="toggle"  />
+    <label for="section-8742e3da3616ce2d1f61090027419b59" class="flex justify-between">
+      <a role="button" class="">Memos</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Others</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/about_me/" class="">About Me</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/others/projects/" class="">Projects</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/caesaryangs"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.instagram.com/caesar_yangs/"  target="_blank" rel="noopener">
+        Instagram
+      </a>
+  </li>
+  
+  <li>
+    <a href="https://www.linkedin.com/in/yeqing-yang-6749a7203/"  target="_blank" rel="noopener">
+        LinkedIn
+      </a>
+  </li>
+  
+  <li>
+    <a href="/resume/curriculum-vitae-yang-yeqing_v5_w.pdf"  target="_blank" rel="noopener">
+        Resume
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>4 Greedy</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#method">Method</a>
+      <ul>
+        <li><a href="#基本思想">基本思想</a></li>
+        <li><a href="#正确性证明">正确性证明</a></li>
+      </ul>
+    </li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#活动安排问题">活动安排问题</a></li>
+            <li><a href="#小数背包问题">小数背包问题</a></li>
+            <li><a href="#字符编码">字符编码</a></li>
+            <li><a href="#单源最短路径问题">单源最短路径问题</a></li>
+            <li><a href="#最小生成树问题">最小生成树问题</a></li>
+            <li><a href="#并查集">并查集</a></li>
+            <li><a href="#kruskal-算法">Kruskal 算法</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#小结">小结</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown book-article"><h1 id="method">
+  Method
+  <a class="anchor" href="#method">#</a>
+</h1>
+<h2 id="基本思想">
+  基本思想
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%80%9d%e6%83%b3">#</a>
+</h2>
+<p><strong>贪心算法基本思想</strong></p>
+<p>贪心算法是一个分阶段决策过程，在每个局部阶段，贪心法都做出一个当前 最优的局部决策，并期望通过每次所做的局部最优决策产生一个全局最优解。</p>
+<p>贪心算法类似于分治算法和动态规划，也是一种基于子问题思想的策略。</p>
+<p><strong>贪心算法求解步骤</strong></p>
+<ol>
+<li>分解，将原问题求解过程划分为连续的若干个决策阶段</li>
+<li>决策，在每一个阶段依据贪心策略进行贪心决策，得到局部的最优解，并缩小待求解问题的规模</li>
+<li>合并，将各个阶段的局部解合并为原问题的一个全局最优解</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#a6e22e">Greedy</span>(C) { <span style="color:#75715e">// C是问题的输入集合即候选集合
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	S <span style="color:#f92672">=</span> {}; <span style="color:#75715e">// 初始解集合为空集
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">while</span> (not <span style="color:#a6e22e">Solution</span>(S)) { <span style="color:#75715e">// 集合S没有构成问题的一个可行解
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	x <span style="color:#f92672">=</span> <span style="color:#a6e22e">Select</span>(C); <span style="color:#75715e">// 在候选集合C中做贪心决策
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	S <span style="color:#f92672">=</span> S <span style="color:#f92672">+</span> {x};
+</span></span><span style="display:flex;"><span>	C <span style="color:#f92672">=</span> C <span style="color:#f92672">-</span> {<span style="color:#a6e22e">Collection</span>(x)}; <span style="color:#75715e">// 减去一个与x关联的集合，缩小问题规模
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> S;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>候选集合 C 是构造问题的解 (包括最优解) 的对象集合</li>
+<li>解集合 S 表示问题的解，它随着贪心选择的进行不断扩展，直到构成一个满足问题的完整解</li>
+<li>选择函数 Select 是贪心策略的实现过程，这是贪心法的关键，它指出哪个候
+选对象最有希望构成问题的最优解，选择函数通常和目标函数有关</li>
+</ul>
+<h2 id="正确性证明">
+  正确性证明
+  <a class="anchor" href="#%e6%ad%a3%e7%a1%ae%e6%80%a7%e8%af%81%e6%98%8e">#</a>
+</h2>
+<p><strong>数学归纳法</strong></p>
+<ul>
+<li>证明目标
+<ul>
+<li>∀ 𝒏 𝒑(𝒏) 为真 / / n 的论域为正整数集合</li>
+</ul>
+</li>
+<li>证明框架
+<ul>
+<li>基础步骤: p(1) 为真</li>
+<li>归纳步骤: 证明∀k(p(k) →p(k+1)) //对任意正整数 k, 给出 p(k)├ P(k+1) 的论证步骤</li>
+<li>结论: 对任意正整数 n，p(n) 成立</li>
+</ul>
+</li>
+</ul>
+<p><strong>交换论证法</strong></p>
+<p>交换论证法 (Exchange Argument ): 从任意一个最优解出发，经过不断用新的要素 (符合贪心准则) <strong>替换</strong>解中的原有要素来改变这个解。通过有限步替换，<strong>把这个最优解改造成贪心算法的解</strong>。如果替换过程中的每一步能保证解的<strong>最优值不发生变化</strong>，则证明了贪心算法的解也是最优的。</p>
+<p>具体步骤：</p>
+<ol>
+<li>给出贪心算法解 A 的描述</li>
+<li>假设 O 是一个最优算法解 (如果有多个则随机选)</li>
+<li>找出 O 和 A 中的一个不同要素 (可以是一个元素在 O 不在 A 或者反之，或者是一个子序列的顺序 A 和 O 不一样)</li>
+<li>交换 (Exchange)*<em>上述不同的要素，然后论证 (Argue) 得到的新解 O</em> 不比 O 差</li>
+<li>论证类似的不同要素为有限个 (多项式量级)，然后交换有限次 (多项式量级) 可以消除所有的不同，同时保证了算法的质量不比 O 差</li>
+</ol>
+<h1 id="egs">
+  e.g.s
+  <a class="anchor" href="#egs">#</a>
+</h1>
+<h3 id="活动安排问题">
+  活动安排问题
+  <a class="anchor" href="#%e6%b4%bb%e5%8a%a8%e5%ae%89%e6%8e%92%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>假设某社团某一天要组织𝑛个活动𝐸={1,2,⋯,𝑛} ，其中每个活动都要求使用同一礼堂，而且
+在同一时间内只有一个活动能使用这个礼堂。每个活动𝑖都有一个要求使用礼堂的起始时间𝑠𝑖
+和结束时间 𝑓 ，且有𝑠 &lt; 𝑓 。如果选择了活动𝑖，则它在半开时间区间[𝑠 , 𝑓 ) 内占用资源。若区间[𝒔𝒊, 𝒇𝒊) 与区间[𝒔𝒋, 𝒇𝒋) 不相交，则称活动𝐢与活动𝐣是相容的。现在给定𝑛个活动的开始时 间和结束时间，请设计一个活动安排方案，使得安排的相容活动数目最多。
+</code></pre><ul>
+<li>
+<p>策略思考</p>
+<ul>
+<li>策略一: 选择具有最早开始时间，而 且不与已安排的活动冲突的活动。</li>
+<li>策略二: 选择具有最短使用时间，而且 不与已安排的活动冲突的活动。</li>
+<li><strong>策略三: 选择具有最早结束时间，而且不与已安排的活动冲突的活动。</strong></li>
+</ul>
+</li>
+<li>
+<p>算法思路</p>
+<ul>
+<li>预处理 把所有的活动按照结束时间进行升序排列，有𝑓[1] ≤ 𝑓[2] ≤ ⋯ ≤ 𝑓[𝑛]</li>
+<li>选择第一个活动 选择结束时间最早的活动 𝐸[1]，当前决策𝑠𝑒𝑙𝑒𝑐𝑡𝑒𝑑 = 1</li>
+<li>贪心选择后续活动 依次扫描后续的每一个活动𝐸[𝑖]，如果𝐸[𝑖] 的开始时间晚于上一个 选择的活动 E[selected ] 的结束时间，则安排当前活动𝐸[𝑖]，令𝑠𝑒𝑙𝑒𝑐𝑡𝑒𝑑 = 𝑖; 否则放弃 𝐸[𝑖]。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">greedyEventSchedule</span>(<span style="color:#66d9ef">int</span> n,<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>timeStart,<span style="color:#66d9ef">int</span> <span style="color:#f92672">*</span>timeFinish) { 
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> i,j,selected,ans<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; <span style="color:#75715e">//冒泡排序，使得活动按结束时间升序排列
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span>(i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>n; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">for</span>(j<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; j<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span><span style="color:#f92672">&lt;</span>n; j<span style="color:#f92672">++</span>) <span style="color:#66d9ef">if</span>(timeFinish[j]<span style="color:#f92672">&gt;</span>timeFinish[j<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>]) {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">swap</span>(timeFinish[j],timeFinish[j<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>]);
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">swap</span>(timeStart[j],timeStart[j<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>]); <span style="color:#75715e">//注意开始时间也需一致移动 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		}
+</span></span><span style="display:flex;"><span>	ans <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>	selected <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; <span style="color:#75715e">//选择第一个活动
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span>(i<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>; i<span style="color:#f92672">&lt;</span>n; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span>(timeStart[i]<span style="color:#f92672">&gt;=</span> timeFinish[selected]) {
+</span></span><span style="display:flex;"><span>			selected <span style="color:#f92672">=</span> i; <span style="color:#75715e">//选择相容的最早结束活动
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			ans<span style="color:#f92672">++</span>; 
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> ans; 
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>算法正确性证明</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_41_28_Screenshot%202023-12-24%20at%2020.41.26.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_41_56_Screenshot%202023-12-24%20at%2020.41.53.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_42_8_Screenshot%202023-12-24%20at%2020.42.06.png" alt="" /></p>
+<h3 id="小数背包问题">
+  小数背包问题
+  <a class="anchor" href="#%e5%b0%8f%e6%95%b0%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>问题描述:给定𝑛种物品和一个背包。物品𝑖的重量是𝑊𝑖，其价值为𝑉𝑖，背包的容量为C，应如何 选择装入背包的物品使得装入背包中物品的总价值最大? 这里，在选择物品𝑖装入背包时，可以选 择物品𝑖的一部分，而不一定要全部装入背包。
+输入:多组测试数据。每组测试包括三行:第一行输入物品的总数𝑛(𝑛 &lt; 1000)和背包的容量 𝐶(𝐶 &lt; 1000)。第二行输入𝑛个整数，表示物品的重量。第三行输入物品的价值。 输出:输出装入背包的总价值，每组测试数据输出一行。
+输入样例:
+3 50
+10 20 30 60 100 120
+输出样例:
+240
+</code></pre><p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_46_18_Screenshot%202023-12-24%20at%2020.46.15.png" alt="" /></p>
+<ul>
+<li>
+<p>策略思考</p>
+<ul>
+<li>策略一: 在不超出当前背包的剩余容量前提下，优先选择价值最大的物品，这样使得装 入价值增长最快。</li>
+<li>策略二: 在不超出当前背包的剩余容量前提下，优先选择重量最轻的物品，这样使得背包 容量增长最慢。</li>
+<li>策略三: 在不超出当前背包的剩余容量前提下，优先选择价值率 (价值除以重量) 最 大的物品，这样使得背包中单位重量价值增长最快。</li>
+</ul>
+</li>
+<li>
+<p>算法思路</p>
+<ul>
+<li>预处理，把物品按照价值率进行降序排列</li>
+<li>选择第一个物品 根据贪心策略，首先选择价值率最大的物品，并记录该物 品装入的重量。</li>
+<li>贪心选择后续活动 依次扫描每一个物品，在没有超出背包容量的条件下， 尽可能多地装入当前价值率最高的物品，并记录该物品装入的重量。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span><span style="color:#75715e">&lt;stdio.h&gt; #include&lt;algorithm&gt; using namespace std; #defineMaxItems 1000 </span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> item{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> weight;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> value;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">bool</span> operator <span style="color:#f92672">&lt;</span>(<span style="color:#66d9ef">const</span> item<span style="color:#f92672">&amp;</span> bb) <span style="color:#66d9ef">const</span> { <span style="color:#75715e">//定义比较函数(小于号)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#66d9ef">return</span> value<span style="color:#f92672">/</span>(<span style="color:#ae81ff">1.0</span><span style="color:#f92672">*</span>weight) <span style="color:#f92672">&gt;</span> (<span style="color:#ae81ff">1.0</span><span style="color:#f92672">*</span>bb.value)<span style="color:#f92672">/</span>bb.weight; <span style="color:#75715e">//为什么乘以1.0?
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	}
+</span></span><span style="display:flex;"><span>}; <span style="color:#75715e">//定义物品的结构体
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">double</span> <span style="color:#a6e22e">greedyKnapsack</span>(<span style="color:#66d9ef">int</span> n,<span style="color:#66d9ef">int</span> capacity,item<span style="color:#f92672">*</span> itemSet) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">double</span> ans <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; 
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sort</span>(itemSet,itemSet<span style="color:#f92672">+</span>n); <span style="color:#75715e">//STL中的快速排序算法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>; i<span style="color:#f92672">&lt;</span>n; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span>(itemSet[i].weight <span style="color:#f92672">&lt;=</span> capacity){
+</span></span><span style="display:flex;"><span>			ans <span style="color:#f92672">+=</span> itemSet[i].value;<span style="color:#75715e">//选择单价最大的物品 capacity -= itemSet[i].weight;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			capacity<span style="color:#f92672">-=</span>itemSet[i].weight;
+</span></span><span style="display:flex;"><span>		} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>			ans <span style="color:#f92672">+=</span> capacity<span style="color:#f92672">*</span>(itemSet[i].value<span style="color:#f92672">*</span><span style="color:#ae81ff">1.0</span>)<span style="color:#f92672">/</span>itemSet[i].weight;<span style="color:#75715e">//最后一个物品只能装部分 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>			<span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> ans;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p>在这段代码中，乘以 1.0 主要是为了确保在进行除法运算时，使用浮点数而不是整数。在 C++ 中，如果两个整数进行除法运算，结果会被截断为整数部分，这可能导致不准确的比较结果。</p>
+<p>通过乘以 1.0，将其中一个操作数转换为浮点数，整个表达式就会被当作浮点数运算，确保得到的结果是浮点数而不是整数。这样可以避免由于整数截断而导致的错误比较。</p>
+</blockquote>
+<h3 id="字符编码">
+  字符编码
+  <a class="anchor" href="#%e5%ad%97%e7%ac%a6%e7%bc%96%e7%a0%81">#</a>
+</h3>
+<pre tabindex="0"><code>一个包含100,000个字符的文件，各字符出现频率不同，如下表所示。请设 计一个编码算法，把每一个字符转换为二进制编码。
+不同的字符
+</code></pre><p>二元前缀码 在一个字符集的编码表 (每一个编码都表示为 0-1 字符串) 中，如果任何一个字符编码 都不是其它字符编码的前缀，则该编码称为二元前缀码。</p>
+<ul>
+<li>编码: 把字符转换为二元前缀码的过程</li>
+<li>解码: 把二元前缀码 (0-1 符号串) 映射为字符的过程。从第一个字符开始依次读入每个字符 (0 或者 1)，如果发现读到的子串与某个代码相等，就将这个字串译作相应代码的字符。</li>
+</ul>
+<p>二元前缀码的存储通常采用二叉树结构，令字符保存在叶节点，则该字符的前缀码对 应根到该叶节点的一条路径。规定每个节点通向左儿子的边记为 0，通向右儿子的边 记为 1，则根到叶节点的路径则可以转换为一个 0-1 串，映射为二元前缀码。</p>
+<p>一个字符集可以构造多个二元前缀码。</p>
+<p><strong>哈夫曼编码</strong></p>
+<p>哈夫曼编码算法的贪心策略是: 给频率高的字符较短的代码; 频率低的字符较长的代码</p>
+<p>把编码映射成二叉树，则其贪心策略可表述为: 把频率高的字符分配给靠近根结点 (较浅) 的叶结点，把频率低的字符放置在远离根结点 (较深) 的叶结点</p>
+<p>自底向上构造二叉编码树，由森林不断合并得到一棵二叉树</p>
+<ul>
+<li>算法思路
+<ul>
+<li>为了便于找到频次最低的字符，哈夫曼算法建立一个以𝐟为键值的优先队列 Q，假设 编码字符集中每一字符𝐜的频率是𝐟(𝐜)。哈夫曼编码算法以自底向上的方式构造最优 编码树 T。</li>
+<li>每个字符构成一棵只包含一个结点的树，总共有ȁ𝐶ȁ棵构成一个森林。</li>
+<li>合并频率最低的两棵树，并产生一棵新树，其频率为合并的 2 棵树的频率之和，并将新树插入优先队列 Q。</li>
+<li>循环此过程，经过𝑛-1 次这样的合并后，优先队列中只剩下一棵树，即最优二叉编码树 T。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> cmp {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">operator</span> () (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">&amp;</span>x,<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> <span style="color:#f92672">&amp;</span>y) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> x <span style="color:#f92672">&gt;</span> y; 
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}; <span style="color:#75715e">//定义优先队列需要的比较函数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">double</span> <span style="color:#a6e22e">haffmanCoding</span>(<span style="color:#66d9ef">int</span> n, <span style="color:#66d9ef">int</span><span style="color:#f92672">*</span> freq) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span> i, total <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, sumFreq <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, jointFreq;
+</span></span><span style="display:flex;"><span>  priority_queue<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>, cmp<span style="color:#f92672">&gt;</span> heap;  <span style="color:#75715e">// 优先队列，最小值优先
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#66d9ef">for</span>(<span style="color:#66d9ef">int</span> i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;i<span style="color:#f92672">&lt;</span>n;i<span style="color:#f92672">++</span>){
+</span></span><span style="display:flex;"><span>	  total <span style="color:#f92672">+=</span> freq[i];
+</span></span><span style="display:flex;"><span>	  heap.<span style="color:#a6e22e">push</span>(freq[i]);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">while</span> (heap.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>) {  <span style="color:#75715e">// 循环选择队列中频次最少的两个元素合并
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    jointFreq <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;           <span style="color:#75715e">// 合并后结点的频次
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> (i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span>; i<span style="color:#f92672">++</span>) {  <span style="color:#75715e">// 删除频次最少的两元素
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      jointFreq <span style="color:#f92672">+=</span> heap.<span style="color:#a6e22e">top</span>();
+</span></span><span style="display:flex;"><span>      heap.<span style="color:#a6e22e">pop</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    sumFreq <span style="color:#f92672">+=</span> jointFreq;
+</span></span><span style="display:flex;"><span>    heap.<span style="color:#a6e22e">push</span>(jointFreq);  <span style="color:#75715e">// 优先队列中插入合并结点
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> sumFreq <span style="color:#f92672">/</span> (<span style="color:#ae81ff">1.0</span> <span style="color:#f92672">*</span> total);  <span style="color:#75715e">// 返回平均码长
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><ul>
+<li>正确性证明
+<ul>
+<li>交换论证法原理: 从任意一个最优解出发，经过不断用新的要素 (符合贪心准则) 替 换解中的原有要素来改造这个解。通过有限步替换，把这个最优解改变成贪心算法的 解。如果替换过程中的每一步能保证解的最优值不发生变化，则证明了贪心算法的解 也是最优的。</li>
+<li>基础步: 给定任意一个最优解，根据贪心准则对最优解进行改造，也就是把第一步 贪心选择的对象替换最优解中的特定要素，然后证明替换后的新解也是最优解</li>
+<li>递归步: 证明上述交换过程可以循环进行。也就是说，依次替换最优解的其他要素， 直到新解的每个分量都符合贪心准则，并且证明新解也是最优的。</li>
+<li>证明方法一般是: 最优子结构性质 + 基础步结论</li>
+</ul>
+</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_11_29_Screenshot%202023-12-24%20at%2021.11.27.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_13_0_Screenshot%202023-12-24%20at%2021.12.58.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_13_12_Screenshot%202023-12-24%20at%2021.13.10.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_13_58_Screenshot%202023-12-24%20at%2021.13.57.png" alt="" /></p>
+<ul>
+<li>设一个任意一个，假设谈心算法得到的解不是最优解（本题中是和普通情况一样）</li>
+<li>每一步进行贪心调整，若结果发现是最优解，证明假设不成立，则能够证明谈心算法的正确性</li>
+</ul>
+<h3 id="单源最短路径问题">
+  单源最短路径问题
+  <a class="anchor" href="#%e5%8d%95%e6%ba%90%e6%9c%80%e7%9f%ad%e8%b7%af%e5%be%84%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>给定带权有向图G = (V, E)，其中每条边的权是非负实数。另外，还给定V中的一个顶点，称 为源。现在要计算从源到所有其它各顶点的最短路径长度，假设从源可以到达任何一个顶点。 这里路径的长度是指路径上各边权之和。这个问题通常称为单源最短路径问题。
+</code></pre><p>从源到任意顶点的最短路径具有类似于最优子结构性质的特征: 即最短路径的子 路径也是源到相应顶点的最短路径。</p>
+<ul>
+<li>汇集所有顶点的最短路径就可以得到一棵最短路径树。在最短路径树中，从 源到任意顶点的路径就是图 G 中从源到该顶点的最短路径。</li>
+<li>求解单源最短路径问题就可以转换为构造图 G 的一棵最短路径树𝐓。</li>
+</ul>
+<p><strong>Dijkstra 算法</strong></p>
+<p>Dijkstra 算法的贪心策略是选择集合𝐕 − 𝐒中受限路径长度最短的顶点，并把相应顶点加 入 𝑆 中，相应地最短路径树 𝑇 也增加一条边。</p>
+<ul>
+<li>算法思路
+<ul>
+<li>设计合适的数据结构:
+<ul>
+<li>带权邻接矩阵 linkMatrix，记录输入有向图的权值</li>
+<li>数组 lowLR 记录从源到其它顶点的最短受限路径长度</li>
+<li>数组 preV 记录最短路径中的前驱顶点，假设 preV[x] = u，则在 x 的最短路径中，u 是 x 的前驱顶点</li>
+</ul>
+</li>
+<li>初始化: 把源加入集合 S 中，即 S = {v}，对于 V-S 中的所有顶点 x，设置
+<ul>
+<li><code>lowLR[x] =linkMatrix[v][x]，preV[x] = v(如果有边相连)</code></li>
+</ul>
+</li>
+<li>贪心选择: 在集合 V-S 中依照贪心策略寻找 lowLR[x] 最小的顶点 t ，即
+<ul>
+<li><code>lowLR[t]=min{lowLR[x] x 属于 (V −S)}</code></li>
+</ul>
+</li>
+<li>更新过程: 将顶点 t 加入 S 中，同时更新集合 V-S，以及集合中顶点的最短受限路径:
+<ul>
+<li><code>lowLR[x] = lowLR[t]+ linkMatrix[t][x]</code></li>
+<li><code>st. lowLR[x] &gt; lowLR[t]+ linkMatrix[t][x]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define INF 0x03F3F3F3F
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define MaxV 100
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> preV[MaxV]; <span style="color:#75715e">// 最短路径树中的前驱结点信息表
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">int</span> visited[MaxV]; <span style="color:#75715e">// 结点是否加入S的标记表，0 是未加入，1 为已加入
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">Dijkstra</span>(<span style="color:#66d9ef">int</span> linkMatrix[][MaxV], <span style="color:#66d9ef">int</span> lowLR[MaxV], <span style="color:#66d9ef">int</span> numV, <span style="color:#66d9ef">int</span> beginV) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> i, j, min, newCost;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">memset</span>(visited, <span style="color:#ae81ff">0</span>, <span style="color:#66d9ef">sizeof</span>(visited)); <span style="color:#75715e">// 初始化，所有节点未加入
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    visited[beginV] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 开始节点 beginV加入列表中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> numV; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        lowLR[i] <span style="color:#f92672">=</span> linkMatrix[beginV][i];
+</span></span><span style="display:flex;"><span>        preV[i] <span style="color:#f92672">=</span> beginV;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 准备正式开始Dijkstra算法流程
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    lowLR[beginV] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    preV[beginV] <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> selectV <span style="color:#f92672">=</span> beginV;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> numV; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; j <span style="color:#f92672">&lt;</span> numV; j<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            newCost <span style="color:#f92672">=</span> lowLR[selectV] <span style="color:#f92672">+</span> linkMatrix[selectV][j];
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (visited[j] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> newCost <span style="color:#f92672">&lt;</span> lowLR[j]) {
+</span></span><span style="display:flex;"><span>                lowLR[j] <span style="color:#f92672">=</span> newCost;
+</span></span><span style="display:flex;"><span>                preV[j] <span style="color:#f92672">=</span> selectV;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        min <span style="color:#f92672">=</span> INF;
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 贪心选择最短路径
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; j <span style="color:#f92672">&lt;</span> numV; j<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (visited[j] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> lowLR[j] <span style="color:#f92672">&lt;</span> min) {
+</span></span><span style="display:flex;"><span>                min <span style="color:#f92672">=</span> lowLR[j];
+</span></span><span style="display:flex;"><span>                selectV <span style="color:#f92672">=</span> j;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        visited[selectV] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>正确性证明</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_28_14_Screenshot%202023-12-24%20at%2021.28.12.png" alt="" /></p>
+<h3 id="最小生成树问题">
+  最小生成树问题
+  <a class="anchor" href="#%e6%9c%80%e5%b0%8f%e7%94%9f%e6%88%90%e6%a0%91%e9%97%ae%e9%a2%98">#</a>
+</h3>
+<pre tabindex="0"><code>问题描述:设𝐺 =(𝑉,𝐸)是无向连通带权图。E中每条边(𝑣,𝑤)的权为𝐶(𝑣,𝑤)。如果𝐺的子图𝐺’是 一棵包含𝐺的所有顶点的树，则称𝐺’为𝐺的生成树。生成树上各边权的总和称为该生成树的耗费。 在G的所有生成树中，耗费最小的生成树称为G的最小生成树。请设计算法计算G的最小生成树的 权重总和。
+</code></pre><p><strong>图的生成树</strong></p>
+<p>定义: 如果连通图 G 的一个子图是一棵包含 G 的所有顶点的树，则该子图称为 G 的生 成树 (Spanning Tree)。</p>
+<ul>
+<li>生成树是连通图的包含图中的所有顶点的 极小连通子图</li>
+<li>图的生成树不惟一，从不同的顶点出发进行遍历，可以得到不同的生成树</li>
+<li>常用的生成树算法有 DFS 生成树、BFS 生成树、PRIM 最小生成树和 Kruskal 最小生成树算法</li>
+</ul>
+<p><strong>最小生成树</strong></p>
+<p>定义: 对于连通的带权图 G=(V, E)，其生成树也是带权的，生成树 T=(V, TE) 各 边的权值总和称为该树的权 W(T)， TE 表示 T 的边集，𝐶(𝑢,𝑣) 表示边 (u,v) 的权重。 权最小的生成树称为 G 的最小生成树 (Minimum Spanning Tree, MST)。</p>
+<ul>
+<li>最小生成树性质
+<ul>
+<li>生成树有 |V| 个顶点，|V|-1 条边</li>
+<li>生成树中增加一条边则得到一个回路，回路中删除任何一条边又得到一棵生成树</li>
+<li>设𝐺 = (𝑉, 𝐸) 是连通带权图，U 是 V 的真子集。如果 (𝑢, 𝑣) ∈ 𝐸，其中𝑢 ∈ 𝑈, 𝑣 ∈ (𝑉 − 𝑈) ，称之为 跨边，且在所有这样的边中，(𝒖, 𝒗) 的权𝑪(𝒖, 𝒗) 最小，那么一定存在𝐺的一 棵最小生成树，它包含边 (𝑢, 𝑣)。</li>
+</ul>
+</li>
+</ul>
+<p><strong>Prim 算法</strong></p>
+<ul>
+<li>
+<p>针对图中的顶点设计贪心策略，逐步 添加顶点/边构造最小生成树</p>
+</li>
+<li>
+<p>策略: 选择最短跨边</p>
+</li>
+<li>
+<p>策略思考</p>
+<ul>
+<li>给定无向带权图 G=&lt;V, E&gt;，逐步构造最小生成树:MST = (U, TE)，其中 U⊆V, TE⊆E。图 G 中的顶点集合 V 划分为两部分: 集合 U 和 V-U，其中 U 是已加入 MST 中 的顶点集合，而 V-U 是 MST 之外的顶点集合。</li>
+<li>初始化:U={x}，其中 x 为集合 V 中的任一结点 (起始点)，TE={};</li>
+<li>循环直到 U=V:</li>
+<li>贪心选择:𝒊 ∈ U, j ∈ V − U，且边 (i, j) 是连接 U 和 V-U 的所有边中的最短 边</li>
+<li>把顶点 j 加入集合 U ➢ 边 (i, j) 加入集合 TE</li>
+</ul>
+</li>
+<li>
+<p>算法思路</p>
+<ul>
+<li>设计合适的数据结构:
+<ul>
+<li>带权邻接矩阵 linkMatrix，记录输入有向图的权值</li>
+<li>数组 lowCost 最短跨边， <code>lowCost[ j] 表示满足𝑗 ∈ 𝑉 − 𝑈, 𝑖 ∈ 𝑈的所有边 (𝑖, 𝑗) 中的最小值</code></li>
+<li>数组 closest 记录上述最短边 (𝑖, 𝑗) 中的顶点标号 i ，它们满足 <code>𝑙𝑜𝑤𝐶𝑜𝑠𝑡[𝑗] = 𝐶(𝑗, 𝑐𝑙𝑜𝑠𝑒𝑠𝑡[𝑗]) 。</code></li>
+</ul>
+</li>
+<li>初始化: 把顶点 1 加入 U 中，得 U = {1}，𝑇𝐸 = { }，
+<ul>
+<li>并初始化数组 closest 和 lowCost</li>
+</ul>
+</li>
+<li>贪心选择: 在集合𝑉 − 𝑈中寻找使得 lowCost 最小的顶点 t，
+<ul>
+<li>将 t 加入集合 U，边 (t, cloest[t]) 加入集合 TE</li>
+</ul>
+</li>
+<li>更新过程: 对 𝑉 − 𝑈 中的所有顶点 𝑘，按下述规则更新数组 closest 和 lowCost:
+<ul>
+<li><code>if (linkMatrix[t][k] &lt; lowCost[k])</code>
+<ul>
+<li><code>lowCost[k] = linkMatrix[t][k];</code></li>
+<li><code>closest[k] = t</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define INF 0x03F3F3F3F
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define MaxV 1000
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">prim</span>(<span style="color:#66d9ef">int</span> linkMatrix[][MaxV], <span style="color:#66d9ef">int</span> numV) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> visited[MaxV] <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>};
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> lowCost[MaxV], closet[MaxV];
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> i, k;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> min, costMST <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    visited[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    closet[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> numV; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        lowCost[i] <span style="color:#f92672">=</span> linkMatrix[<span style="color:#ae81ff">0</span>][i];
+</span></span><span style="display:flex;"><span>        closet[i] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> numV <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        min <span style="color:#f92672">=</span> INF;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> selectV <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> k <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; k <span style="color:#f92672">&lt;</span> numV; k<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>visited[k] <span style="color:#f92672">&amp;&amp;</span> lowCost[k] <span style="color:#f92672">&lt;</span> min) {
+</span></span><span style="display:flex;"><span>                min <span style="color:#f92672">=</span> lowCost[k];
+</span></span><span style="display:flex;"><span>                selectV <span style="color:#f92672">=</span> k;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        costMST <span style="color:#f92672">+=</span> min;
+</span></span><span style="display:flex;"><span>        visited[selectV] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> k <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; k <span style="color:#f92672">&lt;</span> numV; k<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>visited[k] <span style="color:#f92672">&amp;&amp;</span> linkMatrix[selectV][k] <span style="color:#f92672">&lt;</span> lowCost[k]) {
+</span></span><span style="display:flex;"><span>                lowCost[k] <span style="color:#f92672">=</span> linkMatrix[selectV][k];
+</span></span><span style="display:flex;"><span>                closet[k] <span style="color:#f92672">=</span> selectV;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> costMST;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>正确性证明</strong></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_45_7_Screenshot%202023-12-24%20at%2021.45.05.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_45_19_Screenshot%202023-12-24%20at%2021.45.16.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_45_31_Screenshot%202023-12-24%20at%2021.45.29.png" alt="" /></p>
+<h3 id="并查集">
+  并查集
+  <a class="anchor" href="#%e5%b9%b6%e6%9f%a5%e9%9b%86">#</a>
+</h3>
+<p>并查集 (Disjoint set 或者 Union-find set) 是一种树型的数据结构，常用于处理一些不相交集 合 (Disjoint Sets) 的合并及查询问题。它包含两种基本操作:</p>
+<ul>
+<li>
+<p>查询 (Find): 查询某个元素在哪个集合里</p>
+</li>
+<li>
+<p>合并 (Union): 合并两个集合</p>
+</li>
+<li>
+<p>每个集合选定一个固定的元素作为该集合的代表， 称为代表元素，代表元素则用于标识整个集合</p>
+</li>
+<li>
+<p>每一个集合用树表示，树中的每一个节点保存着 到其父节点的引用，每个集合的代表元素即是集 合的根节点。</p>
+</li>
+<li>
+<p>双亲表示法: 用数组 father[] 存储整个并查集</p>
+</li>
+</ul>
+<p><strong>查询</strong></p>
+<p><strong>合并</strong></p>
+<p><strong>并查集优化策略一——路径压缩</strong></p>
+<p>路径压缩是一种在执行“查询”时扁平化树结构的方法，为后续查询操作加速。</p>
+<ul>
+<li>路径上的每个节点都直接连接到根上;</li>
+<li>递归地访问当前结点到树根的路径，改变每一个结点的引用到根节点。</li>
+</ul>
+<p><strong>并查集优化策略二——按秩合并</strong></p>
+<p>按秩合并即总是将更浅的树连接至更深的树上，避免增加合并树的秩</p>
+<ul>
+<li>“秩”表示集合对应树的深度，单个元素的树的秩定义为 0;</li>
+<li>当两棵秩同为𝑟的树联合时，它们的秩变为𝑟 + 1;</li>
+<li>为了方便比较，把集合秩的相反数存储在根节点 father[root] 。</li>
+</ul>
+<h3 id="kruskal-算法">
+  Kruskal 算法
+  <a class="anchor" href="#kruskal-%e7%ae%97%e6%b3%95">#</a>
+</h3>
+<p>给定无向带权图𝐺=(𝑉,𝐸)，𝑉={1,2,&hellip;,𝑛}。设最小生成树𝑀𝑆𝑇 = (𝑉, 𝑇𝐸)，该树的 初始状态为只有𝐧个顶点而无边的非连通图𝑇 = (𝑉, {} )， Kruskal 算法将这𝑛个顶点看成 是𝑛个孤立的连通分支;</p>
+<p>贪心选择: 在边集𝐸中选择权值最小的边 (𝑖, 𝑗)，如果将边 (𝑖, 𝑗) 加入 TE 中不产生回路，则 将边 (𝑖, 𝑗) 加入 TE，即用边 (𝑖, 𝑗) 将 T 中的两个连通分支合并成一个联通分支; 否则舍弃它。 循环此过程，直至所有顶点都在一个联通分支。</p>
+<p>Kruskal 算法俗称避环法，该算法的实现关键是在加入边时避免出现环路 用并查集来实现连通分支查找和合并的相关操作</p>
+<ul>
+<li>算法步骤
+<ul>
+<li>初始化: 把图 G 中的所有边按照权值从小到大排序，MST 的边集 TE 初始化为空集。 每一个顶点初始化为一个孤立的连通分支，对应并查集中的一个子集合。</li>
+<li>在 E 中寻找权值最小的边 (𝑖,𝑗)。</li>
+<li>如果顶点𝑖和𝑗位于两个不同的集合
+<ul>
+<li>则将边 (𝑖, 𝑗) 加入边集 TE</li>
+<li>并把顶点𝑖和𝑗所在的两个子集合并成一个子集</li>
+<li>将边 (𝑖, 𝑗) 从 E 中删除</li>
+</ul>
+</li>
+<li>如果连通分支的数目大于 1，则转步骤 2; 否则，算法结束。</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C" data-lang="C"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">kruskal</span>(node juSet[MaxV], <span style="color:#66d9ef">int</span> numV, edge edgeSet[MaxE], <span style="color:#66d9ef">int</span> numE) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">qsort</span>(edgeSet, numE, <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">struct</span> edge), cmp);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> numE; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        fatherX <span style="color:#f92672">=</span> <span style="color:#a6e22e">Find_Set</span>(edgeSet[i].x);
+</span></span><span style="display:flex;"><span>        fatherY <span style="color:#f92672">=</span> <span style="color:#a6e22e">Find_Set</span>(edgeSet[i].y);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (fatherX <span style="color:#f92672">==</span> faterY) {
+</span></span><span style="display:flex;"><span>            totalCost <span style="color:#f92672">+=</span> edgeSet[i].w;
+</span></span><span style="display:flex;"><span>            cntW<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (cntE <span style="color:#f92672">==</span> numV <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> totalCost;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> totalCost;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><ul>
+<li>算法正确性证明
+<ul>
+<li>给出贪心算法解 A 的描述</li>
+<li>假设 O 是一个最优算法解 (如果有多个则随机选)</li>
+<li>找出 O 和 A 中的一个不同要素 (可以是一个元素在 O 不在 A 或者反之，或者是一个子序列的顺序 A 和 O 不一样)</li>
+<li>交换 (Exchange) 上述不同的要素，然后论证 (Argue) 得到的新解 O* 不比 O 差</li>
+<li>论证类似的不同要素为有限个 (多项式量级)，然后交换有限次 (多项式量级) 可以消除所有的不同，同时保证了算法的质量不比 O 差</li>
+</ul>
+</li>
+</ul>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_57_44_Screenshot%202023-12-24%20at%2021.57.42.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_57_55_Screenshot%202023-12-24%20at%2021.57.53.png" alt="" /></p>
+<p>
+  <img src="https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_58_8_Screenshot%202023-12-24%20at%2021.58.05.png" alt="" /></p>
+<h1 id="小结">
+  小结
+  <a class="anchor" href="#%e5%b0%8f%e7%bb%93">#</a>
+</h1>
+<p><strong>贪心算法的正确性证明</strong></p>
+<ul>
+<li>数学归纳法
+<ul>
+<li>针对贪心选择的步骤 (k) 进行归纳，比如活动安排问题，Dijkstra 算法，Prim 算法。</li>
+</ul>
+</li>
+<li>交换论证法
+<ul>
+<li>从原问题最优解开始，用贪心策略对最优解进行改造 (或者交换最优解与贪心解的不同要素)，有限步后把最 优解改造为贪心解，而且最优性保持不变。比如哈夫曼编 码，Kruskal 算法。</li>
+</ul>
+</li>
+</ul>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#method">Method</a>
+      <ul>
+        <li><a href="#基本思想">基本思想</a></li>
+        <li><a href="#正确性证明">正确性证明</a></li>
+      </ul>
+    </li>
+    <li><a href="#egs">e.g.s</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#活动安排问题">活动安排问题</a></li>
+            <li><a href="#小数背包问题">小数背包问题</a></li>
+            <li><a href="#字符编码">字符编码</a></li>
+            <li><a href="#单源最短路径问题">单源最短路径问题</a></li>
+            <li><a href="#最小生成树问题">最小生成树问题</a></li>
+            <li><a href="#并查集">并查集</a></li>
+            <li><a href="#kruskal-算法">Kruskal 算法</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#小结">小结</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
