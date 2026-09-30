@@ -1,0 +1,452 @@
+{
+  "blogs/IELTS_2023/index.html": {
+    "text": "2874479b691e9bdfda71207c667eb947f87591bc5c83f6df0398a2b3a91f80c2",
+    "ids": [
+      "雅思备考指北-v2023",
+      "prologue",
+      "阅读",
+      "听力",
+      "口语",
+      "写作",
+      "epilogue"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/06/15_9_18_2_9DC4558C-12B6-49F0-9A37-ACB1C972C344_1_105_c.jpeg",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/06/15_8_12_11_Screenshot%202023-06-15%20at%2008.12.08.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/06/15_9_53_52_Screenshot%202023-06-15%20at%2009.53.49.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/06/15_9_51_45_Capture-2023-06-15-095140.png"
+    ],
+    "code": 0
+  },
+  "blogs/PyQT5_in_ARM_mac/index.html": {
+    "text": "8d10f436fc9a36312cf70991cee41bdb179e72bda9a23d42c8ae66b97459a787",
+    "ids": [
+      "在-apple-silicon-上配置-pyqt5-以及-labelimg",
+      "q-问题",
+      "正确准备arm64架构上的pyqt5",
+      "outline",
+      "创建虚拟环境推荐",
+      "安装pyqt",
+      "迁移最重要的环节",
+      "安装labelimg"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/9_22_14_27_Screen%20Shot%202022-11-09%20at%2022.14.21.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/9_22_20_22_Screen%20Shot%202022-11-09%20at%2022.20.19.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/16_23_22_43_Screen%20Shot%202022-11-16%20at%2023.01.46.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/17_23_7_18_Screen%20Shot%202022-11-17%20at%2023.07.12.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/17_23_8_35_Screen%20Shot%202022-11-17%20at%2023.08.32.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/17_23_12_22_Screen%20Shot%202022-11-17%20at%2023.12.19.png"
+    ],
+    "code": 0
+  },
+  "blogs/YOLOv5_HNet/index.html": {
+    "text": "16e628d73c2bd41420cd2e9d94a6be5271e5445429334020d2615d4831e5db64",
+    "ids": [
+      "yolov5_hnet",
+      "solution1-改变anchor添加小目标检测层",
+      "solution2-改变neckhead结构加入注意力机制transformer等",
+      "solution3-network-slim-轻量化网络设计",
+      "shufflenetv2",
+      "mobilenetv3",
+      "solution4-conv卷积核--fpn修改",
+      "reference"
+    ],
+    "images": [],
+    "code": 1
+  },
+  "blogs/regex101/index.html": {
+    "text": "b6093d8701980c8a66ef45dd013a2e5954506310576c19bb18c258375f6c70e6",
+    "ids": [
+      "regex101-正则入门笔记",
+      "匹配单个字符",
+      "匹配一组字符",
+      "元字符",
+      "重复匹配",
+      "位置匹配"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_15_38_12_Screen%20Shot%202022-11-02%20at%2015.38.02.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_5_35_Screen%20Shot%202022-11-02%20at%2016.05.31.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_7_13_Screen%20Shot%202022-11-02%20at%2016.07.10.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_8_35_Screen%20Shot%202022-11-02%20at%2016.08.31.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_9_7_Screen%20Shot%202022-11-02%20at%2016.09.04.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_16_11_29_Screen%20Shot%202022-11-02%20at%2016.11.26.png",
+      "https://gitlab.com/caesaryangs1/mypicturehotelatgitlab/-/raw/main/BasicPics/2022/11/2_17_18_16_Screen%20Shot%202022-11-02%20at%2017.18.13.png"
+    ],
+    "code": 3
+  },
+  "docs/Advanced-OS/class-notes/1-Linux-UNIX概论/index.html": {
+    "text": "e38152e18afc932bce8106335d0ac8f9664a4ca2ff0d875c830fa6c5ffb5db4f",
+    "ids": [
+      "操作系统相关概念",
+      "操作系统发展历程",
+      "unixlinux-操作命令入门"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/18_20_39_10_Screenshot%202023-11-18%20at%2020.39.06.png"
+    ],
+    "code": 1
+  },
+  "docs/Advanced-OS/class-notes/2-Linux-Shell/index.html": {
+    "text": "efb143b39a683073792d1949552fd038a91cd66687e5983b306dd4a5aad4e7ed",
+    "ids": [
+      "最简单-shell-程序解析及运行",
+      "shell-程序调试方式",
+      "局部变量应用编程",
+      "环境变量及-export-命令",
+      "位置变量及特殊变量应用编程",
+      "条件判断控制结构应用编程",
+      "分支判断控制结构应用编程",
+      "函数应用编程"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/18_22_9_12_Screenshot%202023-11-18%20at%2022.09.10.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/18_22_22_31_Screenshot%202023-11-18%20at%2022.22.29.png"
+    ],
+    "code": 22
+  },
+  "docs/Advanced-OS/class-notes/3-Linux内核数据结构及系统调用/index.html": {
+    "text": "ce4e92a158c5073d7d53306ae32490470d214320d78a09889deaaf4c7f09b03f",
+    "ids": [
+      "linux-内核编程及编译",
+      "linux-内核编程技巧",
+      "语句表达式",
+      "零长数组变长数组",
+      "基于区间的分支选择",
+      "基于成员名的灵活初始化",
+      "支持参数个数可变的宏",
+      "面向编译检查与优化的属性声明",
+      "gcc-内建函数",
+      "关于函数形参存放位置的指定",
+      "整型常数后缀-ul",
+      "linux-系统调用实现机制",
+      "linux-内核常用数据结构"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/19_11_37_59_Screenshot%202023-11-19%20at%2011.37.57.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/19_22_50_33_Screenshot%202023-11-19%20at%2022.50.31.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/19_22_53_50_Screenshot%202023-11-19%20at%2022.53.46.png"
+    ],
+    "code": 17
+  },
+  "docs/Advanced-OS/class-notes/4-Linux处理器及内存管理/index.html": {
+    "text": "71b5cccea0667089221a21c6d7195e41781d4febafba4cc2830375c84019a258",
+    "ids": [
+      "linux-进程线程管理控制",
+      "进程与线程",
+      "unixlinux-进程",
+      "unixlinux-进程状态演化",
+      "unixlinux-进程创建与执行",
+      "linux-内核并发机制",
+      "并发控制的必要性和重要性",
+      "linux-并发控制触发机制",
+      "unixlinux-并发同步机制",
+      "linux--原子操作",
+      "linux--自旋锁",
+      "linux--信号量",
+      "linux--内存屏障",
+      "linux-rcu-读时复制更新",
+      "linux--等待队列",
+      "简单应用实现",
+      "linux-父子进程间同步编程",
+      "linux-内存管理",
+      "linux-启动与内存空间布局",
+      "unix-进程存储管理",
+      "linux-进程---线程空间探析",
+      "linux-内存管理-1",
+      "linux-处理器及进程调度",
+      "linux-处理器调度概要",
+      "linux-处理器调度算法",
+      "unix-进程调度"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_27_5_Screenshot%202023-11-20%20at%2009.27.03.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_32_20_Screenshot%202023-11-20%20at%2009.32.18.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_33_4_Screenshot%202023-11-20%20at%2009.33.01.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_41_7_Screenshot%202023-11-20%20at%2009.41.05.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_41_44_Screenshot%202023-11-20%20at%2009.41.42.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_43_39_Screenshot%202023-11-20%20at%2009.43.36.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_9_45_43_Screenshot%202023-11-20%20at%2009.45.40.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_11_56_46_202311201156239.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_14_36_42_202311201436670.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_14_52_53_202311201452661.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_14_59_45_202311201459767.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_31_36_202311201731611.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_33_46_202311201733248.png"
+    ],
+    "code": 20
+  },
+  "docs/Advanced-OS/class-notes/5-Linux文件管理/index.html": {
+    "text": "1de698c87d6b0833165dbbd7ac49824ca1113624351eaf96784da6b8140ee458",
+    "ids": [
+      "文件及文件系统的引入",
+      "文件基本操作与文件系统",
+      "文件物理结构类型",
+      "虚拟文件系统",
+      "目录管理及文件共享与保护",
+      "文件内存映像及系统实现",
+      "unixlinux-文件卷组织结构",
+      "unixlinux-文件系统数据结构",
+      "linux-文件系统信息查看命令",
+      "linux-目录项及索引结点结构",
+      "linux-进程控制块与文件打开表",
+      "linux-虚拟文件系统实现概要",
+      "linux-文件操作相关系统调用",
+      "linux-管道通信相关系统调用"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_47_33_202311201747627.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_49_43_202311201749748.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_17_52_14_202311201752473.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_44_19_202311201844291.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_44_43_202311201844264.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_45_55_202311201845060.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_47_17_202311201847447.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_18_47_54_202311201847570.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_19_3_41_202311201903451.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_19_7_46_202311201907786.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_19_10_0_202311201910495.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_20_48_34_202311202048966.png"
+    ],
+    "code": 22
+  },
+  "docs/Advanced-OS/class-notes/6-Linux设备管理/index.html": {
+    "text": "880228cb197447697d91d98f7741313b2702b41e007da6655a8ae7e6ffb15a03",
+    "ids": [
+      "设备管理概述",
+      "缓冲管理",
+      "设备分配",
+      "输入输出控制方式及模块",
+      "unix-设备管理",
+      "unix-设备管理概要",
+      "unix-设备管理数据结构",
+      "unix-块设备缓冲区管理",
+      "unix-设备驱动程序",
+      "linux-内核模块及设备驱动",
+      "linux-内核架构及动态扩展机制",
+      "linux-最简内核模块",
+      "linux-传参内核模块",
+      "linux-内核符号共享机制",
+      "linux-字符设备驱动"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_22_14_46_202311202214763.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/20_22_17_13_202311202217438.png"
+    ],
+    "code": 7
+  },
+  "docs/Advanced-OS/class-notes/7-Linux内核调试与性能优化/index.html": {
+    "text": "0d563809c0ee929ba3e307462924147a020272351fcce0bbab1811fee8b489ac",
+    "ids": [
+      "计算机系统性能优化理论",
+      "printk简单强大调试工具",
+      "debugfs-文件系统及动态输出",
+      "proc-文件系统系统及进程信息",
+      "sys-文件系统及新型设备驱动模型",
+      "oops-错误分析及示例",
+      "内存检测工具及应用",
+      "性能功耗指标及-linux-性能测试工具"
+    ],
+    "images": [],
+    "code": 0
+  },
+  "docs/Algo/0-Asymptopic-Analysis/index.html": {
+    "text": "7d28ad2b941f5e875b3e3c91a546738790f061dc835d9ec129b19f41eae7774e",
+    "ids": [
+      "时间复杂度记号-o",
+      "时间复杂度记号-ω",
+      "时间复杂度记号-θ",
+      "时间复杂度分析",
+      "非递归算法",
+      "递归算法"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/25_12_16_25_Screenshot%202023-12-25%20at%2012.16.23.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/25_12_22_36_Screenshot%202023-12-25%20at%2012.22.33.png"
+    ],
+    "code": 0
+  },
+  "docs/Algo/1-E/index.html": {
+    "text": "6861ee11ea33d9cdd28092d9a60e73aeae3499915e54f950e65a39c05ec432de",
+    "ids": [
+      "theorythinkings",
+      "egs",
+      "数组配对",
+      "绳子切割问题",
+      "移除石头最重要枚举问题",
+      "函数求根问题",
+      "problem-a-优美的立方质数",
+      "problem-b-课堂作业--6-2-木棍切割问题",
+      "problem-c-李老师的幸运数字",
+      "problem-d-思维之花---简单背包",
+      "problem-e-课堂作业--7-2-石头移除问题",
+      "problem-f-数对选择"
+    ],
+    "images": [],
+    "code": 14
+  },
+  "docs/Algo/2-Divide-and-Conquer/index.html": {
+    "text": "ef3411fbd6a240f7f8f6bfae2d35e6a51b65935495c2f0afdd0df5f52e80f374",
+    "ids": [
+      "theorythinkings",
+      "分而治之",
+      "减而治之",
+      "master-定理",
+      "egs",
+      "stirling-数",
+      "逆序对问题",
+      "棋盘覆盖",
+      "最近点对",
+      "线性时间选择",
+      "problem-a-集合划分",
+      "problem-b-二叉树的后序遍历",
+      "problem-c-整数的幂次方表示",
+      "problem-d-最近点对",
+      "problem-e-小明的散步路径",
+      "problem-f-气球游戏"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_7_47_48_Screenshot%202023-12-26%20at%2007.47.46.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_7_48_11_Screenshot%202023-12-26%20at%2007.48.08.png"
+    ],
+    "code": 11
+  },
+  "docs/Algo/3-DP/index.html": {
+    "text": "b18207e96116294f14fc602fd9848653f814baa90ea5fd29ba6f8ab10ec63f4f",
+    "ids": [
+      "theorythinkings",
+      "基本策略",
+      "非递归策略",
+      "递归策略备忘录策略",
+      "dp-基本要素",
+      "最优子结构",
+      "重叠子问题",
+      "算法设计步骤",
+      "小结",
+      "eg-s",
+      "数字三角路径问题",
+      "矩阵加括号",
+      "多段图最短路径",
+      "最长公共子序列",
+      "0-1-背包问题",
+      "最大上升子序列",
+      "problem-a-晴天小猪历险记之-hill",
+      "problem-b-清帝之惑之顺治",
+      "problem-c-积木城堡",
+      "problem-d-warcraft-iii-守望者的烦恼",
+      "problem-e-加分二叉树",
+      "双线程-dp"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/11/1_20_41_27_Screenshot%202023-11-01%20at%2020.41.25.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_15_54_Screenshot%202023-12-26%20at%2010.15.51.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_22_44_Screenshot%202023-12-26%20at%2010.22.42.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_22_55_Screenshot%202023-12-26%20at%2010.22.53.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_25_48_Screenshot%202023-12-26%20at%2010.25.45.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_27_26_Screenshot%202023-12-26%20at%2010.27.24.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_28_6_Screenshot%202023-12-26%20at%2010.28.03.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_30_58_Screenshot%202023-12-26%20at%2010.30.55.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_31_23_Screenshot%202023-12-26%20at%2010.31.20.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_32_15_Screenshot%202023-12-26%20at%2010.32.13.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_36_18_Screenshot%202023-12-26%20at%2010.36.16.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_10_36_50_Screenshot%202023-12-26%20at%2010.36.48.png"
+    ],
+    "code": 15
+  },
+  "docs/Algo/4-Greedy/index.html": {
+    "text": "869ed07f0d4a0df224d1924cbaf7ea229611fd0096eff69629975b667fae2a4a",
+    "ids": [
+      "method",
+      "基本思想",
+      "正确性证明",
+      "egs",
+      "活动安排问题",
+      "小数背包问题",
+      "字符编码",
+      "单源最短路径问题",
+      "最小生成树问题",
+      "并查集",
+      "kruskal-算法",
+      "小结"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_41_28_Screenshot%202023-12-24%20at%2020.41.26.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_41_56_Screenshot%202023-12-24%20at%2020.41.53.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_42_8_Screenshot%202023-12-24%20at%2020.42.06.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_20_46_18_Screenshot%202023-12-24%20at%2020.46.15.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_11_29_Screenshot%202023-12-24%20at%2021.11.27.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_13_0_Screenshot%202023-12-24%20at%2021.12.58.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_13_12_Screenshot%202023-12-24%20at%2021.13.10.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_13_58_Screenshot%202023-12-24%20at%2021.13.57.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_28_14_Screenshot%202023-12-24%20at%2021.28.12.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_45_7_Screenshot%202023-12-24%20at%2021.45.05.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_45_19_Screenshot%202023-12-24%20at%2021.45.16.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_45_31_Screenshot%202023-12-24%20at%2021.45.29.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_57_44_Screenshot%202023-12-24%20at%2021.57.42.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_57_55_Screenshot%202023-12-24%20at%2021.57.53.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/24_21_58_8_Screenshot%202023-12-24%20at%2021.58.05.png"
+    ],
+    "code": 12
+  },
+  "docs/Algo/5-Search/index.html": {
+    "text": "0c8c0cb5e1078c46f771f1fa2edd0cd9dd3e3fa358a4dd6931379e08fab64718",
+    "ids": [
+      "intro",
+      "问题求解与搜索算法",
+      "状态空间图",
+      "搜索算法类型",
+      "基于枚举的通用搜索",
+      "dfs",
+      "bfs",
+      "枚举--优化的通用搜索",
+      "回溯算法",
+      "分支限界法",
+      "启发式搜索",
+      "最佳优先搜索",
+      "a-算法",
+      "对抗搜索",
+      "小结",
+      "egs",
+      "传教士问题",
+      "8-数码问题",
+      "背包问题",
+      "旅行商问题",
+      "装载问题",
+      "dfs--回溯算法",
+      "约束函数剪枝",
+      "限界函数剪枝",
+      "bfs--分支限界算法",
+      "约束函数剪枝-1",
+      "限界函数剪枝-1",
+      "a-算法-1"
+    ],
+    "images": [
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_9_54_Screenshot%202023-12-26%20at%2012.09.52.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_14_38_Screenshot%202023-12-26%20at%2012.14.36.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_16_19_Screenshot%202023-12-26%20at%2012.16.17.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_16_44_Screenshot%202023-12-26%20at%2012.16.43.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_17_1_Screenshot%202023-12-26%20at%2012.16.59.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_17_12_Screenshot%202023-12-26%20at%2012.17.10.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_22_0_Screenshot%202023-12-26%20at%2011.21.58.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_41_32_Screenshot%202023-12-26%20at%2011.41.30.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_42_8_Screenshot%202023-12-26%20at%2011.42.06.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_42_21_Screenshot%202023-12-26%20at%2011.42.19.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_47_17_Screenshot%202023-12-26%20at%2011.47.15.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_47_26_Screenshot%202023-12-26%20at%2011.47.24.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_50_44_Screenshot%202023-12-26%20at%2011.50.41.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_51_33_Screenshot%202023-12-26%20at%2011.51.31.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_52_24_Screenshot%202023-12-26%20at%2011.52.22.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_11_52_40_Screenshot%202023-12-26%20at%2011.52.38.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_1_51_Screenshot%202023-12-26%20at%2012.01.50.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_2_9_Screenshot%202023-12-26%20at%2012.02.07.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_2_36_Screenshot%202023-12-26%20at%2012.02.35.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_3_8_Screenshot%202023-12-26%20at%2012.03.06.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_4_5_Screenshot%202023-12-26%20at%2012.04.02.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_17_56_Screenshot%202023-12-26%20at%2012.17.53.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_18_5_Screenshot%202023-12-26%20at%2012.18.03.png",
+      "https://gitlab.com/caesaryangs/mypicturehotelatgitlab/-/raw/main/BasicPics/2023/12/26_12_18_49_Screenshot%202023-12-26%20at%2012.18.47.png"
+    ],
+    "code": 12
+  }
+}
